@@ -193,26 +193,47 @@ Ensure:
     
     def get_nutrition_trivia(self) -> str:
         """
-        Get interesting nutrition trivia for user engagement
+        Get interesting nutrition trivia for user engagement (static tips - no API calls)
         
         Returns:
             Trivia string
         """
-        try:
-            response = self.client.chat.completions.create(
-                model=AZURE_OPENAI_DEPLOYMENT,
-                messages=[
-                    {"role": "system", "content": "You are a nutrition expert providing interesting, fun facts about food and nutrition."},
-                    {"role": "user", "content": "Give me one interesting nutrition fact that would be interesting to a busy professional. Keep it under 2 sentences."}
-                ],
-                temperature=0.8,
-                max_tokens=150
-            )
-            
-            return response.choices[0].message.content
+        import random
         
-        except Exception as e:
-            return "💡 Fun fact: Drinking water before meals can help you eat less and stay fuller longer!"
+        nutrition_tips = [
+            "💡 Drinking water before meals can help you eat less and stay fuller longer!",
+            "🥗 Eating colorful vegetables ensures you get a variety of nutrients and antioxidants.",
+            "🍎 An apple a day keeps the doctor away - they're rich in fiber and vitamin C!",
+            "💪 Protein helps build and repair muscles. Include it in every meal!",
+            "🧂 Most people consume too much sodium. Try to keep it under 2,300mg daily.",
+            "🍌 Bananas are packed with potassium, which helps regulate heart health.",
+            "🥑 Avocados contain healthy fats that support brain and heart health.",
+            "🧠 Omega-3 fatty acids found in fish and nuts boost brain function.",
+            "🌽 Whole grains provide sustained energy and are better than refined carbs.",
+            "🥕 Beta-carotene in orange vegetables promotes eye health and immunity.",
+            "🍇 Berries are antioxidant powerhouses that protect against cell damage.",
+            "🥛 Calcium in dairy products strengthens bones - aim for 3 servings daily.",
+            "🥒 Fermented foods like yogurt contain probiotics for gut health.",
+            "🥜 Nuts and seeds are nutrient-dense snacks with healthy fats and protein.",
+            "🌶️ Spicy foods can boost metabolism and contain beneficial compounds.",
+            "🍵 Green tea is rich in antioxidants and can support metabolism.",
+            "🥦 Cruciferous vegetables like broccoli have cancer-fighting compounds.",
+            "🍯 Natural sweeteners like honey contain trace minerals and antioxidants.",
+            "🥝 Kiwis are loaded with vitamin C and bromelain for digestion.",
+            "🫐 Blueberries are called 'superfoods' for their exceptional antioxidant content.",
+            "🧄 Garlic has natural antimicrobial and anti-inflammatory properties.",
+            "🥕 Eat the rainbow! Different colors provide different nutrients.",
+            "⏰ Eating at consistent times helps regulate your metabolism and appetite.",
+            "🚶 Light walks after meals help stabilize blood sugar levels.",
+            "💧 Most people mistake thirst for hunger - drink water first!",
+            "🍽️ Eating slowly allows time for fullness signals to reach your brain.",
+            "🥤 Sugary drinks are a major source of empty calories - choose water instead!",
+            "🌾 Fiber helps with digestion and keeps you feeling full longer.",
+            "🍓 Fresh fruits have more nutrients than canned or dried versions.",
+            "⚖️ Balance your plate: 50% vegetables, 25% protein, 25% carbs.",
+        ]
+        
+        return random.choice(nutrition_tips)
     
     def get_health_insights(
         self,
