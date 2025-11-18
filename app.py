@@ -187,13 +187,9 @@ def dashboard_page():
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Summary")
     
-    # Responsive layout - 2 columns on mobile, 4 on desktop
-    col1, col2 = st.columns(2)
-    col3, col4 = st.columns(2)
-    
+    # Create data for all 4 cards
     cards_data = [
         {
-            "col": col1,
             "icon": "🔥",
             "label": "Calories",
             "value": f"{daily_nutrition['calories']:.0f}",
@@ -201,7 +197,6 @@ def dashboard_page():
             "target": f"of {targets['calories']}"
         },
         {
-            "col": col2,
             "icon": "💪",
             "label": "Protein",
             "value": f"{daily_nutrition['protein']:.1f}g",
@@ -209,7 +204,6 @@ def dashboard_page():
             "target": f"of {targets['protein']}g"
         },
         {
-            "col": col3,
             "icon": "🧂",
             "label": "Sodium",
             "value": f"{daily_nutrition['sodium']:.0f}mg",
@@ -217,7 +211,6 @@ def dashboard_page():
             "target": f"of {targets['sodium']}mg"
         },
         {
-            "col": col4,
             "icon": "🍬",
             "label": "Sugar",
             "value": f"{daily_nutrition['sugar']:.1f}g",
@@ -226,36 +219,41 @@ def dashboard_page():
         }
     ]
     
+    # Use HTML/CSS to create compact horizontal card layout
+    cards_html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; width: 100%;">'
+    
     for card in cards_data:
-        with card["col"]:
-            # Determine color based on percentage
-            if card["percentage"] > 100:
-                color = "#FF6B6B"  # Red for over
-            elif card["percentage"] >= 80:
-                color = "#51CF66"  # Green for good
-            else:
-                color = "#FFD43B"  # Yellow for low
-            
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, {color}20 0%, {color}40 100%);
-                border: 2px solid {color};
-                border-radius: 12px;
-                padding: 16px;
-                text-align: center;
-                min-height: 200px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                box-sizing: border-box;
-            ">
-                <div style="font-size: 36px; margin-bottom: 12px;">{card['icon']}</div>
-                <div style="font-size: 13px; color: #a0a0a0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">{card['label']}</div>
-                <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 12px; word-break: break-word;">{card['value']}</div>
-                <div style="font-size: 11px; color: {color}; font-weight: 600;">↑ {card['percentage']:.0f}% {card['target']}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        # Determine color based on percentage
+        if card["percentage"] > 100:
+            color = "#FF6B6B"  # Red for over
+        elif card["percentage"] >= 80:
+            color = "#51CF66"  # Green for good
+        else:
+            color = "#FFD43B"  # Yellow for low
+        
+        cards_html += f"""
+        <div style="
+            background: linear-gradient(135deg, {color}20 0%, {color}40 100%);
+            border: 2px solid {color};
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        ">
+            <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
+            <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">{card['label']}</div>
+            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px; word-break: break-word;">{card['value']}</div>
+            <div style="font-size: 10px; color: {color}; font-weight: 600;">↑ {card['percentage']:.0f}% {card['target']}</div>
+        </div>
+        """
+    
+    cards_html += '</div>'
+    st.markdown(cards_html, unsafe_allow_html=True)
     
     # ===== Nutrition Bars =====
     st.markdown("### Nutrition Targets Progress")
