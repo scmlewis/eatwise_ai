@@ -352,17 +352,17 @@ def dashboard_page():
                     # Edit nutrition
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        calories = st.number_input("Calories", value=meal.get('nutrition', {}).get('calories', 0), min_value=0)
-                        protein = st.number_input("Protein (g)", value=meal.get('nutrition', {}).get('protein', 0), min_value=0.0)
-                        carbs = st.number_input("Carbs (g)", value=meal.get('nutrition', {}).get('carbs', 0), min_value=0.0)
+                        calories = st.number_input("Calories", value=float(meal.get('nutrition', {}).get('calories', 0)), min_value=0.0)
+                        protein = st.number_input("Protein (g)", value=float(meal.get('nutrition', {}).get('protein', 0)), min_value=0.0)
+                        carbs = st.number_input("Carbs (g)", value=float(meal.get('nutrition', {}).get('carbs', 0)), min_value=0.0)
                     
                     with col2:
-                        fat = st.number_input("Fat (g)", value=meal.get('nutrition', {}).get('fat', 0), min_value=0.0)
-                        sodium = st.number_input("Sodium (mg)", value=meal.get('nutrition', {}).get('sodium', 0), min_value=0.0)
-                        sugar = st.number_input("Sugar (g)", value=meal.get('nutrition', {}).get('sugar', 0), min_value=0.0)
+                        fat = st.number_input("Fat (g)", value=float(meal.get('nutrition', {}).get('fat', 0)), min_value=0.0)
+                        sodium = st.number_input("Sodium (mg)", value=float(meal.get('nutrition', {}).get('sodium', 0)), min_value=0.0)
+                        sugar = st.number_input("Sugar (g)", value=float(meal.get('nutrition', {}).get('sugar', 0)), min_value=0.0)
                     
                     with col3:
-                        fiber = st.number_input("Fiber (g)", value=meal.get('nutrition', {}).get('fiber', 0), min_value=0.0)
+                        fiber = st.number_input("Fiber (g)", value=float(meal.get('nutrition', {}).get('fiber', 0)), min_value=0.0)
                     
                     if st.form_submit_button("Save Changes", use_container_width=True):
                         updated_meal = {
@@ -992,17 +992,17 @@ def meal_history_page():
                     # Edit nutrition
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        calories = st.number_input("Calories", value=meal.get('nutrition', {}).get('calories', 0), min_value=0, key=f"cal_hist_{meal['id']}")
-                        protein = st.number_input("Protein (g)", value=meal.get('nutrition', {}).get('protein', 0), min_value=0.0, key=f"prot_hist_{meal['id']}")
-                        carbs = st.number_input("Carbs (g)", value=meal.get('nutrition', {}).get('carbs', 0), min_value=0.0, key=f"carb_hist_{meal['id']}")
+                        calories = st.number_input("Calories", value=float(meal.get('nutrition', {}).get('calories', 0)), min_value=0.0, key=f"cal_hist_{meal['id']}")
+                        protein = st.number_input("Protein (g)", value=float(meal.get('nutrition', {}).get('protein', 0)), min_value=0.0, key=f"prot_hist_{meal['id']}")
+                        carbs = st.number_input("Carbs (g)", value=float(meal.get('nutrition', {}).get('carbs', 0)), min_value=0.0, key=f"carb_hist_{meal['id']}")
                     
                     with col2:
-                        fat = st.number_input("Fat (g)", value=meal.get('nutrition', {}).get('fat', 0), min_value=0.0, key=f"fat_hist_{meal['id']}")
-                        sodium = st.number_input("Sodium (mg)", value=meal.get('nutrition', {}).get('sodium', 0), min_value=0.0, key=f"sod_hist_{meal['id']}")
-                        sugar = st.number_input("Sugar (g)", value=meal.get('nutrition', {}).get('sugar', 0), min_value=0.0, key=f"sug_hist_{meal['id']}")
+                        fat = st.number_input("Fat (g)", value=float(meal.get('nutrition', {}).get('fat', 0)), min_value=0.0, key=f"fat_hist_{meal['id']}")
+                        sodium = st.number_input("Sodium (mg)", value=float(meal.get('nutrition', {}).get('sodium', 0)), min_value=0.0, key=f"sod_hist_{meal['id']}")
+                        sugar = st.number_input("Sugar (g)", value=float(meal.get('nutrition', {}).get('sugar', 0)), min_value=0.0, key=f"sug_hist_{meal['id']}")
                     
                     with col3:
-                        fiber = st.number_input("Fiber (g)", value=meal.get('nutrition', {}).get('fiber', 0), min_value=0.0, key=f"fib_hist_{meal['id']}")
+                        fiber = st.number_input("Fiber (g)", value=float(meal.get('nutrition', {}).get('fiber', 0)), min_value=0.0, key=f"fib_hist_{meal['id']}")
                     
                     if st.form_submit_button("Save Changes", use_container_width=True):
                         updated_meal = {
