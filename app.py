@@ -296,7 +296,7 @@ def dashboard_page():
     
     if meals:
         for meal in meals:
-            col1, col2, col3, col4 = st.columns([2, 0.5, 0.5, 0.5])
+            col1, col2, col3 = st.columns([2, 0.5, 0.5])
             
             with col1:
                 st.write(f"🍴 **{meal.get('meal_name', 'Unknown Meal')}** - {meal.get('meal_type', 'meal')}")
@@ -307,17 +307,6 @@ def dashboard_page():
                     st.session_state[f"edit_meal_id_{meal['id']}"] = True
             
             with col3:
-                portion = st.number_input(
-                    f"Multiplier",
-                    value=1.0,
-                    min_value=0.1,
-                    max_value=5.0,
-                    step=0.1,
-                    key=f"multiplier_{meal['id']}",
-                    help="Adjust portion size"
-                )
-            
-            with col4:
                 if st.button("Delete", key=f"delete_{meal['id']}", use_container_width=True):
                     if db_manager.delete_meal(meal['id']):
                         st.success("Meal deleted!")
@@ -329,11 +318,7 @@ def dashboard_page():
             with st.expander("View Details", expanded=False):
                 st.write(f"**Description:** {meal.get('description', 'N/A')}")
                 nutrition = meal.get("nutrition", {})
-                
-                # Apply multiplier to nutrition
-                multiplied_nutrition = {k: v * portion for k, v in nutrition.items()}
-                
-                st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
+                st.text(nutrition_analyzer.get_nutrition_facts(nutrition))
             
             # Edit modal
             if st.session_state.get(f"edit_meal_id_{meal['id']}", False):
@@ -486,20 +471,6 @@ def meal_logging_page():
                 key="text_meal_date"
             )
             
-            # Portion size multiplier
-            st.markdown("### 📏 Portion Size")
-            portion_multiplier = st.selectbox(
-                "How much did you eat?",
-                options=[0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0],
-                index=2,
-                format_func=lambda x: f"{x:.2f}x" if x != 1.0 else "1x (Normal portion)"
-            )
-            
-            # Apply multiplier to nutrition and display
-            multiplied_nutrition = {k: v * portion_multiplier for k, v in analysis['nutrition'].items()}
-            st.info(f"**Nutrition (with {portion_multiplier:.2f}x multiplier):**")
-            st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
-            
             # Save meal
             if st.button("Save This Meal", use_container_width=True):
                 meal_data = {
@@ -507,8 +478,7 @@ def meal_logging_page():
                     "meal_name": analysis.get('meal_name', 'Unknown'),
                     "description": analysis.get('description', ''),
                     "meal_type": meal_type,
-                    "nutrition": multiplied_nutrition,
-                    "portion_multiplier": portion_multiplier,
+                    "nutrition": analysis['nutrition'],
                     "healthiness_score": analysis.get('healthiness_score', 0),
                     "health_notes": analysis.get('health_notes', ''),
                     "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
@@ -581,21 +551,6 @@ def meal_logging_page():
                 key="photo_meal_date"
             )
             
-            # Portion size multiplier
-            st.markdown("### 📏 Portion Size")
-            portion_multiplier = st.selectbox(
-                "How much did you eat?",
-                options=[0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0],
-                index=2,
-                format_func=lambda x: f"{x:.2f}x" if x != 1.0 else "1x (Normal portion)",
-                key="photo_portion_mult"
-            )
-            
-            # Apply multiplier to nutrition and display
-            multiplied_nutrition = {k: v * portion_multiplier for k, v in analysis['total_nutrition'].items()}
-            st.info(f"**Nutrition (with {portion_multiplier:.2f}x multiplier):**")
-            st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
-            
             # Save meal
             if st.button("Save This Meal", use_container_width=True, key="save_photo_meal"):
                 meal_data = {
@@ -603,8 +558,7 @@ def meal_logging_page():
                     "meal_name": f"Meal from photo",
                     "description": ", ".join([f"{f['name']} ({f['quantity']})" for f in analysis.get('detected_foods', [])]),
                     "meal_type": meal_type,
-                    "nutrition": multiplied_nutrition,
-                    "portion_multiplier": portion_multiplier,
+                    "nutrition": analysis['total_nutrition'],
                     "healthiness_score": 75,  # Default score
                     "health_notes": analysis.get('notes', ''),
                     "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
@@ -946,7 +900,7 @@ def meal_history_page():
         
         # Display meals with edit/delete options
         for meal in meals:
-            col1, col2, col3, col4 = st.columns([2, 0.5, 0.5, 0.5])
+            col1, col2, col3 = st.columns([2, 0.5, 0.5])
             
             with col1:
                 st.write(f"🍴 **{meal.get('meal_name', 'Unknown')}** - {meal.get('meal_type', 'meal')}")
@@ -957,17 +911,6 @@ def meal_history_page():
                     st.session_state[f"edit_meal_id_{meal['id']}"] = True
             
             with col3:
-                portion = st.number_input(
-                    f"Portion",
-                    value=1.0,
-                    min_value=0.1,
-                    max_value=5.0,
-                    step=0.1,
-                    key=f"portion_hist_{meal['id']}",
-                    help="Portion multiplier"
-                )
-            
-            with col4:
                 if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
                     if db_manager.delete_meal(meal['id']):
                         st.success("Meal deleted!")
@@ -979,8 +922,7 @@ def meal_history_page():
             with st.expander("View Details", expanded=False):
                 st.write(f"**Description:** {meal.get('description', 'N/A')}")
                 nutrition = meal.get("nutrition", {})
-                multiplied_nutrition = {k: v * portion for k, v in nutrition.items()}
-                st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
+                st.text(nutrition_analyzer.get_nutrition_facts(nutrition))
             
             # Edit form
             if st.session_state.get(f"edit_meal_id_{meal['id']}", False):
