@@ -3,11 +3,19 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
 import streamlit as st
+import pytz
 
 
-def get_greeting():
-    """Get time-based greeting"""
-    hour = datetime.now().hour
+def get_greeting(timezone_str: str = "UTC") -> str:
+    """Get time-based greeting based on user's timezone"""
+    try:
+        tz = pytz.timezone(timezone_str)
+        user_time = datetime.now(tz)
+        hour = user_time.hour
+    except (pytz.exceptions.UnknownTimeZoneError, AttributeError):
+        # Fallback to UTC if timezone is invalid
+        hour = datetime.now(pytz.UTC).hour
+    
     if hour < 12:
         return "🌅 Good Morning"
     elif hour < 18:

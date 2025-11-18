@@ -159,8 +159,6 @@ def login_page():
 
 def dashboard_page():
     """Dashboard/Home page"""
-    st.markdown(f"# {get_greeting()} 👋")
-    
     user_profile = st.session_state.user_profile
     if not user_profile:
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
@@ -168,6 +166,10 @@ def dashboard_page():
             st.info("Please complete your profile first!")
             profile_page()
             return
+    
+    # Get user's timezone for greeting
+    user_timezone = user_profile.get("timezone", "UTC")
+    st.markdown(f"# {get_greeting(user_timezone)} 👋")
     
     # Get today's meals and nutrition
     today = date.today()
