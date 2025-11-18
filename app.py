@@ -364,28 +364,36 @@ def dashboard_page():
                     with col3:
                         fiber = st.number_input("Fiber (g)", value=float(meal.get('nutrition', {}).get('fiber', 0)), min_value=0.0)
                     
-                    if st.form_submit_button("Save Changes", use_container_width=True):
-                        updated_meal = {
-                            "meal_name": meal_name,
-                            "meal_type": meal_type,
-                            "description": description,
-                            "nutrition": {
-                                "calories": calories,
-                                "protein": protein,
-                                "carbs": carbs,
-                                "fat": fat,
-                                "sodium": sodium,
-                                "sugar": sugar,
-                                "fiber": fiber,
+                    # Button columns
+                    btn_col1, btn_col2 = st.columns(2)
+                    with btn_col1:
+                        if st.form_submit_button("💾 Save Changes", use_container_width=True):
+                            updated_meal = {
+                                "meal_name": meal_name,
+                                "meal_type": meal_type,
+                                "description": description,
+                                "nutrition": {
+                                    "calories": calories,
+                                    "protein": protein,
+                                    "carbs": carbs,
+                                    "fat": fat,
+                                    "sodium": sodium,
+                                    "sugar": sugar,
+                                    "fiber": fiber,
+                                }
                             }
-                        }
-                        
-                        if db_manager.update_meal(meal['id'], updated_meal):
-                            st.success("✅ Meal updated!")
+                            
+                            if db_manager.update_meal(meal['id'], updated_meal):
+                                st.success("✅ Meal updated!")
+                                st.session_state[f"edit_meal_id_{meal['id']}"] = False
+                                st.rerun()
+                            else:
+                                st.error("❌ Failed to update meal")
+                    
+                    with btn_col2:
+                        if st.form_submit_button("❌ Cancel", use_container_width=True):
                             st.session_state[f"edit_meal_id_{meal['id']}"] = False
                             st.rerun()
-                        else:
-                            st.error("❌ Failed to update meal")
     else:
         st.info("No meals logged yet. Start by logging a meal!")
     
@@ -1004,28 +1012,36 @@ def meal_history_page():
                     with col3:
                         fiber = st.number_input("Fiber (g)", value=float(meal.get('nutrition', {}).get('fiber', 0)), min_value=0.0, key=f"fib_hist_{meal['id']}")
                     
-                    if st.form_submit_button("Save Changes", use_container_width=True):
-                        updated_meal = {
-                            "meal_name": meal_name,
-                            "meal_type": meal_type,
-                            "description": description,
-                            "nutrition": {
-                                "calories": calories,
-                                "protein": protein,
-                                "carbs": carbs,
-                                "fat": fat,
-                                "sodium": sodium,
-                                "sugar": sugar,
-                                "fiber": fiber,
+                    # Button columns
+                    btn_col1, btn_col2 = st.columns(2)
+                    with btn_col1:
+                        if st.form_submit_button("💾 Save Changes", use_container_width=True, key=f"save_hist_{meal['id']}"):
+                            updated_meal = {
+                                "meal_name": meal_name,
+                                "meal_type": meal_type,
+                                "description": description,
+                                "nutrition": {
+                                    "calories": calories,
+                                    "protein": protein,
+                                    "carbs": carbs,
+                                    "fat": fat,
+                                    "sodium": sodium,
+                                    "sugar": sugar,
+                                    "fiber": fiber,
+                                }
                             }
-                        }
-                        
-                        if db_manager.update_meal(meal['id'], updated_meal):
-                            st.success("✅ Meal updated!")
+                            
+                            if db_manager.update_meal(meal['id'], updated_meal):
+                                st.success("✅ Meal updated!")
+                                st.session_state[f"edit_meal_id_{meal['id']}"] = False
+                                st.rerun()
+                            else:
+                                st.error("❌ Failed to update meal")
+                    
+                    with btn_col2:
+                        if st.form_submit_button("❌ Cancel", use_container_width=True, key=f"cancel_hist_{meal['id']}"):
                             st.session_state[f"edit_meal_id_{meal['id']}"] = False
                             st.rerun()
-                        else:
-                            st.error("❌ Failed to update meal")
             
             st.divider()
 
