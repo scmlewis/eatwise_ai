@@ -1215,149 +1215,177 @@ def profile_page():
     
     user_email = st.session_state.user_email
     
-    # Always fetch fresh profile from database
-    user_profile = db_manager.get_health_profile(st.session_state.user_id)
+    # Create tabs for Profile and Security
+    tab1, tab2 = st.tabs(["Profile", "Security"])
     
-    st.markdown(f"**Email:** {user_email}")
-    
-    # Get or create profile
-    if not user_profile:
-        st.markdown("## Complete Your Profile")
+    with tab1:
+        # Always fetch fresh profile from database
+        user_profile = db_manager.get_health_profile(st.session_state.user_id)
         
-        with st.form("health_profile_form"):
-            full_name = st.text_input("Full Name")
-            age_group = st.selectbox(
-                "Age Group",
-                options=list(AGE_GROUP_TARGETS.keys()),
-                help="This helps us set appropriate nutrition targets"
-            )
+        st.markdown(f"**Email:** {user_email}")
+        
+        # Get or create profile
+        if not user_profile:
+            st.markdown("## Complete Your Profile")
             
-            gender = st.selectbox(
-                "Gender",
-                options=["Male", "Female", "Other", "Prefer not to say"],
-                help="This helps us provide personalized nutrition recommendations"
-            )
+            with st.form("health_profile_form"):
+                full_name = st.text_input("Full Name")
+                age_group = st.selectbox(
+                    "Age Group",
+                    options=list(AGE_GROUP_TARGETS.keys()),
+                    help="This helps us set appropriate nutrition targets"
+                )
+                
+                gender = st.selectbox(
+                    "Gender",
+                    options=["Male", "Female", "Other", "Prefer not to say"],
+                    help="This helps us provide personalized nutrition recommendations"
+                )
+                
+                timezone = st.selectbox(
+                    "Timezone",
+                    options=[
+                        "UTC", "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1",
+                        "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
+                    ],
+                    index=0,
+                    help="Your timezone for meal timing recommendations"
+                )
+                
+                health_conditions = st.multiselect(
+                    "Health Conditions",
+                    options=list(HEALTH_CONDITIONS.keys()),
+                    format_func=lambda x: HEALTH_CONDITIONS.get(x, x),
+                    help="Select any health conditions that apply"
+                )
+                
+                dietary_preferences = st.multiselect(
+                    "Dietary Preferences",
+                    options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
+                    help="Select any dietary restrictions"
+                )
+                
+                goal = st.selectbox(
+                    "Health Goal",
+                    options=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"],
+                    help="What's your primary health goal?"
+                )
+                
+                if st.form_submit_button("Save Profile", use_container_width=True):
+                    profile_data = {
+                        "user_id": st.session_state.user_id,
+                        "full_name": full_name,
+                        "age_group": age_group,
+                        "gender": gender,
+                        "timezone": timezone,
+                        "health_conditions": health_conditions,
+                        "dietary_preferences": dietary_preferences,
+                        "health_goal": goal,
+                        "badges_earned": [],
+                    }
+                    
+                    if db_manager.create_health_profile(st.session_state.user_id, profile_data):
+                        st.session_state.user_profile = profile_data
+                        st.success("✅ Profile created!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Failed to create profile")
+        
+        else:
+            st.markdown("## Update Your Profile")
             
-            timezone = st.selectbox(
-                "Timezone",
-                options=[
+            with st.form("update_profile_form"):
+                full_name = st.text_input("Full Name", value=user_profile.get("full_name", ""))
+                age_group = st.selectbox(
+                    "Age Group",
+                    options=list(AGE_GROUP_TARGETS.keys()),
+                    index=list(AGE_GROUP_TARGETS.keys()).index(user_profile.get("age_group", "26-35"))
+                )
+                
+                gender_options = ["Male", "Female", "Other", "Prefer not to say"]
+                gender_value = user_profile.get("gender", "Prefer not to say")
+                gender_index = gender_options.index(gender_value) if gender_value in gender_options else 3
+                gender = st.selectbox(
+                    "Gender",
+                    options=gender_options,
+                    index=gender_index,
+                    help="This helps us provide personalized nutrition recommendations"
+                )
+                
+                timezone_options = [
                     "UTC", "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1",
                     "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
-                ],
-                index=0,
-                help="Your timezone for meal timing recommendations"
-            )
-            
-            health_conditions = st.multiselect(
-                "Health Conditions",
-                options=list(HEALTH_CONDITIONS.keys()),
-                format_func=lambda x: HEALTH_CONDITIONS.get(x, x),
-                help="Select any health conditions that apply"
-            )
-            
-            dietary_preferences = st.multiselect(
-                "Dietary Preferences",
-                options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
-                help="Select any dietary restrictions"
-            )
-            
-            goal = st.selectbox(
-                "Health Goal",
-                options=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"],
-                help="What's your primary health goal?"
-            )
-            
-            if st.form_submit_button("Save Profile", use_container_width=True):
-                profile_data = {
-                    "user_id": st.session_state.user_id,
-                    "full_name": full_name,
-                    "age_group": age_group,
-                    "gender": gender,
-                    "timezone": timezone,
-                    "health_conditions": health_conditions,
-                    "dietary_preferences": dietary_preferences,
-                    "health_goal": goal,
-                    "badges_earned": [],
-                }
-                
-                if db_manager.create_health_profile(st.session_state.user_id, profile_data):
-                    st.session_state.user_profile = profile_data
-                    st.success("✅ Profile created!")
-                    st.rerun()
-                else:
-                    st.error("❌ Failed to create profile")
-    
-    else:
-        st.markdown("## Update Your Profile")
-        
-        with st.form("update_profile_form"):
-            full_name = st.text_input("Full Name", value=user_profile.get("full_name", ""))
-            age_group = st.selectbox(
-                "Age Group",
-                options=list(AGE_GROUP_TARGETS.keys()),
-                index=list(AGE_GROUP_TARGETS.keys()).index(user_profile.get("age_group", "26-35"))
-            )
-            
-            gender_options = ["Male", "Female", "Other", "Prefer not to say"]
-            gender_value = user_profile.get("gender", "Prefer not to say")
-            gender_index = gender_options.index(gender_value) if gender_value in gender_options else 3
-            gender = st.selectbox(
-                "Gender",
-                options=gender_options,
-                index=gender_index,
-                help="This helps us provide personalized nutrition recommendations"
-            )
-            
-            timezone_options = [
-                "UTC", "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1",
-                "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
-            ]
-            timezone_value = user_profile.get("timezone", "UTC")
-            timezone_index = timezone_options.index(timezone_value) if timezone_value in timezone_options else 0
-            timezone = st.selectbox(
-                "Timezone",
-                options=timezone_options,
-                index=timezone_index,
-                help="Your timezone for meal timing recommendations"
-            )
-            
-            health_conditions = st.multiselect(
-                "Health Conditions",
-                options=list(HEALTH_CONDITIONS.keys()),
-                default=user_profile.get("health_conditions", []),
-                format_func=lambda x: HEALTH_CONDITIONS.get(x, x)
-            )
-            
-            dietary_preferences = st.multiselect(
-                "Dietary Preferences",
-                options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
-                default=user_profile.get("dietary_preferences", [])
-            )
-            
-            goal = st.selectbox(
-                "Health Goal",
-                options=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"],
-                index=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"].index(
-                    user_profile.get("health_goal", "maintain")
+                ]
+                timezone_value = user_profile.get("timezone", "UTC")
+                timezone_index = timezone_options.index(timezone_value) if timezone_value in timezone_options else 0
+                timezone = st.selectbox(
+                    "Timezone",
+                    options=timezone_options,
+                    index=timezone_index,
+                    help="Your timezone for meal timing recommendations"
                 )
-            )
-            
-            if st.form_submit_button("Update Profile", use_container_width=True):
-                update_data = {
-                    "full_name": full_name,
-                    "age_group": age_group,
-                    "gender": gender,
-                    "timezone": timezone,
-                    "health_conditions": health_conditions,
-                    "dietary_preferences": dietary_preferences,
-                    "health_goal": goal,
-                }
                 
-                if db_manager.update_health_profile(st.session_state.user_id, update_data):
-                    st.success("✅ Profile updated!")
-                    st.rerun()
+                health_conditions = st.multiselect(
+                    "Health Conditions",
+                    options=list(HEALTH_CONDITIONS.keys()),
+                    default=user_profile.get("health_conditions", []),
+                    format_func=lambda x: HEALTH_CONDITIONS.get(x, x)
+                )
+                
+                dietary_preferences = st.multiselect(
+                    "Dietary Preferences",
+                    options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
+                    default=user_profile.get("dietary_preferences", [])
+                )
+                
+                goal = st.selectbox(
+                    "Health Goal",
+                    options=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"],
+                    index=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"].index(
+                        user_profile.get("health_goal", "maintain")
+                    )
+                )
+                
+                if st.form_submit_button("Update Profile", use_container_width=True):
+                    update_data = {
+                        "full_name": full_name,
+                        "age_group": age_group,
+                        "gender": gender,
+                        "timezone": timezone,
+                        "health_conditions": health_conditions,
+                        "dietary_preferences": dietary_preferences,
+                        "health_goal": goal,
+                    }
+                    
+                    if db_manager.update_health_profile(st.session_state.user_id, update_data):
+                        st.success("✅ Profile updated!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Failed to update profile")
+    
+    with tab2:
+        st.markdown("## Change Password")
+        
+        with st.form("change_password_form"):
+            current_password = st.text_input("Current Password", type="password", help="Enter your current password")
+            new_password = st.text_input("New Password", type="password", help="Enter your new password (at least 6 characters)")
+            confirm_password = st.text_input("Confirm New Password", type="password", help="Re-enter your new password")
+            
+            if st.form_submit_button("Change Password", use_container_width=True):
+                # Validate inputs
+                if not current_password or not new_password or not confirm_password:
+                    st.error("❌ Please fill in all password fields")
+                elif new_password != confirm_password:
+                    st.error("❌ New passwords do not match")
+                elif len(new_password) < 6:
+                    st.error("❌ New password must be at least 6 characters long")
                 else:
-                    st.error("❌ Failed to update profile")
+                    # Attempt to change password
+                    success, message = auth_manager.change_password(current_password, new_password)
+                    if success:
+                        st.success(f"✅ {message}")
+                    else:
+                        st.error(f"❌ {message}")
 
 
 # ==================== HELP & ABOUT PAGE ====================

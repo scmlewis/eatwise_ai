@@ -119,6 +119,30 @@ class AuthManager:
         except Exception as e:
             st.error(f"Error updating profile: {str(e)}")
             return False
+    
+    def change_password(self, current_password: str, new_password: str) -> Tuple[bool, str]:
+        """
+        Change user password
+        
+        Args:
+            current_password: Current password for verification
+            new_password: New password
+            
+        Returns:
+            Tuple of (success, message)
+        """
+        try:
+            # Update password in Supabase Auth
+            self.supabase.auth.update_user({
+                "password": new_password
+            })
+            return True, "Password changed successfully!"
+        except Exception as e:
+            error_str = str(e)
+            if "invalid_credentials" in error_str.lower() or "incorrect password" in error_str.lower():
+                return False, "Current password is incorrect"
+            else:
+                return False, f"Error changing password: {error_str}"
 
 
 def init_auth_session():
