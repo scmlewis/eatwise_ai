@@ -186,6 +186,89 @@ def dashboard_page():
         if condition in HEALTH_CONDITION_TARGETS:
             targets.update(HEALTH_CONDITION_TARGETS[condition])
     
+    # ===== Statistics & Achievements (Top Section) =====
+    # Get data for the last 7 days for statistics
+    days_back = 7
+    end_date = today
+    start_date = end_date - timedelta(days=days_back)
+    recent_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
+    
+    # Prepare data for statistics
+    nutrition_by_date = {}
+    for meal in recent_meals:
+        meal_date = meal.get("logged_at", "").split("T")[0]
+        nutrition = meal.get("nutrition", {})
+        
+        if meal_date not in nutrition_by_date:
+            nutrition_by_date[meal_date] = {
+                "calories": 0,
+                "protein": 0,
+                "carbs": 0,
+                "fat": 0,
+            }
+        
+        nutrition_by_date[meal_date]["calories"] += nutrition.get("calories", 0)
+        nutrition_by_date[meal_date]["protein"] += nutrition.get("protein", 0)
+        nutrition_by_date[meal_date]["carbs"] += nutrition.get("carbs", 0)
+        nutrition_by_date[meal_date]["fat"] += nutrition.get("fat", 0)
+    
+    # Convert to DataFrame for statistics
+    df = pd.DataFrame(list(nutrition_by_date.items()), columns=["Date", "Nutrition"])
+    df["calories"] = df["Nutrition"].apply(lambda x: x["calories"])
+    df["protein"] = df["Nutrition"].apply(lambda x: x["protein"])
+    df["carbs"] = df["Nutrition"].apply(lambda x: x["carbs"])
+    df["fat"] = df["Nutrition"].apply(lambda x: x["fat"])
+    df["Date"] = pd.to_datetime(df["Date"])
+    df = df.sort_values("Date")
+    
+    # Display Statistics
+    st.markdown("## 📉 Statistics")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        avg_cal = df["calories"].mean() if len(df) > 0 else 0
+        st.metric("Avg. Daily Calories", f"{avg_cal:.0f}", f"Target: {targets['calories']}")
+    
+    with col2:
+        total_meals = len(recent_meals)
+        st.metric("Total Meals", total_meals)
+    
+    with col3:
+        avg_meals_per_day = total_meals / days_back if days_back > 0 else 0
+        st.metric("Avg. Meals/Day", f"{avg_meals_per_day:.1f}")
+    
+    with col4:
+        avg_protein = df["protein"].mean() if len(df) > 0 else 0
+        st.metric("Avg. Protein", f"{avg_protein:.1f}g", f"Target: {targets['protein']}g")
+    
+    # Display Achievements
+    st.markdown("## 🏆 Achievements")
+    
+    meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
+    streak_info = get_streak_info(meal_dates)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.metric("🔥 Current Streak", f"{streak_info['current_streak']} days")
+    
+    with col2:
+        st.metric("🏅 Longest Streak", f"{streak_info['longest_streak']} days")
+    
+    # Display earned badges
+    if user_profile.get("badges_earned"):
+        st.markdown("### Earned Badges")
+        badges_earned = get_earned_badges(user_profile.get("badges_earned", []))
+        badge_cols = st.columns(len(badges_earned))
+        
+        for idx, (badge_id, badge_info) in enumerate(badges_earned.items()):
+            with badge_cols[idx]:
+                st.write(f"{badge_info.get('icon', '🏆')} **{badge_info.get('name', 'Badge')}'**")
+                st.caption(badge_info.get('description', ''))
+    
+    st.divider()
+    
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Summary")
     
