@@ -1154,6 +1154,15 @@ def main():
         if st.session_state.user_email:
             st.sidebar.markdown(f"**Logged in as:**\n{st.session_state.user_email}")
             st.sidebar.markdown("---")
+            
+            # Logout button in sidebar
+            if st.sidebar.button("🚪 Logout", use_container_width=True):
+                auth_manager.logout()
+                st.session_state.clear()
+                st.success("✅ Logged out!")
+                st.rerun()
+            
+            st.sidebar.markdown("---")
         
         # Navigation
         pages = {
@@ -1169,33 +1178,36 @@ def main():
         default_page = "Log Meal" if st.session_state.get("quick_nav_to_meal") else "Dashboard"
         default_index = list(pages.keys()).index(default_page)
         
-        # Mobile-friendly navigation using selectbox (compact and responsive)
-        st.markdown("---")
-        
-        col_nav, col_logout = st.columns([6, 1])
-        
-        with col_nav:
-            selected_page = st.selectbox(
-                "Navigate to:",
-                options=list(pages.keys()),
-                index=st.session_state.get("nav_index", default_index),
-                format_func=lambda x: f"{pages[x]} {x}",
-                label_visibility="collapsed"
-            )
-            st.session_state.nav_index = list(pages.keys()).index(selected_page)
-        
-        with col_logout:
-            if st.button("🚪", help="Logout", use_container_width=True):
-                auth_manager.logout()
-                st.session_state.clear()
-                st.success("✅ Logged out!")
-                st.rerun()
+        # Sticky header that persists on scroll
+        header_placeholder = st.empty()
+        with header_placeholder.container():
+            st.markdown("""
+            <style>
+                [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"]:first-child {
+                    position: sticky;
+                    top: 0;
+                    z-index: 999;
+                    background-color: #0d1f1a;
+                    padding: 1rem 0;
+                    border-bottom: 1px solid #10A19D;
+                }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            col_nav = st.columns(1)[0]
+            with col_nav:
+                selected_page = st.selectbox(
+                    "Navigate to:",
+                    options=list(pages.keys()),
+                    index=st.session_state.get("nav_index", default_index),
+                    format_func=lambda x: f"{pages[x]} {x}",
+                    label_visibility="collapsed"
+                )
+                st.session_state.nav_index = list(pages.keys()).index(selected_page)
         
         # Clear the quick nav flag
         if st.session_state.get("quick_nav_to_meal"):
             st.session_state.quick_nav_to_meal = False
-        
-        st.markdown("---")
         
         # Route to selected page
         if selected_page == "Dashboard":
