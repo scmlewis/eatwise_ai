@@ -7,13 +7,28 @@ import pytz
 
 
 def get_greeting(timezone_str: str = "UTC") -> str:
-    """Get time-based greeting based on user's timezone"""
+    """
+    Get time-based greeting based on user's timezone.
+    
+    Remarks on UTC vs GMT:
+    - UTC (Coordinated Universal Time): The primary time standard used internationally.
+      It's a continuous time scale maintained by atomic clocks and leap seconds.
+      UTC does NOT observe daylight saving time.
+    - GMT (Greenwich Mean Time): The solar time at the Prime Meridian (0° longitude).
+      GMT is effectively equivalent to UTC but is a solar-based time, not atomic-based.
+      GMT is also known as Zulu time in military contexts (UTC±0).
+    
+    For practical purposes: UTC and GMT are equivalent (UTC±0 / GMT±0).
+    Pytz uses IANA timezone names (e.g., 'UTC', 'America/New_York', 'Europe/London').
+    Users can select any IANA timezone, and the greeting will reflect their local time.
+    """
     try:
         tz = pytz.timezone(timezone_str)
         user_time = datetime.now(tz)
         hour = user_time.hour
     except (pytz.exceptions.UnknownTimeZoneError, AttributeError):
         # Fallback to UTC if timezone is invalid
+        # UTC (UTC±0) is used as the default when user's timezone cannot be resolved
         hour = datetime.now(pytz.UTC).hour
     
     if hour < 12:
