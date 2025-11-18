@@ -221,6 +221,159 @@ def dashboard_page():
     df["Date"] = pd.to_datetime(df["Date"])
     df = df.sort_values("Date")
     
+    # Display Statistics with Modern Card Layout
+    st.markdown("## 📊 Statistics (Last 7 Days)")
+    
+    stats_cols = st.columns(4, gap="medium")
+    
+    # Avg Daily Calories Card
+    with stats_cols[0]:
+        avg_cal = df["calories"].mean() if len(df) > 0 else 0
+        target_cal = targets['calories']
+        cal_pct = (avg_cal / target_cal * 100) if target_cal > 0 else 0
+        cal_color = "#51CF66" if 80 <= cal_pct <= 120 else ("#FFD43B" if cal_pct < 80 else "#FF6B6B")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, {cal_color}20 0%, {cal_color}40 100%);
+            border: 2px solid {cal_color};
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        ">
+            <div style="font-size: 32px; margin-bottom: 8px;">🔥</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Avg. Daily Calories</div>
+            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_cal:.0f}</div>
+            <div style="font-size: 10px; color: {cal_color};">Target: {target_cal}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Total Meals Card
+    with stats_cols[1]:
+        total_meals = len(recent_meals)
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #10A19D20 0%, #10A19D40 100%);
+            border: 2px solid #10A19D;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        ">
+            <div style="font-size: 32px; margin-bottom: 8px;">🍽️</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Total Meals</div>
+            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{total_meals}</div>
+            <div style="font-size: 10px; color: #10A19D;">In {days_back} days</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Avg Meals Per Day Card
+    with stats_cols[2]:
+        avg_meals_per_day = total_meals / days_back if days_back > 0 else 0
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #845EF720 0%, #845EF740 100%);
+            border: 2px solid #845EF7;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        ">
+            <div style="font-size: 32px; margin-bottom: 8px;">📈</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Avg. Meals/Day</div>
+            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_meals_per_day:.1f}</div>
+            <div style="font-size: 10px; color: #845EF7;">meals per day</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Avg Protein Card
+    with stats_cols[3]:
+        avg_protein = df["protein"].mean() if len(df) > 0 else 0
+        target_protein = targets['protein']
+        protein_pct = (avg_protein / target_protein * 100) if target_protein > 0 else 0
+        protein_color = "#51CF66" if 80 <= protein_pct <= 120 else ("#FFD43B" if protein_pct < 80 else "#FF6B6B")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, {protein_color}20 0%, {protein_color}40 100%);
+            border: 2px solid {protein_color};
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        ">
+            <div style="font-size: 32px; margin-bottom: 8px;">💪</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Avg. Protein</div>
+            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_protein:.1f}g</div>
+            <div style="font-size: 10px; color: {protein_color};">Target: {target_protein}g</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Display Achievements with Modern Card Layout
+    st.markdown("## 🏆 Achievements")
+    
+    meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
+    streak_info = get_streak_info(meal_dates)
+    
+    achieve_cols = st.columns(2, gap="medium")
+    
+    # Current Streak Card
+    with achieve_cols[0]:
+        current_streak = streak_info['current_streak']
+        streak_emoji = "🔥" if current_streak > 0 else "⭕"
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #FF671520 0%, #FF671540 100%);
+            border: 2px solid #FF6715;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        ">
+            <div style="font-size: 40px; margin-bottom: 12px;">{streak_emoji}</div>
+            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Current Streak</div>
+            <div style="font-size: 32px; font-weight: bold; color: #e0f2f1;">{current_streak}</div>
+            <div style="font-size: 11px; color: #FF6715; margin-top: 8px;">days in a row</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Longest Streak Card
+    with achieve_cols[1]:
+        longest_streak = streak_info['longest_streak']
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #FFD43B20 0%, #FFD43B40 100%);
+            border: 2px solid #FFD43B;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        ">
+            <div style="font-size: 40px; margin-bottom: 12px;">🏅</div>
+            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Longest Streak</div>
+            <div style="font-size: 32px; font-weight: bold; color: #e0f2f1;">{longest_streak}</div>
+            <div style="font-size: 11px; color: #FFD43B; margin-top: 8px;">personal record</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Display earned badges
+    if user_profile.get("badges_earned"):
+        st.markdown("### 🎖️ Earned Badges")
+        badges_earned = get_earned_badges(user_profile.get("badges_earned", []))
+        badge_cols = st.columns(min(len(badges_earned), 4), gap="medium")
+        
+        for idx, (badge_id, badge_info) in enumerate(badges_earned.items()):
+            if idx < len(badge_cols):
+                with badge_cols[idx]:
+                    st.markdown(f"""
+                    <div style="
+                        background: linear-gradient(135deg, #FFA50020 0%, #FFA50040 100%);
+                        border: 2px solid #FFA500;
+                        border-radius: 10px;
+                        padding: 12px;
+                        text-align: center;
+                    ">
+                        <div style="font-size: 28px; margin-bottom: 6px;">{badge_info.get('icon', '🏆')}</div>
+                        <div style="font-size: 11px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{badge_info.get('name', 'Badge')}</div>
+                        <div style="font-size: 9px; color: #a0a0a0;">{badge_info.get('description', '')}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+    st.divider()
+    
     # Display Statistics
     st.markdown("## 📉 Statistics")
     
@@ -255,17 +408,6 @@ def dashboard_page():
     
     with col2:
         st.metric("🏅 Longest Streak", f"{streak_info['longest_streak']} days")
-    
-    # Display earned badges
-    if user_profile.get("badges_earned"):
-        st.markdown("### Earned Badges")
-        badges_earned = get_earned_badges(user_profile.get("badges_earned", []))
-        badge_cols = st.columns(len(badges_earned))
-        
-        for idx, (badge_id, badge_info) in enumerate(badges_earned.items()):
-            with badge_cols[idx]:
-                st.write(f"{badge_info.get('icon', '🏆')} **{badge_info.get('name', 'Badge')}'**")
-                st.caption(badge_info.get('description', ''))
     
     st.divider()
     
@@ -755,52 +897,6 @@ def analytics_page():
             title="Meals by Type"
         )
         st.plotly_chart(fig_pie, use_container_width=True)
-    
-    # ===== Statistics =====
-    st.markdown("## 📉 Statistics")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        avg_cal = df["calories"].mean() if len(df) > 0 else 0
-        st.metric("Avg. Daily Calories", f"{avg_cal:.0f}", f"Target: {targets['calories']}")
-    
-    with col2:
-        total_meals = len(meals)
-        st.metric("Total Meals", total_meals)
-    
-    with col3:
-        avg_meals_per_day = total_meals / days if days > 0 else 0
-        st.metric("Avg. Meals/Day", f"{avg_meals_per_day:.1f}")
-    
-    with col4:
-        avg_protein = df["protein"].mean() if len(df) > 0 else 0
-        st.metric("Avg. Protein", f"{avg_protein:.1f}g", f"Target: {targets['protein']}g")
-    
-    # ===== Streaks & Badges =====
-    st.markdown("## 🏆 Achievements")
-    
-    meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in meals]
-    streak_info = get_streak_info(meal_dates)
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.metric("🔥 Current Streak", f"{streak_info['current_streak']} days")
-    
-    with col2:
-        st.metric("🏅 Longest Streak", f"{streak_info['longest_streak']} days")
-    
-    # Display earned badges
-    if user_profile.get("badges_earned"):
-        st.markdown("### Earned Badges")
-        badges_earned = get_earned_badges(user_profile.get("badges_earned", []))
-        badge_cols = st.columns(len(badges_earned))
-        
-        for idx, (badge_id, badge_info) in enumerate(badges_earned.items()):
-            with badge_cols[idx]:
-                st.write(f"{badge_info.get('icon', '🏆')} **{badge_info.get('name', 'Badge')}'**")
-                st.caption(badge_info.get('description', ''))
 
 
 def insights_page():
