@@ -1139,6 +1139,196 @@ def profile_page():
                     st.error("❌ Failed to update profile")
 
 
+# ==================== HELP & ABOUT PAGE ====================
+
+def help_page():
+    """Help and About page"""
+    st.markdown("# ❓ Help & About")
+    
+    # Create tabs for different sections
+    tab1, tab2, tab3, tab4 = st.tabs(["About", "Features", "How to Use", "FAQ"])
+    
+    with tab1:
+        st.markdown("## About EatWise")
+        st.markdown("""
+        **EatWise** is an AI-powered nutrition tracking and health insights application designed to help you:
+        
+        - 🍎 Log meals using text descriptions or food photos
+        - 📊 Track nutrition intake and analyze eating patterns
+        - 💡 Receive personalized meal recommendations
+        - 📈 Monitor health progress with detailed analytics
+        - 🎯 Achieve your health and fitness goals
+        
+        ### Technology Stack
+        - **Frontend**: Streamlit (Python)
+        - **Backend**: Supabase (PostgreSQL)
+        - **AI/ML**: Azure OpenAI (GPT-4)
+        - **Deployment**: Streamlit Cloud
+        
+        ### Version
+        **v1.0.0** - November 2025
+        """)
+    
+    with tab2:
+        st.markdown("## Key Features")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("### 📝 Meal Logging")
+            st.markdown("""
+            - Text-based meal descriptions
+            - Food photo recognition
+            - Nutritional analysis
+            - Multiple meal types (breakfast, lunch, dinner, snack, beverage)
+            """)
+            
+            st.markdown("### 📊 Analytics Dashboard")
+            st.markdown("""
+            - Daily nutrition trends
+            - Macronutrient distribution
+            - Meal type breakdown
+            - Calorie tracking progress
+            """)
+        
+        with col2:
+            st.markdown("### 💡 Smart Insights")
+            st.markdown("""
+            - AI-powered health analysis
+            - Personalized recommendations
+            - Strength identification
+            - Areas for improvement
+            """)
+            
+            st.markdown("### 📋 Meal History")
+            st.markdown("""
+            - Browse all logged meals
+            - Edit meal details
+            - Delete meals
+            - Date range filtering
+            """)
+    
+    with tab3:
+        st.markdown("## How to Use EatWise")
+        
+        st.markdown("### Step 1: Create Your Profile")
+        st.markdown("""
+        Go to **My Profile** and fill in your information:
+        - Full name
+        - Age group
+        - Gender
+        - Timezone
+        - Health conditions
+        - Dietary preferences
+        - Health goal (maintain, gain, lose weight)
+        """)
+        
+        st.markdown("### Step 2: Log Your Meals")
+        st.markdown("""
+        Visit **Log Meal** to add meals in two ways:
+        
+        **Text Method:**
+        1. Describe what you ate in detail
+        2. Select the meal type
+        3. Click "Analyze Meal"
+        4. Review the nutritional breakdown
+        5. Click "Save This Meal"
+        
+        **Photo Method:**
+        1. Upload a clear food photo
+        2. Select the meal type
+        3. Click "Analyze Photo"
+        4. Review detected foods and nutrition
+        5. Click "Save This Meal"
+        """)
+        
+        st.markdown("### Step 3: Track Your Progress")
+        st.markdown("""
+        - **Dashboard**: Quick overview of today's nutrition
+        - **Analytics**: View detailed trends over time
+        - **Meal History**: Browse and edit past meals
+        - **Insights**: Get AI-powered health recommendations
+        """)
+    
+    with tab4:
+        st.markdown("## Frequently Asked Questions")
+        
+        with st.expander("❓ How accurate is the nutrition analysis?"):
+            st.markdown("""
+            Our AI-powered analysis provides realistic estimates based on:
+            - Your detailed descriptions or food photos
+            - Standard portion sizes
+            - USDA food composition databases
+            
+            For medical or precise nutritional needs, consult a nutritionist.
+            """)
+        
+        with st.expander("❓ Can I edit meals after logging them?"):
+            st.markdown("""
+            Yes! Go to **Meal History** and:
+            1. Find the meal you want to edit
+            2. Click the "Edit" button
+            3. Modify any details or nutrition values
+            4. Click "Save Changes"
+            """)
+        
+        with st.expander("❓ What if a meal was logged incorrectly?"):
+            st.markdown("""
+            You can either:
+            1. **Edit it**: Go to **Meal History**, click Edit, and update the information
+            2. **Delete it**: Click Delete to remove it completely
+            
+            Then log it again with the correct information.
+            """)
+        
+        with st.expander("❓ How do recommendations work?"):
+            st.markdown("""
+            Our AI analyzes:
+            - Your recent meal history
+            - Your health profile and goals
+            - Your current nutrition levels
+            - Your dietary preferences
+            
+            Then generates personalized meal suggestions to help you meet your goals.
+            """)
+        
+        with st.expander("❓ Can I access the app on mobile?"):
+            st.markdown("""
+            Yes! EatWise is fully responsive and works on:
+            - Smartphones (iOS & Android)
+            - Tablets
+            - Desktops
+            
+            Just use your browser to access https://eatwise-ai.streamlit.app/
+            """)
+        
+        with st.expander("❓ How is my data stored?"):
+            st.markdown("""
+            Your data is securely stored in **Supabase** (PostgreSQL database):
+            - Encrypted in transit and at rest
+            - Regular backups
+            - GDPR compliant
+            - Only your meals and profile are stored (no photos)
+            """)
+        
+        with st.expander("❓ Is there a way to export my data?"):
+            st.markdown("""
+            Currently, you can view all your meals in the **Meal History** section.
+            Export functionality is coming in future updates!
+            """)
+    
+    st.divider()
+    st.markdown("""
+    ### 📧 Need More Help?
+    Have questions or suggestions? We'd love to hear from you!
+    - **GitHub**: https://github.com/scmlewis/eatwise_ai
+    - **Report Issues**: Create an issue on GitHub
+    
+    ---
+    **Last Updated**: November 19, 2025
+    """)
+
+
 # ==================== MAIN APP ====================
 
 def main():
@@ -1172,6 +1362,7 @@ def main():
             "Meal History": "📋",
             "Insights": "💡",
             "My Profile": "👤",
+            "Help": "❓",
         }
         
         # Check if quick navigation was triggered
@@ -1212,6 +1403,8 @@ def main():
             insights_page()
         elif selected_page == "My Profile":
             profile_page()
+        elif selected_page == "Help":
+            help_page()
 
 
 if __name__ == "__main__":
