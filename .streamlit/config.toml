@@ -17,3 +17,17 @@ level = "info"
 port = 8501
 headless = true
 runOnSave = true
+maxUploadSize = 50
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+
+[runner]
+magicEnabled = true
+fastReruns = true
+
+[cache]
+maxMegabytes = 1000
+minMegabytes = 10
