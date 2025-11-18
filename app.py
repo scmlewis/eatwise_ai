@@ -169,41 +169,155 @@ recommender = RecommendationEngine()
 
 def login_page():
     """Login and signup page"""
-    col1, col2 = st.columns([1, 1])
+    # Add custom CSS for login page
+    st.markdown("""
+    <style>
+        .login-container {
+            display: flex;
+            gap: 40px;
+            align-items: stretch;
+        }
+        
+        .login-hero {
+            flex: 1;
+            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+            padding: 50px;
+            border-radius: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(16, 161, 157, 0.3);
+        }
+        
+        .login-hero h1 {
+            font-size: 3em;
+            margin: 0 0 15px 0;
+            font-weight: 800;
+        }
+        
+        .login-hero h2 {
+            font-size: 1.5em;
+            margin: 0 0 25px 0;
+            font-weight: 300;
+            opacity: 0.95;
+        }
+        
+        .login-hero ul {
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+        
+        .login-hero li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .login-form-container {
+            flex: 1;
+            background: linear-gradient(135deg, #0D7A7620 0%, #10A19D10 100%);
+            padding: 50px;
+            border-radius: 20px;
+            border: 2px solid #10A19D;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(16, 161, 157, 0.15);
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .login-header h3 {
+            color: #52C4B8;
+            font-size: 1.8em;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+        
+        .login-tabs {
+            margin-bottom: 25px;
+        }
+        
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 10px;
+            background: transparent;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            background: transparent;
+            border: 2px solid #10A19D40;
+            border-radius: 10px;
+            color: #a0a0a0;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+        
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {
+            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+            color: white;
+            border: 2px solid #10A19D;
+        }
+        
+        .form-input-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0f2f1;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        
+        .stTextInput input {
+            background: #0a0e27 !important;
+            color: #e0f2f1 !important;
+            border: 2px solid #10A19D40 !important;
+            border-radius: 10px !important;
+            padding: 12px 16px !important;
+            font-size: 1em !important;
+        }
+        
+        .stTextInput input:focus {
+            border: 2px solid #10A19D !important;
+            box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.2) !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([1.1, 1], gap="large")
     
     with col1:
         st.markdown("""
-        <div style="
-            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        ">
-            <h1 style="color: white; margin: 0; font-size: 2.5em;">🥗 EatWise</h1>
-            <h3 style="color: #e0f2f1; margin: 8px 0;">Your AI-Powered Nutrition Hub</h3>
+        <div class="login-hero">
+            <h1>🥗 EatWise</h1>
+            <h2>Your AI-Powered Nutrition Hub</h2>
+            <p style="font-size: 1.1em; opacity: 0.9; margin-bottom: 25px;">
+                Transform your eating habits with intelligent meal tracking and personalized nutrition insights.
+            </p>
+            <ul style="list-style: none; padding: 0;">
+                <li>📸 Smart meal logging (text or photo)</li>
+                <li>📊 Instant nutritional analysis</li>
+                <li>📈 Habit tracking and progress monitoring</li>
+                <li>💡 AI-powered personalized suggestions</li>
+                <li>🎮 Gamification with badges and streaks</li>
+            </ul>
         </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        Track your meals, understand your nutrition, and get personalized recommendations.
-        
-        **Features:**
-        - 📸 Smart meal logging (text or photo)
-        - 📊 Instant nutritional analysis
-        - 📈 Habit tracking and progress monitoring
-        - 💡 AI-powered personalized suggestions
-        - 🎮 Gamification with badges and streaks
-        """)
     
     with col2:
         st.markdown("""
-        <div style="
-            background: linear-gradient(135deg, #0D7A7620 0%, #10A19D40 100%);
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid #10A19D;
-        ">
-            <h3 style="color: #52C4B8; margin-top: 0;">Get Started</h3>
+        <div class="login-form-container">
+            <div class="login-header">
+                <h3>Get Started</h3>
+                <p style="color: #a0a0a0; margin: 0;">Join thousands of users tracking their nutrition</p>
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -211,8 +325,9 @@ def login_page():
         
         with tab1:
             st.markdown("#### Login to your account")
-            email = st.text_input("Email", key="login_email")
-            password = st.text_input("Password", type="password", key="login_password")
+            
+            email = st.text_input("Email", key="login_email", placeholder="your@email.com")
+            password = st.text_input("Password", type="password", key="login_password", placeholder="••••••••")
             
             if st.button("Login", key="login_btn", use_container_width=True):
                 if email and password:
@@ -226,23 +341,41 @@ def login_page():
                     else:
                         st.error(f"❌ {message}")
                 else:
-                    st.warning("Please enter email and password")
+                    st.warning("⚠️ Please enter email and password")
+            
+            st.markdown("""
+            <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
+                Don't have an account? Create one in the Sign Up tab ↗️
+            </p>
+            """, unsafe_allow_html=True)
         
         with tab2:
             st.markdown("#### Create new account")
-            new_email = st.text_input("Email", key="signup_email")
-            new_password = st.text_input("Password", type="password", key="signup_password")
-            full_name = st.text_input("Full Name", key="signup_name")
+            
+            new_email = st.text_input("Email", key="signup_email", placeholder="your@email.com")
+            full_name = st.text_input("Full Name", key="signup_name", placeholder="John Doe")
+            new_password = st.text_input("Password", type="password", key="signup_password", placeholder="••••••••")
+            
+            st.caption("Password must be at least 6 characters")
             
             if st.button("Sign Up", key="signup_btn", use_container_width=True):
                 if new_email and new_password and full_name:
-                    success, message = auth_manager.sign_up(new_email, new_password, full_name)
-                    if success:
-                        st.success("✅ Account created! Please login.")
+                    if len(new_password) < 6:
+                        st.error("❌ Password must be at least 6 characters")
                     else:
-                        st.error(f"❌ {message}")
+                        success, message = auth_manager.sign_up(new_email, new_password, full_name)
+                        if success:
+                            st.success("✅ Account created! Please login with your credentials.")
+                        else:
+                            st.error(f"❌ {message}")
                 else:
-                    st.warning("Please fill all fields")
+                    st.warning("⚠️ Please fill all fields")
+            
+            st.markdown("""
+            <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
+                Already have an account? Login in the Login tab ↖️
+            </p>
+            """, unsafe_allow_html=True)
 
 
 # ==================== MAIN APP PAGES ====================
