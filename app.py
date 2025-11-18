@@ -296,19 +296,96 @@ def dashboard_page():
     
     if meals:
         for meal in meals:
-            with st.expander(f"🍴 {meal.get('meal_name', 'Unknown Meal')} - {meal.get('meal_type', 'meal')}"):
-                col1, col2 = st.columns([2, 1])
-                
-                with col1:
-                    st.write(f"**Description:** {meal.get('description', 'N/A')}")
-                    nutrition = meal.get("nutrition", {})
-                    st.text(nutrition_analyzer.get_nutrition_facts(nutrition))
-                
-                with col2:
-                    if st.button("Delete", key=f"delete_{meal['id']}", use_container_width=True):
-                        db_manager.delete_meal(meal['id'])
+            col1, col2, col3, col4 = st.columns([2, 0.5, 0.5, 0.5])
+            
+            with col1:
+                st.write(f"🍴 **{meal.get('meal_name', 'Unknown Meal')}** - {meal.get('meal_type', 'meal')}")
+                st.caption(f"Logged at: {meal.get('logged_at', 'N/A')}")
+            
+            with col2:
+                if st.button("Edit", key=f"edit_{meal['id']}", use_container_width=True):
+                    st.session_state[f"edit_meal_id_{meal['id']}"] = True
+            
+            with col3:
+                portion = st.number_input(
+                    f"Multiplier",
+                    value=1.0,
+                    min_value=0.1,
+                    max_value=5.0,
+                    step=0.1,
+                    key=f"multiplier_{meal['id']}",
+                    help="Adjust portion size"
+                )
+            
+            with col4:
+                if st.button("Delete", key=f"delete_{meal['id']}", use_container_width=True):
+                    if db_manager.delete_meal(meal['id']):
                         st.success("Meal deleted!")
                         st.rerun()
+                    else:
+                        st.error("Failed to delete meal")
+            
+            # Show meal details
+            with st.expander("View Details", expanded=False):
+                st.write(f"**Description:** {meal.get('description', 'N/A')}")
+                nutrition = meal.get("nutrition", {})
+                
+                # Apply multiplier to nutrition
+                multiplied_nutrition = {k: v * portion for k, v in nutrition.items()}
+                
+                st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
+            
+            # Edit modal
+            if st.session_state.get(f"edit_meal_id_{meal['id']}", False):
+                st.divider()
+                st.subheader(f"Edit: {meal.get('meal_name', 'Meal')}")
+                
+                with st.form(f"edit_form_{meal['id']}"):
+                    meal_name = st.text_input("Meal Name", value=meal.get('meal_name', ''))
+                    meal_type = st.selectbox(
+                        "Meal Type",
+                        options=list(MEAL_TYPES.keys()),
+                        index=list(MEAL_TYPES.keys()).index(meal.get('meal_type', 'breakfast')) if meal.get('meal_type') in MEAL_TYPES else 0
+                    )
+                    description = st.text_area("Description", value=meal.get('description', ''))
+                    
+                    # Edit nutrition
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        calories = st.number_input("Calories", value=meal.get('nutrition', {}).get('calories', 0), min_value=0)
+                        protein = st.number_input("Protein (g)", value=meal.get('nutrition', {}).get('protein', 0), min_value=0.0)
+                        carbs = st.number_input("Carbs (g)", value=meal.get('nutrition', {}).get('carbs', 0), min_value=0.0)
+                    
+                    with col2:
+                        fat = st.number_input("Fat (g)", value=meal.get('nutrition', {}).get('fat', 0), min_value=0.0)
+                        sodium = st.number_input("Sodium (mg)", value=meal.get('nutrition', {}).get('sodium', 0), min_value=0.0)
+                        sugar = st.number_input("Sugar (g)", value=meal.get('nutrition', {}).get('sugar', 0), min_value=0.0)
+                    
+                    with col3:
+                        fiber = st.number_input("Fiber (g)", value=meal.get('nutrition', {}).get('fiber', 0), min_value=0.0)
+                    
+                    if st.form_submit_button("Save Changes", use_container_width=True):
+                        updated_meal = {
+                            "meal_name": meal_name,
+                            "meal_type": meal_type,
+                            "description": description,
+                            "nutrition": {
+                                "calories": calories,
+                                "protein": protein,
+                                "carbs": carbs,
+                                "fat": fat,
+                                "sodium": sodium,
+                                "sugar": sugar,
+                                "fiber": fiber,
+                            }
+                        }
+                        
+                        if db_manager.update_meal(meal['id'], updated_meal):
+                            st.success("✅ Meal updated!")
+                            st.session_state[f"edit_meal_id_{meal['id']}"] = False
+                            st.rerun()
+                        else:
+                            st.error("❌ Failed to update meal")
     else:
         st.info("No meals logged yet. Start by logging a meal!")
     
@@ -401,6 +478,20 @@ def meal_logging_page():
                 key="text_meal_date"
             )
             
+            # Portion size multiplier
+            st.markdown("### 📏 Portion Size")
+            portion_multiplier = st.selectbox(
+                "How much did you eat?",
+                options=[0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0],
+                index=2,
+                format_func=lambda x: f"{x:.2f}x" if x != 1.0 else "1x (Normal portion)"
+            )
+            
+            # Apply multiplier to nutrition and display
+            multiplied_nutrition = {k: v * portion_multiplier for k, v in analysis['nutrition'].items()}
+            st.info(f"**Nutrition (with {portion_multiplier:.2f}x multiplier):**")
+            st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
+            
             # Save meal
             if st.button("Save This Meal", use_container_width=True):
                 meal_data = {
@@ -408,7 +499,8 @@ def meal_logging_page():
                     "meal_name": analysis.get('meal_name', 'Unknown'),
                     "description": analysis.get('description', ''),
                     "meal_type": meal_type,
-                    "nutrition": analysis['nutrition'],
+                    "nutrition": multiplied_nutrition,
+                    "portion_multiplier": portion_multiplier,
                     "healthiness_score": analysis.get('healthiness_score', 0),
                     "health_notes": analysis.get('health_notes', ''),
                     "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
@@ -481,6 +573,21 @@ def meal_logging_page():
                 key="photo_meal_date"
             )
             
+            # Portion size multiplier
+            st.markdown("### 📏 Portion Size")
+            portion_multiplier = st.selectbox(
+                "How much did you eat?",
+                options=[0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0],
+                index=2,
+                format_func=lambda x: f"{x:.2f}x" if x != 1.0 else "1x (Normal portion)",
+                key="photo_portion_mult"
+            )
+            
+            # Apply multiplier to nutrition and display
+            multiplied_nutrition = {k: v * portion_multiplier for k, v in analysis['total_nutrition'].items()}
+            st.info(f"**Nutrition (with {portion_multiplier:.2f}x multiplier):**")
+            st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
+            
             # Save meal
             if st.button("Save This Meal", use_container_width=True, key="save_photo_meal"):
                 meal_data = {
@@ -488,7 +595,8 @@ def meal_logging_page():
                     "meal_name": f"Meal from photo",
                     "description": ", ".join([f"{f['name']} ({f['quantity']})" for f in analysis.get('detected_foods', [])]),
                     "meal_type": meal_type,
-                    "nutrition": analysis['total_nutrition'],
+                    "nutrition": multiplied_nutrition,
+                    "portion_multiplier": portion_multiplier,
                     "healthiness_score": 75,  # Default score
                     "health_notes": analysis.get('notes', ''),
                     "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
@@ -738,26 +846,188 @@ def insights_page():
             )
             
             if insights:
+                # Create copyable insights text
+                insights_text = "🍎 HEALTH INSIGHTS REPORT\n"
+                insights_text += "=" * 40 + "\n\n"
+                
+                # Strengths
+                insights_text += "✅ YOUR STRENGTHS:\n"
                 col1, col2 = st.columns(2)
                 
                 with col1:
                     st.subheader("✅ Your Strengths")
                     for strength in insights.get('strengths', []):
                         st.write(f"• {strength}")
+                        insights_text += f"• {strength}\n"
                 
                 with col2:
                     st.subheader("⚠️ Areas to Improve")
                     for area in insights.get('areas_for_improvement', []):
                         st.write(f"• {area}")
                 
+                insights_text += "\n⚠️ AREAS TO IMPROVE:\n"
+                for area in insights.get('areas_for_improvement', []):
+                    insights_text += f"• {area}\n"
+                
+                # Recommendations
                 st.subheader("💡 Recommendations")
+                insights_text += "\n💡 RECOMMENDATIONS:\n"
                 for rec in insights.get('specific_recommendations', []):
                     st.write(f"• {rec}")
+                    insights_text += f"• {rec}\n"
                 
+                # Red flags
                 if insights.get('red_flags'):
+                    insights_text += "\n🚨 WATCH OUT:\n"
                     st.error(f"🚨 **Watch Out:** {', '.join(insights.get('red_flags', []))}")
+                    insights_text += f"• {', '.join(insights.get('red_flags', []))}\n"
                 
+                # Motivational message
                 st.success(f"🌟 {insights.get('motivational_message', '')}")
+                insights_text += f"\n🌟 {insights.get('motivational_message', '')}\n"
+                
+                # Add copy/share buttons
+                st.divider()
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    if st.button("📋 Copy to Clipboard", use_container_width=True):
+                        # Show copyable text area
+                        st.info("📝 Select all text below and copy (Ctrl+C):")
+                        st.text_area("Insights:", value=insights_text, height=250, disabled=True, key="copy_insights")
+                
+                with col2:
+                    if st.button("🔗 Share as Text", use_container_width=True):
+                        # Show formatted text for sharing
+                        with st.expander("📧 Shareable Format", expanded=True):
+                            st.text_area("Copy and share this:", value=insights_text, height=250, disabled=True, key="share_insights")
+
+
+def meal_history_page():
+    """View and manage all logged meals"""
+    st.markdown("# 📋 Meal History")
+    
+    user_id = st.session_state.user_id
+    
+    # Date range filters
+    col1, col2, col3 = st.columns([2, 2, 1])
+    
+    with col1:
+        start_date = st.date_input("Start Date", value=date.today() - timedelta(days=30))
+    
+    with col2:
+        end_date = st.date_input("End Date", value=date.today())
+    
+    with col3:
+        if st.button("📊 Search", use_container_width=True):
+            st.session_state.search_triggered = True
+    
+    # Get meals in range
+    if st.session_state.get("search_triggered", False) or date.today() == end_date:
+        meals = db_manager.get_meals_in_range(user_id, start_date, end_date)
+        
+        if not meals:
+            st.info(f"No meals found between {start_date} and {end_date}")
+            return
+        
+        # Sort by date descending
+        meals = sorted(meals, key=lambda x: x.get("logged_at", ""), reverse=True)
+        
+        st.markdown(f"### Found {len(meals)} meals")
+        st.divider()
+        
+        # Display meals with edit/delete options
+        for meal in meals:
+            col1, col2, col3, col4 = st.columns([2, 0.5, 0.5, 0.5])
+            
+            with col1:
+                st.write(f"🍴 **{meal.get('meal_name', 'Unknown')}** - {meal.get('meal_type', 'meal')}")
+                st.caption(f"📅 {meal.get('logged_at', 'N/A')}")
+            
+            with col2:
+                if st.button("Edit", key=f"edit_hist_{meal['id']}", use_container_width=True):
+                    st.session_state[f"edit_meal_id_{meal['id']}"] = True
+            
+            with col3:
+                portion = st.number_input(
+                    f"Portion",
+                    value=1.0,
+                    min_value=0.1,
+                    max_value=5.0,
+                    step=0.1,
+                    key=f"portion_hist_{meal['id']}",
+                    help="Portion multiplier"
+                )
+            
+            with col4:
+                if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
+                    if db_manager.delete_meal(meal['id']):
+                        st.success("Meal deleted!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete meal")
+            
+            # Show details
+            with st.expander("View Details", expanded=False):
+                st.write(f"**Description:** {meal.get('description', 'N/A')}")
+                nutrition = meal.get("nutrition", {})
+                multiplied_nutrition = {k: v * portion for k, v in nutrition.items()}
+                st.text(nutrition_analyzer.get_nutrition_facts(multiplied_nutrition))
+            
+            # Edit form
+            if st.session_state.get(f"edit_meal_id_{meal['id']}", False):
+                st.divider()
+                st.subheader(f"Edit: {meal.get('meal_name', 'Meal')}")
+                
+                with st.form(f"edit_hist_form_{meal['id']}"):
+                    meal_name = st.text_input("Meal Name", value=meal.get('meal_name', ''))
+                    meal_type = st.selectbox(
+                        "Meal Type",
+                        options=list(MEAL_TYPES.keys()),
+                        index=list(MEAL_TYPES.keys()).index(meal.get('meal_type', 'breakfast')) if meal.get('meal_type') in MEAL_TYPES else 0,
+                        key=f"type_hist_{meal['id']}"
+                    )
+                    description = st.text_area("Description", value=meal.get('description', ''), key=f"desc_hist_{meal['id']}")
+                    
+                    # Edit nutrition
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        calories = st.number_input("Calories", value=meal.get('nutrition', {}).get('calories', 0), min_value=0, key=f"cal_hist_{meal['id']}")
+                        protein = st.number_input("Protein (g)", value=meal.get('nutrition', {}).get('protein', 0), min_value=0.0, key=f"prot_hist_{meal['id']}")
+                        carbs = st.number_input("Carbs (g)", value=meal.get('nutrition', {}).get('carbs', 0), min_value=0.0, key=f"carb_hist_{meal['id']}")
+                    
+                    with col2:
+                        fat = st.number_input("Fat (g)", value=meal.get('nutrition', {}).get('fat', 0), min_value=0.0, key=f"fat_hist_{meal['id']}")
+                        sodium = st.number_input("Sodium (mg)", value=meal.get('nutrition', {}).get('sodium', 0), min_value=0.0, key=f"sod_hist_{meal['id']}")
+                        sugar = st.number_input("Sugar (g)", value=meal.get('nutrition', {}).get('sugar', 0), min_value=0.0, key=f"sug_hist_{meal['id']}")
+                    
+                    with col3:
+                        fiber = st.number_input("Fiber (g)", value=meal.get('nutrition', {}).get('fiber', 0), min_value=0.0, key=f"fib_hist_{meal['id']}")
+                    
+                    if st.form_submit_button("Save Changes", use_container_width=True):
+                        updated_meal = {
+                            "meal_name": meal_name,
+                            "meal_type": meal_type,
+                            "description": description,
+                            "nutrition": {
+                                "calories": calories,
+                                "protein": protein,
+                                "carbs": carbs,
+                                "fat": fat,
+                                "sodium": sodium,
+                                "sugar": sugar,
+                                "fiber": fiber,
+                            }
+                        }
+                        
+                        if db_manager.update_meal(meal['id'], updated_meal):
+                            st.success("✅ Meal updated!")
+                            st.session_state[f"edit_meal_id_{meal['id']}"] = False
+                            st.rerun()
+                        else:
+                            st.error("❌ Failed to update meal")
+            
+            st.divider()
 
 
 def profile_page():
@@ -932,6 +1202,7 @@ def main():
             "Dashboard": "📊",
             "Log Meal": "📝",
             "Analytics": "📈",
+            "Meal History": "📋",
             "Insights": "💡",
             "My Profile": "👤",
         }
@@ -965,6 +1236,8 @@ def main():
             meal_logging_page()
         elif selected_page == "Analytics":
             analytics_page()
+        elif selected_page == "Meal History":
+            meal_history_page()
         elif selected_page == "Insights":
             insights_page()
         elif selected_page == "My Profile":
