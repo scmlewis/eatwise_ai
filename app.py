@@ -44,22 +44,59 @@ st.markdown("""
 <style>
     :root {
         --primary-color: #10A19D;
+        --primary-dark: #0D7A76;
+        --primary-light: #52C4B8;
         --secondary-color: #FF6B6B;
         --success-color: #51CF66;
         --warning-color: #FFA500;
         --danger-color: #FF0000;
+        --accent-purple: #845EF7;
+        --accent-blue: #3B82F6;
     }
     
     .main {
         padding-top: 2rem;
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+    }
+    
+    /* Modern gradient cards */
+    .gradient-primary {
+        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+    }
+    
+    .gradient-purple {
+        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
+    }
+    
+    .gradient-blue {
+        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    }
+    
+    .gradient-success {
+        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
+    }
+    
+    .gradient-warning {
+        background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
+    }
+    
+    .gradient-danger {
+        background: linear-gradient(135deg, #FF6B6B 0%, #FF8A8A 100%);
     }
     
     .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 12px;
         color: white;
         margin: 10px 0;
+        box-shadow: 0 8px 20px rgba(16, 161, 157, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(16, 161, 157, 0.4);
     }
     
     .nutrition-bar {
@@ -81,6 +118,40 @@ st.markdown("""
     .danger {
         color: #FF0000;
     }
+    
+    /* Modern buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 161, 157, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 161, 157, 0.4);
+    }
+    
+    /* Tabs styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background: linear-gradient(135deg, #10A19D10 0%, #52C4B810 100%);
+        border-radius: 8px;
+        padding: 10px 16px;
+        border: 1px solid #10A19D;
+    }
+    
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        color: white;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -101,8 +172,18 @@ def login_page():
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        st.markdown("# 🥗 Welcome to EatWise")
-        st.markdown("### Your AI-Powered Nutrition Hub")
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        ">
+            <h1 style="color: white; margin: 0; font-size: 2.5em;">🥗 EatWise</h1>
+            <h3 style="color: #e0f2f1; margin: 8px 0;">Your AI-Powered Nutrition Hub</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
         st.markdown("""
         Track your meals, understand your nutrition, and get personalized recommendations.
         
@@ -115,7 +196,16 @@ def login_page():
         """)
     
     with col2:
-        st.markdown("### Get Started")
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, #0D7A7620 0%, #10A19D40 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #10A19D;
+        ">
+            <h3 style="color: #52C4B8; margin-top: 0;">Get Started</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         tab1, tab2 = st.tabs(["Login", "Sign Up"])
         
@@ -234,16 +324,17 @@ def dashboard_page():
         cal_color = "#51CF66" if 80 <= cal_pct <= 120 else ("#FFD43B" if cal_pct < 80 else "#FF6B6B")
         st.markdown(f"""
         <div style="
-            background: linear-gradient(135deg, {cal_color}20 0%, {cal_color}40 100%);
-            border: 2px solid {cal_color};
+            background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
+            border: 2px solid #FF6B16;
             border-radius: 12px;
             padding: 16px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 22, 0.2);
         ">
             <div style="font-size: 32px; margin-bottom: 8px;">🔥</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Avg. Daily Calories</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Avg. Daily Calories</div>
             <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_cal:.0f}</div>
-            <div style="font-size: 10px; color: {cal_color};">Target: {target_cal}</div>
+            <div style="font-size: 10px; color: #FF6B16; font-weight: 600;">Target: {target_cal}</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -252,16 +343,17 @@ def dashboard_page():
         total_meals = len(recent_meals)
         st.markdown(f"""
         <div style="
-            background: linear-gradient(135deg, #10A19D20 0%, #10A19D40 100%);
+            background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
             border: 2px solid #10A19D;
             border-radius: 12px;
             padding: 16px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(16, 161, 157, 0.2);
         ">
             <div style="font-size: 32px; margin-bottom: 8px;">🍽️</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Total Meals</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Total Meals</div>
             <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{total_meals}</div>
-            <div style="font-size: 10px; color: #10A19D;">In {days_back} days</div>
+            <div style="font-size: 10px; color: #10A19D; font-weight: 600;">In {days_back} days</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -270,16 +362,17 @@ def dashboard_page():
         avg_meals_per_day = total_meals / days_back if days_back > 0 else 0
         st.markdown(f"""
         <div style="
-            background: linear-gradient(135deg, #845EF720 0%, #845EF740 100%);
+            background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
             border: 2px solid #845EF7;
             border-radius: 12px;
             padding: 16px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(132, 94, 247, 0.2);
         ">
             <div style="font-size: 32px; margin-bottom: 8px;">📈</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Avg. Meals/Day</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Avg. Meals/Day</div>
             <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_meals_per_day:.1f}</div>
-            <div style="font-size: 10px; color: #845EF7;">meals per day</div>
+            <div style="font-size: 10px; color: #845EF7; font-weight: 600;">meals per day</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -291,16 +384,17 @@ def dashboard_page():
         protein_color = "#51CF66" if 80 <= protein_pct <= 120 else ("#FFD43B" if protein_pct < 80 else "#FF6B6B")
         st.markdown(f"""
         <div style="
-            background: linear-gradient(135deg, {protein_color}20 0%, {protein_color}40 100%);
-            border: 2px solid {protein_color};
+            background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
+            border: 2px solid #51CF66;
             border-radius: 12px;
             padding: 16px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
         ">
             <div style="font-size: 32px; margin-bottom: 8px;">💪</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Avg. Protein</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Avg. Protein</div>
             <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_protein:.1f}g</div>
-            <div style="font-size: 10px; color: {protein_color};">Target: {target_protein}g</div>
+            <div style="font-size: 10px; color: #51CF66; font-weight: 600;">Target: {target_protein}g</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -323,11 +417,12 @@ def dashboard_page():
             border-radius: 12px;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 6px 20px rgba(255, 103, 21, 0.25);
         ">
             <div style="font-size: 40px; margin-bottom: 12px;">{streak_emoji}</div>
-            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Current Streak</div>
+            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600;">Current Streak</div>
             <div style="font-size: 32px; font-weight: bold; color: #e0f2f1;">{current_streak}</div>
-            <div style="font-size: 11px; color: #FF6715; margin-top: 8px;">days in a row</div>
+            <div style="font-size: 11px; color: #FF6715; margin-top: 8px; font-weight: 600;">days in a row</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -336,16 +431,17 @@ def dashboard_page():
         longest_streak = streak_info['longest_streak']
         st.markdown(f"""
         <div style="
-            background: linear-gradient(135deg, #FFD43B20 0%, #FFD43B40 100%);
+            background: linear-gradient(135deg, #FFD43B20 0%, #FFC94D40 100%);
             border: 2px solid #FFD43B;
             border-radius: 12px;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 6px 20px rgba(255, 212, 59, 0.25);
         ">
             <div style="font-size: 40px; margin-bottom: 12px;">🏅</div>
-            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Longest Streak</div>
+            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600;">Longest Streak</div>
             <div style="font-size: 32px; font-weight: bold; color: #e0f2f1;">{longest_streak}</div>
-            <div style="font-size: 11px; color: #FFD43B; margin-top: 8px;">personal record</div>
+            <div style="font-size: 11px; color: #FFD43B; margin-top: 8px; font-weight: 600;">personal record</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -360,11 +456,12 @@ def dashboard_page():
                 with badge_cols[idx]:
                     st.markdown(f"""
                     <div style="
-                        background: linear-gradient(135deg, #FFA50020 0%, #FFA50040 100%);
-                        border: 2px solid #FFA500;
+                        background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
+                        border: 2px solid #10A19D;
                         border-radius: 10px;
                         padding: 12px;
                         text-align: center;
+                        box-shadow: 0 4px 12px rgba(16, 161, 157, 0.2);
                     ">
                         <div style="font-size: 28px; margin-bottom: 6px;">{badge_info.get('icon', '🏆')}</div>
                         <div style="font-size: 11px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{badge_info.get('name', 'Badge')}</div>
@@ -419,14 +516,17 @@ def dashboard_page():
             # Determine color based on percentage
             if card["percentage"] > 100:
                 color = "#FF6B6B"  # Red for over
+                gradient_color = "#FF8A8A"
             elif card["percentage"] >= 80:
                 color = "#51CF66"  # Green for good
+                gradient_color = "#80C342"
             else:
                 color = "#FFD43B"  # Yellow for low
+                gradient_color = "#FFC94D"
             
             st.markdown(f"""
             <div style="
-                background: linear-gradient(135deg, {color}20 0%, {color}40 100%);
+                background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
                 border: 2px solid {color};
                 border-radius: 10px;
                 padding: 12px;
@@ -436,9 +536,11 @@ def dashboard_page():
                 flex-direction: column;
                 justify-content: center;
                 gap: 6px;
+                box-shadow: 0 4px 12px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
             ">
                 <div style="font-size: 28px;">{card['icon']}</div>
-                <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px;">{card['label']}</div>
+                <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">{card['label']}</div>
                 <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{card['value']}</div>
                 <div style="font-size: 9px; color: {color}; font-weight: 600;">↑ {card['percentage']:.0f}% {card['target']}</div>
             </div>
@@ -488,11 +590,12 @@ def dashboard_page():
         for meal in meals:
             st.markdown(f"""
             <div style="
-                background: linear-gradient(135deg, #10A19D20 0%, #10A19D40 100%);
-                border: 1px solid #10A19D;
-                border-radius: 10px;
-                padding: 14px;
-                margin-bottom: 10px;
+                background: linear-gradient(135deg, #10A19D15 0%, #52C4B825 100%);
+                border: 2px solid #10A19D;
+                border-radius: 12px;
+                padding: 16px;
+                margin-bottom: 12px;
+                box-shadow: 0 4px 12px rgba(16, 161, 157, 0.15);
             ">
                 <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px;">
                     <div style="flex: 1;">
@@ -518,27 +621,21 @@ def dashboard_page():
     else:
         st.info("No meals logged yet. Start by logging a meal!")
     
-    # ===== Quick Add Meal =====
-    st.markdown("## ➕ Quick Add Meal")
-    
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        if st.button("📸 Log a Meal", use_container_width=True, key="quick_add_meal"):
-            st.session_state.quick_nav_to_meal = True
-            st.rerun()
-    
-    # ===== Insights =====
-    st.markdown("## 💡 Daily Insight")
-    
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        insight = recommender.get_nutrition_trivia()
-        st.info(f"💬 {insight}")
+    # Daily Insight is now displayed in sidebar
 
 
 def meal_logging_page():
     """Meal logging page"""
-    st.markdown("# 📸 Log Your Meal")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 2em;">📸 Log Your Meal</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("""
     ### Choose how you'd like to log your meal:
@@ -710,7 +807,16 @@ def meal_logging_page():
 
 def analytics_page():
     """Analytics and insights page"""
-    st.markdown("# 📈 Analytics & Insights")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 2em;">📈 Analytics & Insights</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     user_profile = st.session_state.user_profile
     if not user_profile:
@@ -810,7 +916,16 @@ def analytics_page():
 
 def insights_page():
     """Health insights and recommendations page"""
-    st.markdown("# 💡 Health Insights & Recommendations")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 2em;">💡 Health Insights & Recommendations</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     user_profile = st.session_state.user_profile
     if not user_profile:
@@ -955,7 +1070,16 @@ def insights_page():
 
 def meal_history_page():
     """View and manage all logged meals"""
-    st.markdown("# 📋 Meal History")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 2em;">📋 Meal History</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     user_id = st.session_state.user_id
     
@@ -1078,7 +1202,16 @@ def meal_history_page():
 
 def profile_page():
     """User profile and health settings page"""
-    st.markdown("# 👤 My Profile")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #FF6B16 0%, #FF8A4D 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 2em;">👤 My Profile</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     user_email = st.session_state.user_email
     
@@ -1231,7 +1364,16 @@ def profile_page():
 
 def help_page():
     """Help and About page"""
-    st.markdown("# ❓ Help & About")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 2em;">❓ Help & About</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Create tabs for different sections
     tab1, tab2, tab3, tab4 = st.tabs(["About", "Features", "How to Use", "FAQ"])
@@ -1426,7 +1568,17 @@ def main():
         login_page()
     else:
         # Sidebar navigation
-        st.sidebar.markdown(f"# 🥗 {APP_NAME}")
+        st.sidebar.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            text-align: center;
+        ">
+            <h1 style="color: white; margin: 0; font-size: 1.8em;">🥗 {APP_NAME}</h1>
+        </div>
+        """, unsafe_allow_html=True)
         st.sidebar.markdown("---")
         
         if st.session_state.user_email:
@@ -1441,6 +1593,14 @@ def main():
                 st.rerun()
             
             st.sidebar.markdown("---")
+            
+            # Daily Insight in sidebar
+            st.sidebar.markdown("## 💡 Daily Insight")
+            try:
+                insight = recommender.get_nutrition_trivia()
+                st.sidebar.info(f"💬 {insight}")
+            except:
+                st.sidebar.info("💬 Log more meals to get personalized insights!")
         
         # Navigation pages dictionary
         pages = {
