@@ -486,89 +486,35 @@ def dashboard_page():
     
     if meals:
         for meal in meals:
-            col1, col2, col3 = st.columns([2, 0.5, 0.5])
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #10A19D20 0%, #10A19D40 100%);
+                border: 1px solid #10A19D;
+                border-radius: 10px;
+                padding: 14px;
+                margin-bottom: 10px;
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">
+                            🍴 {meal.get('meal_name', 'Unknown Meal')} <span style="font-size: 12px; color: #a0a0a0;">• {meal.get('meal_type', 'meal')}</span>
+                        </div>
+                        <div style="font-size: 11px; color: #7a8a89;">Logged at: {meal.get('logged_at', 'N/A')}</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
             
-            with col1:
-                st.write(f"🍴 **{meal.get('meal_name', 'Unknown Meal')}** - {meal.get('meal_type', 'meal')}")
-                st.caption(f"Logged at: {meal.get('logged_at', 'N/A')}")
-            
-            with col2:
-                if st.button("Edit", key=f"edit_{meal['id']}", use_container_width=True):
-                    st.session_state[f"edit_meal_id_{meal['id']}"] = True
-            
-            with col3:
-                if st.button("Delete", key=f"delete_{meal['id']}", use_container_width=True):
-                    if db_manager.delete_meal(meal['id']):
-                        st.success("Meal deleted!")
-                        st.rerun()
-                    else:
-                        st.error("Failed to delete meal")
-            
-            # Show meal details
-            with st.expander("View Details", expanded=False):
-                st.write(f"**Description:** {meal.get('description', 'N/A')}")
-                nutrition = meal.get("nutrition", {})
-                st.text(nutrition_analyzer.get_nutrition_facts(nutrition))
-            
-            # Edit modal
-            if st.session_state.get(f"edit_meal_id_{meal['id']}", False):
-                st.divider()
-                st.subheader(f"Edit: {meal.get('meal_name', 'Meal')}")
-                
-                with st.form(f"edit_form_{meal['id']}"):
-                    meal_name = st.text_input("Meal Name", value=meal.get('meal_name', ''))
-                    meal_type = st.selectbox(
-                        "Meal Type",
-                        options=list(MEAL_TYPES.keys()),
-                        index=list(MEAL_TYPES.keys()).index(meal.get('meal_type', 'breakfast')) if meal.get('meal_type') in MEAL_TYPES else 0
-                    )
-                    description = st.text_area("Description", value=meal.get('description', ''))
-                    
-                    # Edit nutrition
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        calories = st.number_input("Calories", value=float(meal.get('nutrition', {}).get('calories', 0)), min_value=0.0)
-                        protein = st.number_input("Protein (g)", value=float(meal.get('nutrition', {}).get('protein', 0)), min_value=0.0)
-                        carbs = st.number_input("Carbs (g)", value=float(meal.get('nutrition', {}).get('carbs', 0)), min_value=0.0)
-                    
-                    with col2:
-                        fat = st.number_input("Fat (g)", value=float(meal.get('nutrition', {}).get('fat', 0)), min_value=0.0)
-                        sodium = st.number_input("Sodium (mg)", value=float(meal.get('nutrition', {}).get('sodium', 0)), min_value=0.0)
-                        sugar = st.number_input("Sugar (g)", value=float(meal.get('nutrition', {}).get('sugar', 0)), min_value=0.0)
-                    
-                    with col3:
-                        fiber = st.number_input("Fiber (g)", value=float(meal.get('nutrition', {}).get('fiber', 0)), min_value=0.0)
-                    
-                    # Button columns
-                    btn_col1, btn_col2 = st.columns(2)
-                    with btn_col1:
-                        if st.form_submit_button("💾 Save Changes", use_container_width=True):
-                            updated_meal = {
-                                "meal_name": meal_name,
-                                "meal_type": meal_type,
-                                "description": description,
-                                "nutrition": {
-                                    "calories": calories,
-                                    "protein": protein,
-                                    "carbs": carbs,
-                                    "fat": fat,
-                                    "sodium": sodium,
-                                    "sugar": sugar,
-                                    "fiber": fiber,
-                                }
-                            }
-                            
-                            if db_manager.update_meal(meal['id'], updated_meal):
-                                st.success("✅ Meal updated!")
-                                st.session_state[f"edit_meal_id_{meal['id']}"] = False
-                                st.rerun()
-                            else:
-                                st.error("❌ Failed to update meal")
-                    
-                    with btn_col2:
-                        if st.form_submit_button("❌ Cancel", use_container_width=True):
-                            st.session_state[f"edit_meal_id_{meal['id']}"] = False
-                            st.rerun()
+            # Show meal details in expander
+            with st.expander(f"📋 View Details - {meal.get('meal_name', 'Meal')}", expanded=False):
+                col1, col2 = st.columns([2, 1])
+                with col1:
+                    st.write(f"**Description:** {meal.get('description', 'N/A')}")
+                    nutrition = meal.get("nutrition", {})
+                    st.text(nutrition_analyzer.get_nutrition_facts(nutrition))
+                with col2:
+                    healthiness = meal.get('healthiness_score', 'N/A')
+                    st.metric("Score", healthiness)
     else:
         st.info("No meals logged yet. Start by logging a meal!")
     
