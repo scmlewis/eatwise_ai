@@ -1164,7 +1164,7 @@ def main():
             
             st.sidebar.markdown("---")
         
-        # Navigation
+        # Navigation pages dictionary
         pages = {
             "Dashboard": "📊",
             "Log Meal": "📝",
@@ -1178,32 +1178,22 @@ def main():
         default_page = "Log Meal" if st.session_state.get("quick_nav_to_meal") else "Dashboard"
         default_index = list(pages.keys()).index(default_page)
         
-        # Sticky header that persists on scroll
-        header_placeholder = st.empty()
-        with header_placeholder.container():
-            st.markdown("""
-            <style>
-                [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"]:first-child {
-                    position: sticky;
-                    top: 0;
-                    z-index: 999;
-                    background-color: #0d1f1a;
-                    padding: 1rem 0;
-                    border-bottom: 1px solid #10A19D;
-                }
-            </style>
-            """, unsafe_allow_html=True)
-            
-            col_nav = st.columns(1)[0]
-            with col_nav:
-                selected_page = st.selectbox(
-                    "Navigate to:",
-                    options=list(pages.keys()),
-                    index=st.session_state.get("nav_index", default_index),
-                    format_func=lambda x: f"{pages[x]} {x}",
-                    label_visibility="collapsed"
-                )
-                st.session_state.nav_index = list(pages.keys()).index(selected_page)
+        # Store nav index in session state
+        if "nav_index" not in st.session_state:
+            st.session_state.nav_index = default_index
+        
+        # Navigation header at the very top
+        st.markdown("---")
+        selected_page = st.selectbox(
+            "Navigate to:",
+            options=list(pages.keys()),
+            index=st.session_state.nav_index,
+            format_func=lambda x: f"{pages[x]} {x}",
+            label_visibility="collapsed",
+            key="page_selector"
+        )
+        st.session_state.nav_index = list(pages.keys()).index(selected_page)
+        st.markdown("---")
         
         # Clear the quick nav flag
         if st.session_state.get("quick_nav_to_meal"):
