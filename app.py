@@ -374,43 +374,6 @@ def dashboard_page():
     
     st.divider()
     
-    # Display Statistics
-    st.markdown("## 📉 Statistics")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        avg_cal = df["calories"].mean() if len(df) > 0 else 0
-        st.metric("Avg. Daily Calories", f"{avg_cal:.0f}", f"Target: {targets['calories']}")
-    
-    with col2:
-        total_meals = len(recent_meals)
-        st.metric("Total Meals", total_meals)
-    
-    with col3:
-        avg_meals_per_day = total_meals / days_back if days_back > 0 else 0
-        st.metric("Avg. Meals/Day", f"{avg_meals_per_day:.1f}")
-    
-    with col4:
-        avg_protein = df["protein"].mean() if len(df) > 0 else 0
-        st.metric("Avg. Protein", f"{avg_protein:.1f}g", f"Target: {targets['protein']}g")
-    
-    # Display Achievements
-    st.markdown("## 🏆 Achievements")
-    
-    meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
-    streak_info = get_streak_info(meal_dates)
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.metric("🔥 Current Streak", f"{streak_info['current_streak']} days")
-    
-    with col2:
-        st.metric("🏅 Longest Streak", f"{streak_info['longest_streak']} days")
-    
-    st.divider()
-    
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Summary")
     
