@@ -1167,25 +1167,49 @@ def main():
         
         # Check if quick navigation was triggered
         default_page = "Log Meal" if st.session_state.get("quick_nav_to_meal") else "Dashboard"
+        default_index = list(pages.keys()).index(default_page)
         
-        selected_page = st.sidebar.radio(
-            "Navigation",
-            options=list(pages.keys()),
-            index=list(pages.keys()).index(default_page),
-            format_func=lambda x: f"{pages[x]} {x}"
-        )
+        # Modern horizontal navigation tabs
+        st.markdown("---")
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
+        
+        nav_buttons = [
+            ("📊 Dashboard", col1),
+            ("📝 Log Meal", col2),
+            ("📈 Analytics", col3),
+            ("📋 Meal History", col4),
+            ("💡 Insights", col5),
+            ("👤 Profile", col6),
+        ]
+        
+        selected_page = None
+        for btn_label, col in nav_buttons:
+            with col:
+                page_name = btn_label.split(" ", 1)[1]  # Extract page name without emoji
+                if st.button(btn_label, use_container_width=True, key=f"nav_{page_name}"):
+                    selected_page = page_name
+        
+        # Use session state to track current page if no button was clicked
+        if selected_page is None:
+            if "current_page" not in st.session_state:
+                st.session_state.current_page = default_page
+            selected_page = st.session_state.current_page
+        else:
+            st.session_state.current_page = selected_page
         
         # Clear the quick nav flag
         if st.session_state.get("quick_nav_to_meal"):
             st.session_state.quick_nav_to_meal = False
         
-        st.sidebar.markdown("---")
+        st.markdown("---")
         
-        if st.sidebar.button("🚪 Logout", use_container_width=True):
+        if st.button("🚪 Logout", use_container_width=True):
             auth_manager.logout()
             st.session_state.clear()
             st.success("✅ Logged out!")
             st.rerun()
+        
+        st.markdown("---")
         
         # Route to selected page
         if selected_page == "Dashboard":
