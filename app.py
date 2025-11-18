@@ -692,37 +692,39 @@ def insights_page():
     
     # ===== Health Insights =====
     st.markdown("## 📊 Health Insights")
+    st.caption("💡 Click the button below to analyze your eating patterns (this uses API calls)")
     
-    with st.spinner("🤖 Analyzing your eating patterns..."):
-        nutrition_history = db_manager.get_weekly_nutrition_summary(st.session_state.user_id, date.today())
-        
-        insights = recommender.get_health_insights(
-            meals,
-            user_profile,
-            nutrition_history
-        )
-        
-        if insights:
-            col1, col2 = st.columns(2)
+    if st.button("🤖 Analyze Health Insights", use_container_width=True):
+        with st.spinner("🤖 Analyzing your eating patterns..."):
+            nutrition_history = db_manager.get_weekly_nutrition_summary(st.session_state.user_id, date.today())
             
-            with col1:
-                st.subheader("✅ Your Strengths")
-                for strength in insights.get('strengths', []):
-                    st.write(f"• {strength}")
+            insights = recommender.get_health_insights(
+                meals,
+                user_profile,
+                nutrition_history
+            )
             
-            with col2:
-                st.subheader("⚠️ Areas to Improve")
-                for area in insights.get('areas_for_improvement', []):
-                    st.write(f"• {area}")
-            
-            st.subheader("💡 Recommendations")
-            for rec in insights.get('specific_recommendations', []):
-                st.write(f"• {rec}")
-            
-            if insights.get('red_flags'):
-                st.error(f"🚨 **Watch Out:** {', '.join(insights.get('red_flags', []))}")
-            
-            st.success(f"🌟 {insights.get('motivational_message', '')}")
+            if insights:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.subheader("✅ Your Strengths")
+                    for strength in insights.get('strengths', []):
+                        st.write(f"• {strength}")
+                
+                with col2:
+                    st.subheader("⚠️ Areas to Improve")
+                    for area in insights.get('areas_for_improvement', []):
+                        st.write(f"• {area}")
+                
+                st.subheader("💡 Recommendations")
+                for rec in insights.get('specific_recommendations', []):
+                    st.write(f"• {rec}")
+                
+                if insights.get('red_flags'):
+                    st.error(f"🚨 **Watch Out:** {', '.join(insights.get('red_flags', []))}")
+                
+                st.success(f"🌟 {insights.get('motivational_message', '')}")
 
 
 def profile_page():
