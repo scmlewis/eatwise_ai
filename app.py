@@ -520,9 +520,8 @@ def meal_logging_page():
                     analysis = nutrition_analyzer.analyze_food_image(image_data)
                     
                     if analysis:
-                        # Store analysis in session state
+                        # Store analysis in session state (meal_type is already in session via selectbox key)
                         st.session_state.photo_analysis = analysis
-                        st.session_state.photo_meal_type = meal_type
                         st.success("✅ Photo analyzed!")
                     else:
                         st.error("❌ Could not analyze photo. Please try again.")
@@ -530,7 +529,7 @@ def meal_logging_page():
         # Display analysis if it exists in session state
         if "photo_analysis" in st.session_state:
             analysis = st.session_state.photo_analysis
-            meal_type = st.session_state.photo_meal_type
+            # meal_type is already managed by the selectbox widget via key="photo_meal_type"
             
             # Display detected foods
             st.markdown("### Detected Foods")
@@ -559,7 +558,7 @@ def meal_logging_page():
                     "user_id": st.session_state.user_id,
                     "meal_name": f"Meal from photo",
                     "description": ", ".join([f"{f['name']} ({f['quantity']})" for f in analysis.get('detected_foods', [])]),
-                    "meal_type": meal_type,
+                    "meal_type": st.session_state.photo_meal_type,  # Use session state variable managed by selectbox
                     "nutrition": analysis['total_nutrition'],
                     "healthiness_score": 75,  # Default score
                     "health_notes": analysis.get('notes', ''),
@@ -570,7 +569,6 @@ def meal_logging_page():
                     st.success("✅ Meal saved successfully!")
                     # Clear the analysis from session state
                     del st.session_state.photo_analysis
-                    del st.session_state.photo_meal_type
                     st.rerun()
                 else:
                     st.error("❌ Failed to save meal")
