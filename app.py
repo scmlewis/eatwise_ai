@@ -187,8 +187,9 @@ def dashboard_page():
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Summary")
     
-    # Create modern card layout
-    col1, col2, col3, col4 = st.columns(4)
+    # Responsive layout - 2 columns on mobile, 4 on desktop
+    col1, col2 = st.columns(2)
+    col3, col4 = st.columns(2)
     
     cards_data = [
         {
@@ -240,13 +241,19 @@ def dashboard_page():
                 background: linear-gradient(135deg, {color}20 0%, {color}40 100%);
                 border: 2px solid {color};
                 border-radius: 12px;
-                padding: 20px;
+                padding: 16px;
                 text-align: center;
+                min-height: 200px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                box-sizing: border-box;
             ">
-                <div style="font-size: 32px; margin-bottom: 8px;">{card['icon']}</div>
-                <div style="font-size: 14px; color: #a0a0a0; margin-bottom: 4px;">{card['label']}</div>
-                <div style="font-size: 28px; font-weight: bold; color: #e0f2f1; margin-bottom: 8px;">{card['value']}</div>
-                <div style="font-size: 12px; color: {color}; font-weight: 500;">↑ {card['percentage']:.0f}% {card['target']}</div>
+                <div style="font-size: 36px; margin-bottom: 12px;">{card['icon']}</div>
+                <div style="font-size: 13px; color: #a0a0a0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">{card['label']}</div>
+                <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 12px; word-break: break-word;">{card['value']}</div>
+                <div style="font-size: 11px; color: {color}; font-weight: 600;">↑ {card['percentage']:.0f}% {card['target']}</div>
             </div>
             """, unsafe_allow_html=True)
     
