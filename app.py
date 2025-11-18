@@ -187,39 +187,68 @@ def dashboard_page():
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Summary")
     
+    # Create modern card layout
     col1, col2, col3, col4 = st.columns(4)
     
-    with col1:
-        cal_pct = calculate_nutrition_percentage(daily_nutrition["calories"], targets["calories"])
-        st.metric(
-            "Calories",
-            f"{daily_nutrition['calories']:.0f}",
-            f"{cal_pct:.0f}% of {targets['calories']}"
-        )
+    cards_data = [
+        {
+            "col": col1,
+            "icon": "🔥",
+            "label": "Calories",
+            "value": f"{daily_nutrition['calories']:.0f}",
+            "percentage": calculate_nutrition_percentage(daily_nutrition["calories"], targets["calories"]),
+            "target": f"of {targets['calories']}"
+        },
+        {
+            "col": col2,
+            "icon": "💪",
+            "label": "Protein",
+            "value": f"{daily_nutrition['protein']:.1f}g",
+            "percentage": calculate_nutrition_percentage(daily_nutrition["protein"], targets["protein"]),
+            "target": f"of {targets['protein']}g"
+        },
+        {
+            "col": col3,
+            "icon": "🧂",
+            "label": "Sodium",
+            "value": f"{daily_nutrition['sodium']:.0f}mg",
+            "percentage": calculate_nutrition_percentage(daily_nutrition["sodium"], targets["sodium"]),
+            "target": f"of {targets['sodium']}mg"
+        },
+        {
+            "col": col4,
+            "icon": "🍬",
+            "label": "Sugar",
+            "value": f"{daily_nutrition['sugar']:.1f}g",
+            "percentage": calculate_nutrition_percentage(daily_nutrition["sugar"], targets["sugar"]),
+            "target": f"of {targets['sugar']}g"
+        }
+    ]
     
-    with col2:
-        protein_pct = calculate_nutrition_percentage(daily_nutrition["protein"], targets["protein"])
-        st.metric(
-            "Protein",
-            f"{daily_nutrition['protein']:.1f}g",
-            f"{protein_pct:.0f}% of {targets['protein']}g"
-        )
-    
-    with col3:
-        sodium_pct = calculate_nutrition_percentage(daily_nutrition["sodium"], targets["sodium"])
-        st.metric(
-            "Sodium",
-            f"{daily_nutrition['sodium']:.0f}mg",
-            f"{sodium_pct:.0f}% of {targets['sodium']}mg"
-        )
-    
-    with col4:
-        sugar_pct = calculate_nutrition_percentage(daily_nutrition["sugar"], targets["sugar"])
-        st.metric(
-            "Sugar",
-            f"{daily_nutrition['sugar']:.1f}g",
-            f"{sugar_pct:.0f}% of {targets['sugar']}g"
-        )
+    for card in cards_data:
+        with card["col"]:
+            # Determine color based on percentage
+            if card["percentage"] > 100:
+                color = "#FF6B6B"  # Red for over
+            elif card["percentage"] >= 80:
+                color = "#51CF66"  # Green for good
+            else:
+                color = "#FFD43B"  # Yellow for low
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, {color}20 0%, {color}40 100%);
+                border: 2px solid {color};
+                border-radius: 12px;
+                padding: 20px;
+                text-align: center;
+            ">
+                <div style="font-size: 32px; margin-bottom: 8px;">{card['icon']}</div>
+                <div style="font-size: 14px; color: #a0a0a0; margin-bottom: 4px;">{card['label']}</div>
+                <div style="font-size: 28px; font-weight: bold; color: #e0f2f1; margin-bottom: 8px;">{card['value']}</div>
+                <div style="font-size: 12px; color: {color}; font-weight: 500;">↑ {card['percentage']:.0f}% {card['target']}</div>
+            </div>
+            """, unsafe_allow_html=True)
     
     # ===== Nutrition Bars =====
     st.markdown("### Nutrition Targets Progress")
