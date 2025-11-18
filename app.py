@@ -644,31 +644,33 @@ def insights_page():
     
     # ===== Personalized Recommendations =====
     st.markdown("## 🎯 Today's Meal Recommendations")
+    st.caption("💡 Click the button below to generate personalized meal recommendations (this uses API calls)")
     
-    with st.spinner("🤖 Generating personalized recommendations..."):
-        recommendations = recommender.get_personalized_recommendations(
-            user_profile,
-            meals,
-            today_nutrition,
-            targets
-        )
-        
-        if recommendations:
-            for idx, rec in enumerate(recommendations[:3], 1):
-                with st.expander(f"{idx}. {rec.get('meal_name', 'Meal')} - {rec.get('meal_type', '')}"):
-                    st.write(f"**Description:** {rec.get('description', '')}")
-                    st.write(f"⏱️ **Prep Time:** {rec.get('preparation_time', 'N/A')}")
-                    
-                    col1, col2 = st.columns([2, 1])
-                    
-                    with col1:
-                        st.text(nutrition_analyzer.get_nutrition_facts(rec.get('estimated_nutrition', {})))
-                    
-                    with col2:
-                        st.info(f"**Why:** {rec.get('why_recommended', '')}")
-                    
-                    if rec.get('health_benefits'):
-                        st.success(f"**Benefits:** {', '.join(rec.get('health_benefits', []))}")
+    if st.button("🤖 Generate Meal Recommendations", use_container_width=True):
+        with st.spinner("🤖 Generating personalized recommendations..."):
+            recommendations = recommender.get_personalized_recommendations(
+                user_profile,
+                meals,
+                today_nutrition,
+                targets
+            )
+            
+            if recommendations:
+                for idx, rec in enumerate(recommendations[:3], 1):
+                    with st.expander(f"{idx}. {rec.get('meal_name', 'Meal')} - {rec.get('meal_type', '')}"):
+                        st.write(f"**Description:** {rec.get('description', '')}")
+                        st.write(f"⏱️ **Prep Time:** {rec.get('preparation_time', 'N/A')}")
+                        
+                        col1, col2 = st.columns([2, 1])
+                        
+                        with col1:
+                            st.text(nutrition_analyzer.get_nutrition_facts(rec.get('estimated_nutrition', {})))
+                        
+                        with col2:
+                            st.info(f"**Why:** {rec.get('why_recommended', '')}")
+                        
+                        if rec.get('health_benefits'):
+                            st.success(f"**Benefits:** {', '.join(rec.get('health_benefits', []))}")
     
     # ===== Weekly Meal Plan =====
     st.markdown("## 📅 Weekly Meal Plan")
@@ -752,6 +754,16 @@ def profile_page():
                 help="This helps us provide personalized nutrition recommendations"
             )
             
+            timezone = st.selectbox(
+                "Timezone",
+                options=[
+                    "UTC", "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1",
+                    "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
+                ],
+                index=0,
+                help="Your timezone for meal timing recommendations"
+            )
+            
             health_conditions = st.multiselect(
                 "Health Conditions",
                 options=list(HEALTH_CONDITIONS.keys()),
@@ -777,6 +789,7 @@ def profile_page():
                     "full_name": full_name,
                     "age_group": age_group,
                     "gender": gender,
+                    "timezone": timezone,
                     "health_conditions": health_conditions,
                     "dietary_preferences": dietary_preferences,
                     "health_goal": goal,
@@ -811,6 +824,19 @@ def profile_page():
                 help="This helps us provide personalized nutrition recommendations"
             )
             
+            timezone_options = [
+                "UTC", "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1",
+                "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
+            ]
+            timezone_value = user_profile.get("timezone", "UTC")
+            timezone_index = timezone_options.index(timezone_value) if timezone_value in timezone_options else 0
+            timezone = st.selectbox(
+                "Timezone",
+                options=timezone_options,
+                index=timezone_index,
+                help="Your timezone for meal timing recommendations"
+            )
+            
             health_conditions = st.multiselect(
                 "Health Conditions",
                 options=list(HEALTH_CONDITIONS.keys()),
@@ -837,6 +863,7 @@ def profile_page():
                     "full_name": full_name,
                     "age_group": age_group,
                     "gender": gender,
+                    "timezone": timezone,
                     "health_conditions": health_conditions,
                     "dietary_preferences": dietary_preferences,
                     "health_goal": goal,
