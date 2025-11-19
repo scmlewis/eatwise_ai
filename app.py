@@ -935,7 +935,7 @@ def dashboard_page():
     ]
     
     # Create 3-column grid for compact display
-    cols = st.columns(3, gap="medium")
+    cols = st.columns(3, gap="large")
     
     for idx, card in enumerate(nutrition_cards):
         with cols[idx % 3]:
@@ -981,17 +981,25 @@ def dashboard_page():
             <div style="
                 background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
                 border: 2px solid {color};
-                border-radius: 12px;
-                padding: 14px;
+                border-radius: 14px;
+                padding: 18px;
                 text-align: center;
+                min-height: 180px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
                 box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
                 transition: all 0.3s ease;
             ">
-                <div style="font-size: 26px; margin-bottom: 6px;">{card['icon']}</div>
-                <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">{card['label']}</div>
-                <div style="font-size: 18px; font-weight: bold; color: #e0f2f1; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
-                <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
-                <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">{card['value']}{card['unit']} of {card['target']}{card['unit']}</div>
+                <div>
+                    <div style="font-size: 32px; margin-bottom: 8px;">{card['icon']}</div>
+                    <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">{card['label']}</div>
+                </div>
+                <div>
+                    <div style="font-size: 28px; font-weight: bold; color: #e0f2f1; margin-bottom: 10px;">{card['value']}{card['unit']}</div>
+                    <div style="background: #0a0e27; border-radius: 4px; height: 5px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
+                    <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 6px;">{card['value']}{card['unit']} of {card['target']}{card['unit']}</div>
+                </div>
                 <div style="font-size: 9px; color: {color}; font-weight: 600;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
