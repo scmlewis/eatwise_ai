@@ -248,17 +248,29 @@ class DatabaseManager:
     # ==================== WATER TRACKING ====================
     
     def log_water(self, user_id: str, glasses: int = 1, logged_date: Optional[date] = None) -> bool:
-        """Log water intake"""
+        """Log water intake - updates existing entry for the day or creates new one"""
         try:
             if logged_date is None:
                 logged_date = date.today()
             
-            water_entry = {
-                "user_id": user_id,
-                "glasses": glasses,
-                "logged_date": logged_date.isoformat(),
-            }
-            self.supabase.table("water_intake").insert(water_entry).execute()
+            date_str = logged_date.isoformat()
+            
+            # Check if entry exists for this date
+            response = self.supabase.table("water_intake").select("id, glasses").eq("user_id", user_id).eq("logged_date", date_str).execute()
+            
+            if response.data:
+                # Update existing entry
+                existing_glasses = response.data[0].get("glasses", 0)
+                new_total = existing_glasses + glasses
+                self.supabase.table("water_intake").update({"glasses": new_total}).eq("user_id", user_id).eq("logged_date", date_str).execute()
+            else:
+                # Insert new entry
+                water_entry = {
+                    "user_id": user_id,
+                    "glasses": max(0, glasses),  # Ensure non-negative
+                    "logged_date": date_str,
+                }
+                self.supabase.table("water_intake").insert(water_entry).execute()
             return True
         except Exception as e:
             st.error(f"Error logging water: {str(e)}")
