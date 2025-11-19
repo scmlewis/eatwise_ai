@@ -53,12 +53,14 @@ def render_nutrition_progress_bar(
     # Create custom progress bar with modern styling
     progress_html = f"""
     <div style="
+        width: 100%;
         background: #2a2a3e;
         height: 8px;
         border-radius: 4px;
         overflow: hidden;
         margin: 5px 0 10px 0;
         box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        box-sizing: border-box;
     ">
         <div style="
             background: linear-gradient(90deg, {primary_color} 0%, {gradient_color} 100%);
@@ -119,6 +121,8 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
         border-radius: 15px;
         padding: 20px;
         margin-bottom: 25px;
+        overflow: hidden;
+        box-sizing: border-box;
     ">
         <h3 style="color: #52C4B8; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
             📊 Nutrition Targets Progress
@@ -126,7 +130,7 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
     """, unsafe_allow_html=True)
     
     # Create two columns for nutrition targets
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2, gap="medium")
     
     nutrition_items = [
         {
@@ -176,6 +180,15 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
     # Render each nutrition item
     for item in nutrition_items:
         with item["col"]:
+            st.markdown("""
+            <style>
+            [data-testid="column"] {
+                overflow: visible !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
             render_nutrition_progress_bar(
                 label=item["label"],
                 icon=item["icon"],
