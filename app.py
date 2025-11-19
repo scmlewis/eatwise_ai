@@ -1792,6 +1792,39 @@ def main():
             
             st.sidebar.markdown("---")
             
+            # Navigation pages dictionary
+            pages = {
+                "Dashboard": "📊",
+                "Log Meal": "📝",
+                "Analytics": "📈",
+                "Meal History": "📋",
+                "Insights": "💡",
+                "My Profile": "👤",
+                "Help": "❓",
+            }
+            
+            # Check if quick navigation was triggered
+            default_page = "Log Meal" if st.session_state.get("quick_nav_to_meal") else "Dashboard"
+            default_index = list(pages.keys()).index(default_page)
+            
+            # Store nav index in session state
+            if "nav_index" not in st.session_state:
+                st.session_state.nav_index = default_index
+            
+            # Navigation in sidebar
+            st.sidebar.markdown("### 📂 Pages")
+            selected_page = st.sidebar.selectbox(
+                "Navigate to:",
+                options=list(pages.keys()),
+                index=st.session_state.nav_index,
+                format_func=lambda x: f"{pages[x]} {x}",
+                label_visibility="collapsed",
+                key="page_selector"
+            )
+            st.session_state.nav_index = list(pages.keys()).index(selected_page)
+            
+            st.sidebar.markdown("---")
+            
             # Daily Insight in sidebar
             st.sidebar.markdown("## 💡 Daily Insight")
             try:
@@ -1799,38 +1832,6 @@ def main():
                 st.sidebar.info(f"💬 {insight}")
             except:
                 st.sidebar.info("💬 Log more meals to get personalized insights!")
-        
-        # Navigation pages dictionary
-        pages = {
-            "Dashboard": "📊",
-            "Log Meal": "📝",
-            "Analytics": "📈",
-            "Meal History": "📋",
-            "Insights": "💡",
-            "My Profile": "👤",
-            "Help": "❓",
-        }
-        
-        # Check if quick navigation was triggered
-        default_page = "Log Meal" if st.session_state.get("quick_nav_to_meal") else "Dashboard"
-        default_index = list(pages.keys()).index(default_page)
-        
-        # Store nav index in session state
-        if "nav_index" not in st.session_state:
-            st.session_state.nav_index = default_index
-        
-        # Navigation header at the very top
-        st.markdown("---")
-        selected_page = st.selectbox(
-            "Navigate to:",
-            options=list(pages.keys()),
-            index=st.session_state.nav_index,
-            format_func=lambda x: f"{pages[x]} {x}",
-            label_visibility="collapsed",
-            key="page_selector"
-        )
-        st.session_state.nav_index = list(pages.keys()).index(selected_page)
-        st.markdown("---")
         
         # Clear the quick nav flag
         if st.session_state.get("quick_nav_to_meal"):
