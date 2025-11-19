@@ -155,17 +155,23 @@ class AuthManager:
             Tuple of (success, message)
         """
         try:
-            # Send magic link via email
-            response = self.supabase.auth.sign_in_with_otp(
-                {"email": email}
-            )
+            # Attempt to send password recovery link
+            self.supabase.auth.send_reset_password_email(email)
             return True, "Password reset link sent! Check your email for instructions."
+        except AttributeError:
+            # If send_reset_password_email doesn't exist, try alternative
+            try:
+                self.supabase.auth.reset_password_email(email)
+                return True, "Password reset link sent! Check your email for instructions."
+            except Exception:
+                # Fallback: inform user to contact support
+                return False, "Password reset is temporarily unavailable. Please contact support."
         except Exception as e:
             error_str = str(e).lower()
             if "user" in error_str or "not found" in error_str:
-                return False, "Email not found. Please check your email address."
+                return False, "Email not found in our system."
             else:
-                return False, "Unable to send reset email. Please contact support."
+                return False, "Unable to process reset. Please try again later."
 
 
 def init_auth_session():
