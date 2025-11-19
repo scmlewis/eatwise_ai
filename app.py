@@ -37,6 +37,7 @@ st.set_page_config(
     page_icon="🥗",
     layout="wide",
     initial_sidebar_state="expanded",
+    menu_items=None
 )
 
 # ==================== STYLING ====================
@@ -53,6 +54,19 @@ st.markdown("""
         --danger-color: #FF0000;
         --accent-purple: #845EF7;
         --accent-blue: #3B82F6;
+    }
+    
+    /* Force sidebar to be expanded on desktop */
+    @media (min-width: 992px) {
+        section[data-testid="stSidebar"] {
+            display: block !important;
+            min-width: 250px !important;
+        }
+        
+        section[data-testid="stSidebar"][aria-hidden="true"] {
+            display: block !important;
+            visibility: visible !important;
+        }
     }
     
     .main {
@@ -153,6 +167,16 @@ st.markdown("""
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
         color: white;
     }
+    
+    /* Ensure sidebar expansion on all screen sizes after login */
+    section[data-testid="stSidebar"] > div {
+        width: 250px !important;
+    }
+    
+    /* Force sidebar button to not collapse */
+    button[kind="header"] svg {
+        display: none !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -160,6 +184,10 @@ st.markdown("""
 
 init_session_state()
 init_auth_session()
+
+# Ensure sidebar is expanded on desktop after login
+if is_authenticated():
+    st.session_state.sidebar_expanded = True
 
 auth_manager = st.session_state.auth_manager
 db_manager = DatabaseManager()
