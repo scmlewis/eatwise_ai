@@ -844,6 +844,15 @@ def dashboard_page():
             "target": targets["sugar"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["sugar"], targets["sugar"]),
             "unit": "g"
+        },
+        {
+            "icon": "💧",
+            "label": "Water",
+            "value": f"{current_water}",
+            "target": water_goal,
+            "percentage": water_percentage,
+            "unit": "glasses",
+            "is_water": True
         }
     ]
     
@@ -853,9 +862,27 @@ def dashboard_page():
     for idx, card in enumerate(nutrition_cards):
         with cols[idx % 3]:
             percentage = card["percentage"]
+            is_water = card.get("is_water", False)
             
             # Determine color and status
-            if card["label"] in ["Sodium", "Sugar"]:
+            if is_water:
+                # Water uses same logic as good nutrients
+                if percentage >= 100:
+                    color = "#51CF66"
+                    gradient_color = "#80C342"
+                    status_icon = "✅"
+                    status_text = f"{percentage:.0f}%"
+                elif percentage >= 75:
+                    color = "#FFD43B"
+                    gradient_color = "#FCC41A"
+                    status_icon = "⚠️"
+                    status_text = f"{percentage:.0f}%"
+                else:
+                    color = "#3B82F6"
+                    gradient_color = "#60A5FA"
+                    status_icon = "💧"
+                    status_text = f"{percentage:.0f}%"
+            elif card["label"] in ["Sodium", "Sugar"]:
                 # Harmful nutrients - red for exceeding
                 if percentage > 100:
                     color = "#FF6B6B"
@@ -890,33 +917,88 @@ def dashboard_page():
                     status_icon = "⚠️"
                     status_text = f"{percentage:.0f}%"
             
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
-                border: 1px solid {color};
-                border-left: 5px solid {color};
-                border-radius: 14px;
-                padding: 14px;
-                text-align: center;
-                min-height: 160px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
-                transition: all 0.3s ease;
-            ">
-                <div>
-                    <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
-                    <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
+            if is_water:
+                # Water card with action buttons
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
+                    border: 1px solid {color};
+                    border-left: 5px solid {color};
+                    border-radius: 14px;
+                    padding: 14px;
+                    text-align: center;
+                    min-height: 160px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
+                    transition: all 0.3s ease;
+                ">
+                    <div>
+                        <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
+                        <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: 900; color: {color}; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
+                        <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
+                        <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
+                    </div>
+                    <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
                 </div>
-                <div>
-                    <div style="font-size: 24px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
-                    <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
-                    <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
+                """, unsafe_allow_html=True)
+                
+                # Water action buttons inside the column
+                water_col_a, water_col_b = st.columns(2, gap="small")
+                with water_col_a:
+                    if st.button("➕", use_container_width=True, key=f"water_add_{idx}", help="Add 1 glass"):
+                        if db_manager.log_water(st.session_state.user_id, 1, today):
+                            st.session_state.water_notification = ("success", "✅ Glass added!")
+                            st.rerun()
+                        else:
+                            st.session_state.water_notification = ("error", "❌ Failed to log water")
+                            st.rerun()
+                
+                with water_col_b:
+                    if st.button("➖", use_container_width=True, key=f"water_remove_{idx}", help="Remove 1 glass"):
+                        if current_water > 0:
+                            if db_manager.log_water(st.session_state.user_id, -1, today):
+                                st.session_state.water_notification = ("success", "✅ Removed 1 glass")
+                                st.rerun()
+                            else:
+                                st.session_state.water_notification = ("error", "❌ Failed to remove water")
+                                st.rerun()
+                        else:
+                            st.session_state.water_notification = ("warning", "⚠️ No water logged yet")
+                            st.rerun()
+            else:
+                # Regular nutrition card
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
+                    border: 1px solid {color};
+                    border-left: 5px solid {color};
+                    border-radius: 14px;
+                    padding: 14px;
+                    text-align: center;
+                    min-height: 160px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
+                    transition: all 0.3s ease;
+                ">
+                    <div>
+                        <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
+                        <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
+                        <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
+                        <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
+                    </div>
+                    <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
                 </div>
-                <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.divider()
