@@ -2685,9 +2685,7 @@ def main():
             
             st.sidebar.markdown("---")
             
-            # ===== QUICK STATS IN SIDEBAR - SINGLE ROW COMPACT =====
-            st.sidebar.markdown("### 📊 Quick Stats")
-            
+            # ===== QUICK STATS IN SIDEBAR - COMPACT SINGLE ROW =====
             # Get today's data for sidebar stats
             today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
             today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
@@ -2710,36 +2708,35 @@ def main():
             if user_profile:
                 age_group = user_profile.get("age_group", "26-35")
                 targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
-                cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
                 cal_display = int(today_nutrition['calories'])
             else:
                 cal_display = int(today_nutrition['calories'])
             
-            # Create single row compact stats
-            stat_cols = st.sidebar.columns(4, gap="small")
+            # Create three-column compact stats (Streak, Calories, Water)
+            stat_cols = st.sidebar.columns(3, gap="medium")
             
             with stat_cols[0]:
                 st.markdown(f"""
-                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">🔥 Streak</div>
-                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #FFB84D;">{current_streak}</div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{current_streak}</div>
+                    <div style="font-size: 11px; color: #a0a0a0;">🔥 Streak</div>
+                </div>
                 """, unsafe_allow_html=True)
             
             with stat_cols[1]:
                 st.markdown(f"""
-                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">🔥 Cal</div>
-                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #FFB84D;">{cal_display}</div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{cal_display}</div>
+                    <div style="font-size: 11px; color: #a0a0a0;">🔥 Calories</div>
+                </div>
                 """, unsafe_allow_html=True)
             
             with stat_cols[2]:
                 st.markdown(f"""
-                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">🍽️ Meals</div>
-                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #10A19D;">{len(today_meals)}</div>
-                """, unsafe_allow_html=True)
-            
-            with stat_cols[3]:
-                st.markdown(f"""
-                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">💧 Water</div>
-                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #3B82F6;">{water_today}/{water_goal}</div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #3B82F6; margin-bottom: 4px;">{water_today}/{water_goal}</div>
+                    <div style="font-size: 11px; color: #a0a0a0;">💧 Water</div>
+                </div>
                 """, unsafe_allow_html=True)
             
             st.sidebar.markdown("---")
