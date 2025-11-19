@@ -2413,6 +2413,33 @@ def help_page():
 def main():
     """Main app logic"""
     
+    # Add responsive sidebar CSS
+    st.markdown("""
+    <style>
+        /* Sidebar responsive adjustments */
+        [data-testid="stSidebar"] {
+            width: fit-content !important;
+        }
+        
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Make buttons in sidebar responsive */
+        [data-testid="stSidebar"] button {
+            word-wrap: break-word;
+            white-space: normal !important;
+        }
+        
+        /* Better text wrapping in sidebar */
+        [data-testid="stSidebar"] p {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
     if not is_authenticated():
         login_page()
     else:
@@ -2424,6 +2451,7 @@ def main():
             border-radius: 12px;
             margin-bottom: 10px;
             text-align: center;
+            word-wrap: break-word;
         ">
             <h1 style="color: white; margin: 0; font-size: 1.5em;">🥗 {APP_NAME}</h1>
         </div>
@@ -2431,10 +2459,10 @@ def main():
         st.sidebar.markdown("---")
         
         if st.session_state.user_email:
-            # User info and menu at top (always accessible)
+            # User info - with word wrapping
             st.sidebar.markdown(f"👤 **{st.session_state.user_email}**")
             
-            # Logout button - simple and straightforward
+            # Logout button
             if st.sidebar.button("🚪 Logout", use_container_width=True, key="logout_btn"):
                 st.session_state.auth_manager.logout()
                 st.session_state.clear()
