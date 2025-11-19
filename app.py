@@ -917,9 +917,7 @@ def dashboard_page():
     st.divider()
     
     # ===== Quick Stats =====
-    st.markdown("## 📊 Today's Nutrition Summary")
-    
-    # Section background container
+    # Section background container with title inside
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, rgba(16, 161, 157, 0.05) 0%, rgba(255, 107, 22, 0.03) 100%);
@@ -927,8 +925,8 @@ def dashboard_page():
         padding: 20px;
         margin-bottom: 24px;
     ">
+        <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #e0f2f1;">📊 Today's Nutrition Summary</h2>
     """, unsafe_allow_html=True)
-    st.markdown("")  # Add spacing above
     
     # Unified nutrition cards with all key info + progress bars
     nutrition_cards = [
@@ -983,7 +981,7 @@ def dashboard_page():
     ]
     
     # Create 3-column grid for compact display
-    cols = st.columns(3, gap="small")
+    cols = st.columns(3, gap="small")  # Compact spacing between cards
     
     for idx, card in enumerate(nutrition_cards):
         with cols[idx % 3]:
@@ -1031,9 +1029,9 @@ def dashboard_page():
                 border: 1px solid {color};
                 border-left: 5px solid {color};
                 border-radius: 14px;
-                padding: 18px;
+                padding: 14px;
                 text-align: center;
-                min-height: 180px;
+                min-height: 160px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -1041,15 +1039,15 @@ def dashboard_page():
                 transition: all 0.3s ease;
             ">
                 <div>
-                    <div style="font-size: 32px; margin-bottom: 8px;">{card['icon']}</div>
-                    <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">{card['label']}</div>
+                    <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
+                    <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
                 </div>
                 <div>
-                    <div style="font-size: 28px; font-weight: bold; color: #e0f2f1; margin-bottom: 10px;">{card['value']}{card['unit']}</div>
-                    <div style="background: #0a0e27; border-radius: 4px; height: 5px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
-                    <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 6px;">{card['value']}{card['unit']} of {card['target']}{card['unit']}</div>
+                    <div style="font-size: 24px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
+                    <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
+                    <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
                 </div>
-                <div style="font-size: 9px; color: {color}; font-weight: 600;">{status_icon} {status_text}</div>
+                <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
     
