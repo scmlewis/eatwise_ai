@@ -23,6 +23,7 @@ from auth import AuthManager, init_auth_session, is_authenticated
 from database import DatabaseManager
 from nutrition_analyzer import NutritionAnalyzer
 from recommender import RecommendationEngine
+from nutrition_components import display_nutrition_targets_progress
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
     get_nutrition_status, format_nutrition_dict, get_streak_info,
@@ -386,6 +387,8 @@ def login_page():
             </p>
             """, unsafe_allow_html=True)
 
+
+
 def dashboard_page():
     """Dashboard/Home page"""
     user_profile = st.session_state.user_profile
@@ -685,42 +688,8 @@ def dashboard_page():
             </div>
             """, unsafe_allow_html=True)
     
-    # ===== Nutrition Bars =====
-    st.markdown("### Nutrition Targets Progress")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # Calories
-        cal_pct = min(calculate_nutrition_percentage(daily_nutrition["calories"], targets["calories"]), 100)
-        st.write("🔥 Calories")
-        st.progress(cal_pct / 100, text=f"{cal_pct:.0f}%")
-        
-        # Protein
-        protein_pct = min(calculate_nutrition_percentage(daily_nutrition["protein"], targets["protein"]), 100)
-        st.write("💪 Protein")
-        st.progress(protein_pct / 100, text=f"{protein_pct:.0f}%")
-        
-        # Carbs
-        carbs_pct = min(calculate_nutrition_percentage(daily_nutrition["carbs"], targets["carbs"]), 100)
-        st.write("🍚 Carbs")
-        st.progress(carbs_pct / 100, text=f"{carbs_pct:.0f}%")
-    
-    with col2:
-        # Fat
-        fat_pct = min(calculate_nutrition_percentage(daily_nutrition["fat"], targets["fat"]), 100)
-        st.write("🫒 Fat")
-        st.progress(fat_pct / 100, text=f"{fat_pct:.0f}%")
-        
-        # Sodium
-        sodium_pct = min(calculate_nutrition_percentage(daily_nutrition["sodium"], targets["sodium"]), 100)
-        st.write("🧂 Sodium")
-        st.progress(sodium_pct / 100, text=f"{sodium_pct:.0f}%")
-        
-        # Sugar
-        sugar_pct = min(calculate_nutrition_percentage(daily_nutrition["sugar"], targets["sugar"]), 100)
-        st.write("🍬 Sugar")
-        st.progress(sugar_pct / 100, text=f"{sugar_pct:.0f}%")
+    # Display Nutrition Targets Progress in styled box
+    display_nutrition_targets_progress(daily_nutrition, targets)
     
     # ===== Today's Meals =====
     st.markdown("## 🍽️ Today's Meals")
