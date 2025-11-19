@@ -718,58 +718,67 @@ def dashboard_page():
         avg_cal = df["calories"].mean() if len(df) > 0 else 0
         target_cal = targets['calories']
         cal_pct = (avg_cal / target_cal * 100) if target_cal > 0 else 0
-        cal_color = "#51CF66" if 80 <= cal_pct <= 120 else ("#FFD43B" if cal_pct < 80 else "#FF6B6B")
+        cal_status = "✅" if 80 <= cal_pct <= 120 else ("⚠️" if cal_pct < 80 else "⚡")
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
             border: 2px solid #FF6B16;
             border-radius: 12px;
-            padding: 16px;
+            padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(255, 107, 22, 0.2);
+            transition: transform 0.2s ease;
         ">
-            <div style="font-size: 32px; margin-bottom: 8px;">🔥</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Avg. Daily Calories</div>
-            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_cal:.0f}</div>
-            <div style="font-size: 10px; color: #FF6B16; font-weight: 600;">Target: {target_cal}</div>
+            <div style="font-size: 28px; margin-bottom: 4px;">🔥</div>
+            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Avg Calories</div>
+            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_cal:.0f}</div>
+            <div style="font-size: 8px; color: #FF6B16; font-weight: 600; margin-bottom: 4px;">of {target_cal}</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #FF6B16 0%, #FF8A4A 100%); height: 100%; width: {min(cal_pct, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 8px; color: #FF6B16;">{cal_status} {cal_pct:.0f}%</div>
         </div>
         """, unsafe_allow_html=True)
     
     # Total Meals Card
     with stats_cols[1]:
         total_meals = len(recent_meals)
+        meals_status = "🔥" if total_meals >= 14 else ("✅" if total_meals >= 7 else "⚠️")
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
             border: 2px solid #10A19D;
             border-radius: 12px;
-            padding: 16px;
+            padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(16, 161, 157, 0.2);
         ">
-            <div style="font-size: 32px; margin-bottom: 8px;">🍽️</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Total Meals</div>
-            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{total_meals}</div>
-            <div style="font-size: 10px; color: #10A19D; font-weight: 600;">In {days_back} days</div>
+            <div style="font-size: 28px; margin-bottom: 4px;">🍽️</div>
+            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Total Meals</div>
+            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{total_meals}</div>
+            <div style="font-size: 8px; color: #10A19D; font-weight: 600; margin-bottom: 4px;">{days_back} days</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #10A19D 0%, #52C4B8 100%); height: 100%; width: {min((total_meals/21)*100, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 8px; color: #10A19D;">{meals_status} {(total_meals/days_back):.1f}/day</div>
         </div>
         """, unsafe_allow_html=True)
     
     # Avg Meals Per Day Card
     with stats_cols[2]:
         avg_meals_per_day = total_meals / days_back if days_back > 0 else 0
+        meal_freq_status = "✅" if 2 <= avg_meals_per_day <= 4 else ("⚠️" if avg_meals_per_day < 2 else "⚡")
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
             border: 2px solid #845EF7;
             border-radius: 12px;
-            padding: 16px;
+            padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(132, 94, 247, 0.2);
         ">
-            <div style="font-size: 32px; margin-bottom: 8px;">📈</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Avg. Meals/Day</div>
-            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_meals_per_day:.1f}</div>
-            <div style="font-size: 10px; color: #845EF7; font-weight: 600;">meals per day</div>
+            <div style="font-size: 28px; margin-bottom: 4px;">📈</div>
+            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Meals/Day</div>
+            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_meals_per_day:.1f}</div>
+            <div style="font-size: 8px; color: #845EF7; font-weight: 600; margin-bottom: 4px;">avg</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #845EF7 0%, #BE80FF 100%); height: 100%; width: {min((avg_meals_per_day/5)*100, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 8px; color: #845EF7;">{meal_freq_status}</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -778,20 +787,22 @@ def dashboard_page():
         avg_protein = df["protein"].mean() if len(df) > 0 else 0
         target_protein = targets['protein']
         protein_pct = (avg_protein / target_protein * 100) if target_protein > 0 else 0
-        protein_color = "#51CF66" if 80 <= protein_pct <= 120 else ("#FFD43B" if protein_pct < 80 else "#FF6B6B")
+        protein_status = "✅" if 80 <= protein_pct <= 120 else ("⚠️" if protein_pct < 80 else "⚡")
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
             border: 2px solid #51CF66;
             border-radius: 12px;
-            padding: 16px;
+            padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
         ">
-            <div style="font-size: 32px; margin-bottom: 8px;">💪</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Avg. Protein</div>
-            <div style="font-size: 24px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{avg_protein:.1f}g</div>
-            <div style="font-size: 10px; color: #51CF66; font-weight: 600;">Target: {target_protein}g</div>
+            <div style="font-size: 28px; margin-bottom: 4px;">💪</div>
+            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Avg Protein</div>
+            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_protein:.1f}g</div>
+            <div style="font-size: 8px; color: #51CF66; font-weight: 600; margin-bottom: 4px;">of {target_protein}g</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #51CF66 0%, #80C342 100%); height: 100%; width: {min(protein_pct, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 8px; color: #51CF66;">{protein_status} {protein_pct:.0f}%</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -812,14 +823,14 @@ def dashboard_page():
             background: linear-gradient(135deg, #FF671520 0%, #FF671540 100%);
             border: 2px solid #FF6715;
             border-radius: 12px;
-            padding: 20px;
+            padding: 14px;
             text-align: center;
             box-shadow: 0 6px 20px rgba(255, 103, 21, 0.25);
         ">
-            <div style="font-size: 40px; margin-bottom: 12px;">{streak_emoji}</div>
-            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600;">Current Streak</div>
-            <div style="font-size: 32px; font-weight: bold; color: #e0f2f1;">{current_streak}</div>
-            <div style="font-size: 11px; color: #FF6715; margin-top: 8px; font-weight: 600;">days in a row</div>
+            <div style="font-size: 36px; margin-bottom: 8px;">{streak_emoji}</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Current Streak</div>
+            <div style="font-size: 28px; font-weight: bold; color: #e0f2f1;">{current_streak}</div>
+            <div style="font-size: 9px; color: #FF6715; margin-top: 6px; font-weight: 600;">days in a row</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -910,36 +921,44 @@ def dashboard_page():
     
     for card in cards_data:
         with card["col"]:
-            # Determine color based on percentage
-            if card["percentage"] > 100:
+            # Determine color and status based on percentage
+            percentage = card["percentage"]
+            if percentage > 100:
                 color = "#FF6B6B"  # Red for over
                 gradient_color = "#FF8A8A"
-            elif card["percentage"] >= 80:
+                status_icon = "⚡"
+                status_text = f"+{percentage-100:.0f}%"
+            elif percentage >= 80:
                 color = "#51CF66"  # Green for good
                 gradient_color = "#80C342"
+                status_icon = "✅"
+                status_text = f"{percentage:.0f}%"
             else:
                 color = "#FFD43B"  # Yellow for low
                 gradient_color = "#FFC94D"
+                status_icon = "⚠️"
+                status_text = f"{percentage:.0f}%"
             
             st.markdown(f"""
             <div style="
                 background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
                 border: 2px solid {color};
                 border-radius: 10px;
-                padding: 12px;
+                padding: 10px;
                 text-align: center;
-                min-height: 130px;
+                min-height: 110px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                gap: 6px;
+                gap: 4px;
                 box-shadow: 0 4px 12px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
             ">
-                <div style="font-size: 28px;">{card['icon']}</div>
-                <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">{card['label']}</div>
-                <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{card['value']}</div>
-                <div style="font-size: 9px; color: {color}; font-weight: 600;">↑ {card['percentage']:.0f}% {card['target']}</div>
+                <div style="font-size: 24px;">{card['icon']}</div>
+                <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">{card['label']}</div>
+                <div style="font-size: 16px; font-weight: bold; color: #e0f2f1;">{card['value']}</div>
+                <div style="background: #0a0e27; border-radius: 3px; height: 2px; margin: 2px 0;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 3px;"></div></div>
+                <div style="font-size: 8px; color: {color}; font-weight: 600;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
     
