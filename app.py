@@ -1782,6 +1782,27 @@ def main():
             )
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
             
+            # Detect page change and scroll to top
+            if "current_page" not in st.session_state:
+                st.session_state.current_page = selected_page
+            
+            page_changed = st.session_state.current_page != selected_page
+            if page_changed:
+                st.session_state.current_page = selected_page
+                # Inject scroll-to-top script immediately
+                st.markdown(
+                    """
+                    <script>
+                        window.scrollTo(0, 0);
+                        // Force scroll on next frame too for reliability
+                        setTimeout(function() {
+                            window.scrollTo(0, 0);
+                        }, 100);
+                    </script>
+                    """,
+                    unsafe_allow_html=True
+                )
+            
             st.sidebar.markdown("---")
             
             # Daily Insight in sidebar
@@ -1805,10 +1826,6 @@ def main():
             if st.session_state.get("quick_nav_to_meal"):
                 st.session_state.quick_nav_to_meal = False
             
-            # Store previous page to detect navigation
-            if "prev_page" not in st.session_state:
-                st.session_state.prev_page = selected_page
-            
             # Route to selected page
             if selected_page == "Dashboard":
                 dashboard_page()
@@ -1824,18 +1841,6 @@ def main():
                 profile_page()
             elif selected_page == "Help":
                 help_page()
-            
-            # Scroll to top if page changed
-            if st.session_state.prev_page != selected_page:
-                st.session_state.prev_page = selected_page
-                st.markdown(
-                    """
-                    <script>
-                        window.scrollTo(0, 0);
-                    </script>
-                    """,
-                    unsafe_allow_html=True
-                )
 
 
 if __name__ == "__main__":
