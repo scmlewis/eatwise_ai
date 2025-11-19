@@ -44,14 +44,30 @@ def render_nutrition_progress_bar(
         unit: Unit of measurement (e.g., "g", "mg")
         show_value: Whether to show the exact value
     """
-    percentage = min(calculate_nutrition_percentage(current, target), 100)
+    percentage = calculate_nutrition_percentage(current, target)
     primary_color, gradient_color = get_nutrition_color(percentage)
+    
+    # Determine if this is a "limit" nutrient (should not exceed)
+    limit_nutrients = ["sodium", "sugar", "fat"]
+    is_limit_nutrient = any(lim.lower() in label.lower() for lim in limit_nutrients)
+    
+    # Cap bar at 100% visually but show actual percentage in text
+    bar_width = min(percentage, 100)
+    
+    # Create warning if exceeded limit nutrients
+    warning_indicator = ""
+    if is_limit_nutrient and percentage > 100:
+        excess_amount = current - target
+        warning_indicator = f'<div style="color: #FF6B6B; font-size: 12px; font-weight: 600; margin-bottom: 4px;">⚠️ Exceeded by {excess_amount:.1f}{unit}</div>'
     
     # Display percentage and value text
     if show_value:
         value_text = f"{current:.1f}{unit}" if unit else f"{current:.0f}"
         target_text = f"{target:.1f}{unit}" if unit else f"{target:.0f}"
-        percentage_text = f"↑ {percentage:.0f}% • {value_text} of {target_text}"
+        if percentage > 100:
+            percentage_text = f"↑ {percentage:.0f}% • {value_text} of {target_text}"
+        else:
+            percentage_text = f"↑ {percentage:.0f}% • {value_text} of {target_text}"
     else:
         percentage_text = f"↑ {percentage:.0f}%"
     
@@ -61,6 +77,7 @@ def render_nutrition_progress_bar(
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
             <span style="color: #e0f2f1; font-size: 13px; font-weight: 500;">{icon} {label}</span>
         </div>
+        {warning_indicator}
         <div style="
             width: 100%;
             background: #2a2a3e;
@@ -74,7 +91,7 @@ def render_nutrition_progress_bar(
             <div style="
                 background: linear-gradient(90deg, {primary_color} 0%, {gradient_color} 100%);
                 height: 100%;
-                width: {min(percentage, 100)}%;
+                width: {bar_width}%;
                 border-radius: 4px;
                 transition: width 0.3s ease;
                 box-shadow: 0 0 10px rgba({int(primary_color[1:3], 16)}, {int(primary_color[3:5], 16)}, {int(primary_color[5:7], 16)}, 0.5);
