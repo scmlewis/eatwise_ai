@@ -1782,16 +1782,6 @@ def main():
             )
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
             
-            # Simple scroll to top on every page render
-            st.markdown(
-                """
-                <script>
-                    window.scrollTo(0, 0);
-                </script>
-                """,
-                unsafe_allow_html=True
-            )
-            
             st.sidebar.markdown("---")
             
             # Daily Insight in sidebar
