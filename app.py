@@ -176,14 +176,14 @@ def login_page():
     <style>
         .login-container {
             display: flex;
-            gap: 40px;
+            gap: 20px;
             align-items: stretch;
         }
         
         .login-hero {
             flex: 1;
             background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-            padding: 50px;
+            padding: 30px;
             border-radius: 20px;
             color: white;
             display: flex;
@@ -193,34 +193,34 @@ def login_page():
         }
         
         .login-hero h1 {
-            font-size: 3em;
-            margin: 0 0 15px 0;
+            font-size: 2.2em;
+            margin: 0 0 8px 0;
             font-weight: 800;
         }
         
         .login-hero h2 {
-            font-size: 1.5em;
-            margin: 0 0 25px 0;
+            font-size: 1.1em;
+            margin: 0 0 15px 0;
             font-weight: 300;
             opacity: 0.95;
         }
         
         .login-hero ul {
-            font-size: 1.05em;
-            line-height: 1.8;
+            font-size: 0.9em;
+            line-height: 1.4;
         }
         
         .login-hero li {
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         
         .login-form-container {
             flex: 1;
             background: linear-gradient(135deg, #0D7A7620 0%, #10A19D10 100%);
-            padding: 50px;
+            padding: 30px;
             border-radius: 20px;
             border: 2px solid #10A19D;
             display: flex;
@@ -230,19 +230,19 @@ def login_page():
         }
         
         .login-header {
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             text-align: center;
         }
         
         .login-header h3 {
             color: #52C4B8;
-            font-size: 1.8em;
+            font-size: 1.4em;
             margin: 0;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         
         .login-tabs {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
         
         .stTabs [data-baseweb="tab-list"] {
@@ -255,8 +255,9 @@ def login_page():
             border: 2px solid #10A19D40;
             border-radius: 10px;
             color: #a0a0a0;
-            padding: 10px 20px;
+            padding: 8px 16px;
             font-weight: 600;
+            font-size: 0.9em;
         }
         
         .stTabs [data-baseweb="tab"][aria-selected="true"] {
@@ -266,15 +267,15 @@ def login_page():
         }
         
         .form-input-group {
-            margin-bottom: 18px;
+            margin-bottom: 12px;
         }
         
         .form-input-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #e0f2f1;
             font-weight: 600;
-            font-size: 0.95em;
+            font-size: 0.85em;
         }
         
         .stTextInput input {
@@ -282,8 +283,8 @@ def login_page():
             color: #e0f2f1 !important;
             border: 2px solid #10A19D40 !important;
             border-radius: 10px !important;
-            padding: 12px 16px !important;
-            font-size: 1em !important;
+            padding: 10px 12px !important;
+            font-size: 0.9em !important;
         }
         
         .stTextInput input:focus {
@@ -300,14 +301,14 @@ def login_page():
     </style>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1.1, 1], gap="large")
+    col1, col2 = st.columns([1.1, 1], gap="medium")
     
     with col1:
         st.markdown("""
         <div class="login-hero">
             <h1>🥗 EatWise</h1>
             <h2>Your AI-Powered Nutrition Hub</h2>
-            <p style="font-size: 1.1em; opacity: 0.9; margin-bottom: 25px;">
+            <p style="font-size: 0.95em; opacity: 0.9; margin-bottom: 15px;">
                 Transform your eating habits with intelligent meal tracking and personalized nutrition insights.
             </p>
             <ul style="list-style: none; padding: 0;">
@@ -325,7 +326,7 @@ def login_page():
         <div class="login-form-container">
             <div class="login-header">
                 <h3>Get Started</h3>
-                <p style="color: #a0a0a0; margin: 0;">Join thousands of users tracking their nutrition</p>
+                <p style="color: #a0a0a0; margin: 0; font-size: 0.85em;">Join thousands of users tracking their nutrition</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -354,7 +355,7 @@ def login_page():
             
             # Forgot password button - same width as login button
             st.markdown("""
-            <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
+            <p style="text-align: center; color: #a0a0a0; margin-top: 12px; font-size: 0.8em;">
                 Don't have an account? Create one in the Sign Up tab ↗️
             </p>
             """, unsafe_allow_html=True)
@@ -382,7 +383,7 @@ def login_page():
                     st.warning("⚠️ Please fill all fields")
             
             st.markdown("""
-            <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
+            <p style="text-align: center; color: #a0a0a0; margin-top: 12px; font-size: 0.8em;">
                 Already have an account? Login in the Login tab ↖️
             </p>
             """, unsafe_allow_html=True)
