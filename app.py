@@ -1806,26 +1806,6 @@ def main():
             if st.session_state.get("quick_nav_to_meal"):
                 st.session_state.quick_nav_to_meal = False
             
-            # Inject scroll-to-top with HTML anchor
-            st.markdown('<a id="page-top"></a>', unsafe_allow_html=True)
-            st.markdown(
-                f"""
-                <script>
-                    // Try multiple methods to ensure scroll to top
-                    document.documentElement.scrollTop = 0;
-                    document.body.scrollTop = 0;
-                    window.scrollTo(0, 0);
-                    
-                    // Also try using the anchor
-                    var anchor = document.getElementById('page-top');
-                    if (anchor) {{
-                        anchor.scrollIntoView(true);
-                    }}
-                </script>
-                """,
-                unsafe_allow_html=True
-            )
-            
             # Route to selected page
             if selected_page == "Dashboard":
                 dashboard_page()
