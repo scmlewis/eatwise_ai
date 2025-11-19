@@ -155,7 +155,7 @@ class AuthManager:
             Tuple of (success, message)
         """
         try:
-            self.supabase.auth.reset_password_for_email(email)
+            self.supabase.auth.reset_password_email(email)
             return True, "Password reset email sent! Check your email for instructions."
         except Exception as e:
             error_str = str(e)
