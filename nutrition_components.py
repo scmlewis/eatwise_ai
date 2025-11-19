@@ -47,39 +47,46 @@ def render_nutrition_progress_bar(
     percentage = min(calculate_nutrition_percentage(current, target), 100)
     primary_color, gradient_color = get_nutrition_color(percentage)
     
-    # Display label with icon
-    st.write(f"{icon} {label}")
-    
-    # Create custom progress bar with modern styling
-    progress_html = f"""
-    <div style="
-        width: 100%;
-        background: #2a2a3e;
-        height: 8px;
-        border-radius: 4px;
-        overflow: hidden;
-        margin: 5px 0 10px 0;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-        box-sizing: border-box;
-    ">
-        <div style="
-            background: linear-gradient(90deg, {primary_color} 0%, {gradient_color} 100%);
-            height: 100%;
-            width: {min(percentage, 100)}%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba({int(primary_color[1:3], 16)}, {int(primary_color[3:5], 16)}, {int(primary_color[5:7], 16)}, 0.5);
-        "></div>
-    </div>
-    """
-    
-    st.markdown(progress_html, unsafe_allow_html=True)
-    
     # Display percentage and value text
     if show_value:
         value_text = f"{current:.1f}{unit}" if unit else f"{current:.0f}"
         target_text = f"{target:.1f}{unit}" if unit else f"{target:.0f}"
-        st.caption(f"↑ {percentage:.0f}% • {value_text} of {target_text}")
+        percentage_text = f"↑ {percentage:.0f}% • {value_text} of {target_text}"
+    else:
+        percentage_text = f"↑ {percentage:.0f}%"
+    
+    # Create complete progress bar with label, bar, and text in one HTML block
+    progress_html = f"""
+    <div style="width: 100%; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="color: #e0f2f1; font-size: 13px; font-weight: 500;">{icon} {label}</span>
+        </div>
+        <div style="
+            width: 100%;
+            background: #2a2a3e;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+        ">
+            <div style="
+                background: linear-gradient(90deg, {primary_color} 0%, {gradient_color} 100%);
+                height: 100%;
+                width: {min(percentage, 100)}%;
+                border-radius: 4px;
+                transition: width 0.3s ease;
+                box-shadow: 0 0 10px rgba({int(primary_color[1:3], 16)}, {int(primary_color[3:5], 16)}, {int(primary_color[5:7], 16)}, 0.5);
+            "></div>
+        </div>
+        <div style="color: #a0a0a0; font-size: 11px; text-align: left;">
+            {percentage_text}
+        </div>
+    </div>
+    """
+    
+    st.markdown(progress_html, unsafe_allow_html=True)
 
 
 def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> None:
@@ -121,7 +128,6 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
         border-radius: 15px;
         padding: 20px;
         margin-bottom: 25px;
-        overflow: hidden;
         box-sizing: border-box;
     ">
         <h3 style="color: #52C4B8; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
@@ -130,7 +136,7 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
     """, unsafe_allow_html=True)
     
     # Create two columns for nutrition targets
-    col1, col2 = st.columns(2, gap="medium")
+    col1, col2 = st.columns(2)
     
     nutrition_items = [
         {
@@ -180,15 +186,6 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
     # Render each nutrition item
     for item in nutrition_items:
         with item["col"]:
-            st.markdown("""
-            <style>
-            [data-testid="column"] {
-                overflow: visible !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            </style>
-            """, unsafe_allow_html=True)
             render_nutrition_progress_bar(
                 label=item["label"],
                 icon=item["icon"],
