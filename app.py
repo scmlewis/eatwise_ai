@@ -169,6 +169,8 @@ recommender = RecommendationEngine()
 
 def reset_password_page():
     """Password reset page when user is redirected from email link"""
+    # Debug: Show that we got here
+    st.write("DEBUG: reset_mode is True, showing reset password page")
     st.markdown("""
     <style>
         .reset-container {
@@ -1898,9 +1900,19 @@ def main():
     """Main app logic"""
     
     # Check for password reset in URL parameters from Supabase reset email
-    # Supabase adds ?type=recovery to the redirect URL in the reset email
+    # Supabase adds ?type=recovery&token=... to the redirect URL
     query_params = st.query_params
-    if query_params.get("type") == "recovery" or query_params.get("type") == ["recovery"]:
+    
+    # Debug: Log the query params to understand what we're receiving
+    # Uncomment to debug URL parameters
+    # st.write("Query params:", dict(query_params))
+    
+    # Check if this is a password recovery URL
+    # Handle both string and list values from query params
+    type_param = query_params.get("type")
+    if type_param == "recovery" or type_param == ["recovery"]:
+        st.session_state.reset_mode = True
+    elif type_param and "recovery" in str(type_param):
         st.session_state.reset_mode = True
     
     # Check if user is in reset password mode (after clicking reset link from email)
