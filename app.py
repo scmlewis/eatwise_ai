@@ -1917,7 +1917,7 @@ def main():
             
             # Logout button in sidebar
             if st.sidebar.button("🚪 Logout", use_container_width=True):
-                auth_manager.logout()
+                st.session_state.auth_manager.logout()
                 st.session_state.clear()
                 st.success("✅ Logged out!")
                 st.rerun()
