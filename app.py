@@ -664,19 +664,35 @@ def dashboard_page():
     
     st.divider()
     
-    # ===== Quick Stats =====
-    st.markdown("## 📊 Today's Nutrition Summary")
+    # ===== WATER INTAKE TRACKER =====
+    st.markdown("## 💧 Water Intake")
     
     # Get water intake data
     water_goal = user_profile.get("water_goal_glasses", 8)
     current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
     water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
     
-    # Initialize water notification state for nutrition section
+    # Determine water status
+    if current_water >= water_goal:
+        water_status = "🎉 Daily goal achieved!"
+        water_status_color = "#51CF66"
+        water_bg = "linear-gradient(135deg, #51CF6620 0%, #69DB7C40 100%)"
+        water_border = "#51CF66"
+    elif current_water >= water_goal * 0.75:
+        water_status = "💪 Almost there! Keep going!"
+        water_status_color = "#FFD43B"
+        water_bg = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
+        water_border = "#FFD43B"
+    else:
+        water_status = "💧 Stay hydrated! Keep drinking"
+        water_status_color = "#3B82F6"
+        water_bg = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
+        water_border = "#3B82F6"
+    
+    # Display water notification if exists
     if "water_notification" not in st.session_state:
         st.session_state.water_notification = None
     
-    # Display water notification if exists
     if st.session_state.water_notification:
         notification_type, notification_msg = st.session_state.water_notification
         notification_colors = {
@@ -715,6 +731,67 @@ def dashboard_page():
         </style>
         """, unsafe_allow_html=True)
         st.session_state.water_notification = None
+    
+    # Water intake card
+    st.markdown(f"""
+    <div style="
+        background: {water_bg};
+        border: 2px solid {water_border};
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        margin-bottom: 12px;
+    ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="color: #e0f2f1; font-weight: 600; font-size: 15px;">💧 Water Intake</span>
+            <span style="color: {water_status_color}; font-weight: bold; font-size: 13px;">{current_water}/{water_goal} glasses</span>
+        </div>
+        <div style="background: #0a0e27; border-radius: 8px; height: 12px; overflow: hidden; margin-bottom: 10px;">
+            <div style="background: linear-gradient(90deg, {water_border} 0%, {water_status_color} 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: {water_status_color}; font-weight: 600; font-size: 13px;">{water_status}</span>
+            <span style="color: #a0a0a0; font-size: 12px;">{water_percentage:.0f}% Complete</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Water action buttons
+    water_btn_col1, water_btn_col2, water_btn_col3 = st.columns(3)
+    
+    with water_btn_col1:
+        if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
+            if db_manager.log_water(st.session_state.user_id, 1, today):
+                st.session_state.water_notification = ("success", "✅ Glass added!")
+                st.rerun()
+            else:
+                st.session_state.water_notification = ("error", "❌ Failed to log water")
+                st.rerun()
+    
+    with water_btn_col2:
+        if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
+            if current_water > 0:
+                if db_manager.log_water(st.session_state.user_id, -1, today):
+                    st.session_state.water_notification = ("success", "✅ Removed 1 glass")
+                    st.rerun()
+                else:
+                    st.session_state.water_notification = ("error", "❌ Failed to remove water")
+                    st.rerun()
+            else:
+                st.session_state.water_notification = ("warning", "⚠️ No water logged yet")
+                st.rerun()
+    
+    with water_btn_col3:
+        if st.button("🏁 Mark Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
+            remaining = max(0, water_goal - current_water)
+            if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
+                st.session_state.water_notification = ("success", f"✅ Added {remaining} glasses to complete goal!")
+                st.rerun()
+    
+    st.divider()
+    
+    # ===== Quick Stats =====
+    st.markdown("## 📊 Today's Nutrition Summary")
     
     # Unified nutrition cards with all key info + progress bars
     nutrition_cards = [
@@ -765,15 +842,6 @@ def dashboard_page():
             "target": targets["sugar"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["sugar"], targets["sugar"]),
             "unit": "g"
-        },
-        {
-            "icon": "💧",
-            "label": "Water",
-            "value": f"{current_water}",
-            "target": water_goal,
-            "percentage": water_percentage,
-            "unit": "glasses",
-            "is_water": True
         }
     ]
     
@@ -783,27 +851,9 @@ def dashboard_page():
     for idx, card in enumerate(nutrition_cards):
         with cols[idx % 3]:
             percentage = card["percentage"]
-            is_water = card.get("is_water", False)
             
             # Determine color and status
-            if is_water:
-                # Water uses same logic as good nutrients
-                if percentage >= 100:
-                    color = "#51CF66"
-                    gradient_color = "#80C342"
-                    status_icon = "✅"
-                    status_text = f"{percentage:.0f}%"
-                elif percentage >= 75:
-                    color = "#FFD43B"
-                    gradient_color = "#FCC41A"
-                    status_icon = "⚠️"
-                    status_text = f"{percentage:.0f}%"
-                else:
-                    color = "#3B82F6"
-                    gradient_color = "#60A5FA"
-                    status_icon = "💧"
-                    status_text = f"{percentage:.0f}%"
-            elif card["label"] in ["Sodium", "Sugar"]:
+            if card["label"] in ["Sodium", "Sugar"]:
                 # Harmful nutrients - red for exceeding
                 if percentage > 100:
                     color = "#FF6B6B"
@@ -838,88 +888,33 @@ def dashboard_page():
                     status_icon = "⚠️"
                     status_text = f"{percentage:.0f}%"
             
-            if is_water:
-                # Water card with action buttons
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
-                    border: 1px solid {color};
-                    border-left: 5px solid {color};
-                    border-radius: 14px;
-                    padding: 14px;
-                    text-align: center;
-                    min-height: 160px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
-                    transition: all 0.3s ease;
-                ">
-                    <div>
-                        <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
-                        <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 24px; font-weight: 900; color: {color}; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
-                        <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
-                        <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
-                    </div>
-                    <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
+                border: 1px solid {color};
+                border-left: 5px solid {color};
+                border-radius: 14px;
+                padding: 14px;
+                text-align: center;
+                min-height: 160px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
+                transition: all 0.3s ease;
+            ">
+                <div>
+                    <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
+                    <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
                 </div>
-                """, unsafe_allow_html=True)
-                
-                # Water action buttons inside the column
-                water_col_a, water_col_b = st.columns(2, gap="small")
-                with water_col_a:
-                    if st.button("➕", use_container_width=True, key=f"water_add_{idx}", help="Add 1 glass"):
-                        if db_manager.log_water(st.session_state.user_id, 1, today):
-                            st.session_state.water_notification = ("success", "✅ Glass added!")
-                            st.rerun()
-                        else:
-                            st.session_state.water_notification = ("error", "❌ Failed to log water")
-                            st.rerun()
-                
-                with water_col_b:
-                    if st.button("➖", use_container_width=True, key=f"water_remove_{idx}", help="Remove 1 glass"):
-                        if current_water > 0:
-                            if db_manager.log_water(st.session_state.user_id, -1, today):
-                                st.session_state.water_notification = ("success", "✅ Removed 1 glass")
-                                st.rerun()
-                            else:
-                                st.session_state.water_notification = ("error", "❌ Failed to remove water")
-                                st.rerun()
-                        else:
-                            st.session_state.water_notification = ("warning", "⚠️ No water logged yet")
-                            st.rerun()
-            else:
-                # Regular nutrition card
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
-                    border: 1px solid {color};
-                    border-left: 5px solid {color};
-                    border-radius: 14px;
-                    padding: 14px;
-                    text-align: center;
-                    min-height: 160px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
-                    transition: all 0.3s ease;
-                ">
-                    <div>
-                        <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
-                        <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 24px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
-                        <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
-                        <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
-                    </div>
-                    <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
+                <div>
+                    <div style="font-size: 24px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
+                    <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
+                    <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
                 </div>
-                """, unsafe_allow_html=True)
+                <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
+            </div>
+            """, unsafe_allow_html=True)
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.divider()
@@ -971,9 +966,8 @@ def dashboard_page():
         
         st.markdown("</div>", unsafe_allow_html=True)
     
-    # FREQUENT FOODS & EATING PATTERNS - Right side
+    # EATING PATTERNS - Right side (replaced "Most Frequent Foods")
     with breakdown_col2:
-        # Most Frequent Foods Card
         st.markdown("""
         <div style="
             background: linear-gradient(135deg, rgba(255, 107, 22, 0.1) 0%, rgba(16, 161, 157, 0.05) 100%);
@@ -982,76 +976,41 @@ def dashboard_page():
             padding: 20px;
             margin-bottom: 16px;
         ">
-            <h3 style="color: #e0f2f1; margin-top: 0;">🥘 Most Frequent Foods</h3>
+            <h3 style="color: #e0f2f1; margin-top: 0;">🍽️ Today's Eating Patterns</h3>
         """, unsafe_allow_html=True)
         
-        # Get food frequency from recent meals
-        food_frequency = {}
+        # Calculate meal type distribution
+        time_pattern = {}
         for meal in meals[:30]:
-            description = meal.get('description', '').lower()
-            if description:
-                foods = [f.strip() for f in description.split(',')]
-                for food in foods[:2]:  # Get first 2 foods mentioned
-                    if len(food) > 3:
-                        food_frequency[food] = food_frequency.get(food, 0) + 1
+            logged_at = meal.get('logged_at', '')
+            if logged_at:
+                hour = int(logged_at.split('T')[1].split(':')[0])
+                period = "Breakfast" if 6 <= hour < 10 else \
+                        "Lunch" if 10 <= hour < 15 else \
+                        "Dinner" if 15 <= hour < 21 else \
+                        "Snacks"
+                time_pattern[period] = time_pattern.get(period, 0) + 1
         
-        if food_frequency:
-            # Get top 5 foods
-            top_foods = sorted(food_frequency.items(), key=lambda x: x[1], reverse=True)[:5]
-            
-            for food, count in top_foods:
-                st.markdown(f"• **{food.title()}** ({count}x)")
-        else:
-            st.info("📝 Log more meals to see patterns!")
+        # Ensure all meal types are shown, even with 0 count
+        period_order = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        pattern_cols = st.columns(4, gap="medium")
+        
+        for idx, period in enumerate(period_order):
+            with pattern_cols[idx]:
+                emoji = {"Breakfast": "🌅", "Lunch": "🍴", "Dinner": "🌙", "Snacks": "🍿"}.get(period, "📌")
+                count = time_pattern.get(period, 0)
+                
+                st.markdown(f"""
+                <div style="text-align: center; padding: 12px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">{emoji}</div>
+                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{count}</div>
+                    <div style="font-size: 12px; color: #a0a0a0;">{period}</div>
+                </div>
+                """, unsafe_allow_html=True)
         
         st.markdown("</div>", unsafe_allow_html=True)
     
-    # EATING TIME PATTERNS - Full width below
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, rgba(75, 192, 192, 0.1) 0%, rgba(153, 102, 255, 0.05) 100%);
-        border: 1px solid rgba(75, 192, 192, 0.3);
-        border-radius: 12px;
-        padding: 20px;
-        margin-top: 16px;
-    ">
-        <h3 style="color: #e0f2f1; margin-top: 0;">🕐 Eating Patterns</h3>
-    """, unsafe_allow_html=True)
-    
-    time_pattern = {}
-    for meal in meals[:30]:
-        logged_at = meal.get('logged_at', '')
-        if logged_at:
-            hour = int(logged_at.split('T')[1].split(':')[0])
-            period = "Breakfast" if 6 <= hour < 10 else \
-                    "Lunch" if 10 <= hour < 15 else \
-                    "Dinner" if 15 <= hour < 21 else \
-                    "Snacks"
-            time_pattern[period] = time_pattern.get(period, 0) + 1
-    
-    if time_pattern:
-        period_order = ["Breakfast", "Lunch", "Dinner", "Snacks"]
-        periods_to_show = [p for p in period_order if p in time_pattern]
-        
-        if periods_to_show:
-            pattern_cols = st.columns(len(periods_to_show), gap="medium")
-            
-            for idx, period in enumerate(periods_to_show):
-                with pattern_cols[idx]:
-                    emoji = {"Breakfast": "🌅", "Lunch": "🍴", "Dinner": "🌙", "Snacks": "🍿"}.get(period, "📌")
-                    count = time_pattern[period]
-                    
-                    st.markdown(f"""
-                    <div style="text-align: center; padding: 12px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
-                        <div style="font-size: 24px; margin-bottom: 8px;">{emoji}</div>
-                        <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{count}</div>
-                        <div style="font-size: 12px; color: #a0a0a0;">{period}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-    else:
-        st.info("📊 Log meals to see your eating patterns!")
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Remove duplicate EATING TIME PATTERNS section that was below
     
     # ===== Today's Meals =====
     st.markdown("## 🍽️ Today's Meals")
