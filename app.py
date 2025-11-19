@@ -244,6 +244,20 @@ def reset_password_page():
 
 def login_page():
     """Login and signup page"""
+    
+    # Check if user came from password reset email (has a fresh session)
+    auth_manager = st.session_state.auth_manager
+    if not is_authenticated():
+        try:
+            session = auth_manager.supabase.auth.get_session()
+            # If there's a session but user_id is not in session_state, 
+            # it means they came from reset link
+            if session and session.user and not st.session_state.get("user_id"):
+                st.session_state.reset_mode = True
+                st.rerun()
+        except:
+            pass
+    
     # Add custom CSS for login page
     st.markdown("""
     <style>
@@ -1879,17 +1893,7 @@ def main():
         reset_password_page()
         return
     
-    # Try to detect if user was redirected from password reset email
-    # Supabase will have created a session for them
     if not is_authenticated():
-        auth_manager = st.session_state.auth_manager
-        session_user = auth_manager.get_session_user()
-        
-        if session_user:
-            # User was redirected from password reset email but not in session state yet
-            st.session_state.reset_mode = True
-            st.rerun()
-        
         login_page()
     else:
         # Sidebar navigation

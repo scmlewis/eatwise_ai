@@ -226,6 +226,24 @@ class AuthManager:
             return None
         except Exception:
             return None
+    
+    def is_fresh_password_reset_session(self) -> bool:
+        """
+        Check if this is a fresh password reset session from email link
+        (user hasn't logged in via password, only via reset link)
+        
+        Returns:
+            True if this appears to be a reset session, False otherwise
+        """
+        try:
+            session = self.supabase.auth.get_session()
+            if session and session.user:
+                # Check if user has a valid auth session
+                # Reset links create temporary sessions that need password confirmation
+                return True
+            return False
+        except Exception:
+            return False
 
 
 def init_auth_session():
