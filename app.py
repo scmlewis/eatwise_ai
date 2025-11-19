@@ -506,134 +506,6 @@ def dashboard_page():
     
     st.divider()
     
-    # ===== WATER INTAKE TRACKER =====
-    water_goal = user_profile.get("water_goal_glasses", 8)
-    current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
-    
-    water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
-    
-    # Determine water status message
-    if current_water >= water_goal:
-        water_status = "🎉 Daily goal achieved!"
-        water_status_color = "#51CF66"
-        water_bg = "linear-gradient(135deg, #51CF6620 0%, #69DB7C40 100%)"
-        water_border = "#51CF66"
-    elif current_water >= water_goal * 0.75:
-        water_status = "💪 Almost there! Keep going!"
-        water_status_color = "#FFD43B"
-        water_bg = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
-        water_border = "#FFD43B"
-    else:
-        water_status = "💧 Stay hydrated! Keep drinking"
-        water_status_color = "#3B82F6"
-        water_bg = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
-        water_border = "#3B82F6"
-    
-    # Main water intake card
-    st.markdown(f"""
-    <div style="
-        background: {water_bg};
-        border: 2px solid {water_border};
-        border-radius: 12px;
-        padding: 18px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        margin-bottom: 12px;
-    ">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <span style="color: #e0f2f1; font-weight: 600; font-size: 15px;">💧 Water Intake</span>
-            <span style="color: {water_status_color}; font-weight: bold; font-size: 13px;">{current_water}/{water_goal} glasses</span>
-        </div>
-        <div style="background: #0a0e27; border-radius: 8px; height: 12px; overflow: hidden; margin-bottom: 10px;">
-            <div style="background: linear-gradient(90deg, {water_border} 0%, {water_status_color} 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="color: {water_status_color}; font-weight: 600; font-size: 13px;">{water_status}</span>
-            <span style="color: #a0a0a0; font-size: 12px;">{water_percentage:.0f}% Complete</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Initialize notification state
-    if "water_notification" not in st.session_state:
-        st.session_state.water_notification = None
-    
-    # Display notification if exists
-    if st.session_state.water_notification:
-        notification_type, notification_msg = st.session_state.water_notification
-        
-        # Color scheme for notifications
-        notification_colors = {
-            "success": ("#51CF66", "#0d3d0d", "#69DB7C"),
-            "warning": ("#FFD43B", "#3d3d0d", "#FCC419"),
-            "error": ("#FF6B6B", "#3d0d0d", "#FF8A80"),
-        }
-        
-        color, bg_color, border_color = notification_colors.get(notification_type, notification_colors["success"])
-        
-        st.markdown(f"""
-        <div style="
-            background: {bg_color};
-            border: 2px solid {color};
-            border-radius: 8px;
-            padding: 14px 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideIn 0.3s ease;
-        ">
-            <div style="color: {color}; font-weight: 600; font-size: 14px;">
-                {notification_msg}
-            </div>
-        </div>
-        <style>
-            @keyframes slideIn {{
-                from {{
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }}
-                to {{
-                    opacity: 1;
-                    transform: translateY(0);
-                }}
-            }}
-        </style>
-        """, unsafe_allow_html=True)
-    
-    # Action buttons
-    water_btn_col1, water_btn_col2, water_btn_col3 = st.columns(3)
-    
-    with water_btn_col1:
-        if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
-            if db_manager.log_water(st.session_state.user_id, 1, today):
-                st.session_state.water_notification = ("success", "✅ Glass added!")
-                st.rerun()
-            else:
-                st.session_state.water_notification = ("error", "❌ Failed to log water")
-                st.rerun()
-    
-    with water_btn_col2:
-        if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
-            if current_water > 0:
-                if db_manager.log_water(st.session_state.user_id, -1, today):
-                    st.session_state.water_notification = ("success", "✅ Removed 1 glass")
-                    st.rerun()
-                else:
-                    st.session_state.water_notification = ("error", "❌ Failed to remove water")
-                    st.rerun()
-            else:
-                st.session_state.water_notification = ("warning", "⚠️ No water logged yet")
-                st.rerun()
-    
-    with water_btn_col3:
-        if st.button("🏁 Mark Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
-            remaining = max(0, water_goal - current_water)
-            if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
-                st.session_state.water_notification = ("success", f"✅ Added {remaining} glasses to complete goal!")
-                st.rerun()
-    
-    st.divider()
-    
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
     targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
@@ -794,6 +666,55 @@ def dashboard_page():
     
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Nutrition Summary")
+    
+    # Get water intake data
+    water_goal = user_profile.get("water_goal_glasses", 8)
+    current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
+    water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
+    
+    # Initialize water notification state for nutrition section
+    if "water_notification" not in st.session_state:
+        st.session_state.water_notification = None
+    
+    # Display water notification if exists
+    if st.session_state.water_notification:
+        notification_type, notification_msg = st.session_state.water_notification
+        notification_colors = {
+            "success": ("#51CF66", "#0d3d0d", "#69DB7C"),
+            "warning": ("#FFD43B", "#3d3d0d", "#FCC419"),
+            "error": ("#FF6B6B", "#3d0d0d", "#FF8A80"),
+        }
+        color, bg_color, border_color = notification_colors.get(notification_type, notification_colors["success"])
+        st.markdown(f"""
+        <div style="
+            background: {bg_color};
+            border: 2px solid {color};
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        ">
+            <div style="color: {color}; font-weight: 600; font-size: 14px;">
+                {notification_msg}
+            </div>
+        </div>
+        <style>
+            @keyframes slideIn {{
+                from {{
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }}
+                to {{
+                    opacity: 1;
+                    transform: translateY(0);
+                }}
+            }}
+        </style>
+        """, unsafe_allow_html=True)
+        st.session_state.water_notification = None
     
     # Unified nutrition cards with all key info + progress bars
     nutrition_cards = [
