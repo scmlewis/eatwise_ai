@@ -192,26 +192,19 @@ def reset_password_page():
     st.markdown('<div class="reset-container">', unsafe_allow_html=True)
     st.markdown("## 🔐 Reset Your Password")
     
-    # Get the OTP from URL parameters
-    query_params = st.query_params
-    otp = query_params.get("code", None)
+    # Check if user is authenticated (from magic link in email)
+    current_user = auth_manager.get_current_user()
     
-    if not otp:
-        st.error("❌ Invalid reset link. Please request a new password reset.")
+    if not current_user:
+        st.error("❌ Invalid or expired reset link. Please request a new password reset.")
         if st.button("Back to Login", key="reset_back_btn"):
-            st.query_params.clear()
+            st.session_state.clear()
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
         return
     
-    # Display reset form
-    st.markdown("Enter your email and new password below:")
-    
-    email = st.text_input(
-        "Email Address",
-        placeholder="your@email.com",
-        key="reset_email"
-    )
+    st.success(f"✅ Password reset link verified for: {current_user.get('email', 'user')}")
+    st.markdown("Enter your new password below:")
     
     new_password = st.text_input(
         "New Password",
@@ -231,22 +224,19 @@ def reset_password_page():
     
     with col1:
         if st.button("Reset Password", key="reset_submit_btn", use_container_width=True):
-            if not email:
-                st.warning("⚠️ Please enter your email address")
-            elif not new_password:
+            if not new_password:
                 st.warning("⚠️ Please enter a new password")
             elif new_password != confirm_password:
                 st.error("❌ Passwords do not match")
             elif len(new_password) < 6:
                 st.error("❌ Password must be at least 6 characters")
             else:
-                auth_manager = st.session_state.auth_manager
-                success, message = auth_manager.verify_otp_and_reset_password(email, otp, new_password)
+                success, message = auth_manager.complete_password_reset(new_password)
                 
                 if success:
                     st.success("✅ " + message)
                     st.info("You can now login with your new password. Redirecting to login...")
-                    st.query_params.clear()
+                    st.session_state.clear()
                     import time
                     time.sleep(2)
                     st.rerun()
@@ -255,7 +245,7 @@ def reset_password_page():
     
     with col2:
         if st.button("Back to Login", key="reset_cancel_btn", use_container_width=True):
-            st.query_params.clear()
+            st.session_state.clear()
             st.rerun()
     
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1893,14 +1883,12 @@ def help_page():
 def main():
     """Main app logic"""
     
-    # Check if user is being redirected from password reset email
-    query_params = st.query_params
+    # Check if user is authenticated (could be from password reset magic link)
+    current_user = auth_manager.get_current_user()
     
-    # Debug: Show query params if present
-    if query_params:
-        st.write(f"DEBUG - Query params: {dict(query_params)}")
-    
-    if query_params.get("type") == "recovery" and query_params.get("code"):
+    # Debug: Show if user is authenticated from magic link
+    if current_user and not st.session_state.get("user_id"):
+        # User authenticated via magic link (password reset) but not logged in via session
         reset_password_page()
         return
     
