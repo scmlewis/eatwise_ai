@@ -871,10 +871,21 @@ def dashboard_page():
     st.divider()
     st.markdown("## 📊 Nutrition Breakdown & Patterns")
     
-    insight_col1, insight_col2 = st.columns(2)
+    # Create a responsive grid layout
+    breakdown_col1, breakdown_col2 = st.columns([1.2, 1], gap="medium")
     
-    # Macro Balance Pie Chart
-    with insight_col1:
+    # MACRO BALANCE - Left side
+    with breakdown_col1:
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%);
+            border: 1px solid rgba(16, 161, 157, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        ">
+            <h3 style="color: #e0f2f1; margin-top: 0;">🔥 Today's Macro Balance</h3>
+        """, unsafe_allow_html=True)
+        
         if daily_nutrition['protein'] > 0 or daily_nutrition['carbs'] > 0 or daily_nutrition['fat'] > 0:
             macro_data = {
                 "Nutrient": ["Protein", "Carbs", "Fat"],
@@ -889,16 +900,37 @@ def dashboard_page():
                 macro_data,
                 values="Grams",
                 names="Nutrient",
-                title="Today's Macro Balance",
                 color_discrete_map={"Protein": "#51CF66", "Carbs": "#FFD43B", "Fat": "#FF6B6B"}
             )
             fig_macro.update_traces(textinfo="percent+label", textposition="inside")
-            st.plotly_chart(fig_macro, use_container_width=True)
+            fig_macro.update_layout(
+                showlegend=True,
+                height=280,
+                margin=dict(l=0, r=0, t=0, b=0),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font_color='#e0f2f1'
+            )
+            st.plotly_chart(fig_macro, use_container_width=True, config={'displayModeBar': False})
         else:
-            st.info("Log some meals to see macro balance!")
+            st.info("📊 Log some meals to see your macro balance!")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
     
-    # Most Frequent Foods
-    with insight_col2:
+    # FREQUENT FOODS & EATING PATTERNS - Right side
+    with breakdown_col2:
+        # Most Frequent Foods Card
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, rgba(255, 107, 22, 0.1) 0%, rgba(16, 161, 157, 0.05) 100%);
+            border: 1px solid rgba(255, 107, 22, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        ">
+            <h3 style="color: #e0f2f1; margin-top: 0;">🥘 Most Frequent Foods</h3>
+        """, unsafe_allow_html=True)
+        
         # Get food frequency from recent meals
         food_frequency = {}
         for meal in meals[:30]:
@@ -913,39 +945,57 @@ def dashboard_page():
             # Get top 5 foods
             top_foods = sorted(food_frequency.items(), key=lambda x: x[1], reverse=True)[:5]
             
-            st.markdown("### 🥘 Most Frequent Foods")
             for food, count in top_foods:
-                st.write(f"• {food.title()} ({count}x)")
+                st.markdown(f"• **{food.title()}** ({count}x)")
         else:
-            st.info("Log more meals to see eating patterns!")
+            st.info("📝 Log more meals to see patterns!")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
     
-    # Eating Time Patterns
-    st.markdown("### 🕐 Eating Patterns")
+    # EATING TIME PATTERNS - Full width below
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, rgba(75, 192, 192, 0.1) 0%, rgba(153, 102, 255, 0.05) 100%);
+        border: 1px solid rgba(75, 192, 192, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 16px;
+    ">
+        <h3 style="color: #e0f2f1; margin-top: 0;">🕐 Eating Patterns</h3>
+    """, unsafe_allow_html=True)
     
     time_pattern = {}
     for meal in meals[:30]:
         logged_at = meal.get('logged_at', '')
         if logged_at:
             hour = int(logged_at.split('T')[1].split(':')[0])
-            period = "Breakfast (6am-10am)" if 6 <= hour < 10 else \
-                    "Lunch (10am-3pm)" if 10 <= hour < 15 else \
-                    "Dinner (3pm-9pm)" if 15 <= hour < 21 else \
-                    "Snack/Other"
+            period = "Breakfast" if 6 <= hour < 10 else \
+                    "Lunch" if 10 <= hour < 15 else \
+                    "Dinner" if 15 <= hour < 21 else \
+                    "Snacks"
             time_pattern[period] = time_pattern.get(period, 0) + 1
     
     if time_pattern:
-        pattern_col1, pattern_col2, pattern_col3 = st.columns(3)
-        for idx, (period, count) in enumerate(sorted(time_pattern.items(), key=lambda x: x[1], reverse=True)):
-            if idx == 0:
-                col = pattern_col1
-            elif idx == 1:
-                col = pattern_col2
-            else:
-                col = pattern_col3
-            
-            with col:
-                emoji = "🌅" if "Breakfast" in period else "🍴" if "Lunch" in period else "🌙" if "Dinner" in period else "🍿"
-                st.metric(period.split('(')[0].strip(), f"{count} meals", emoji)
+        pattern_cols = st.columns(len(time_pattern), gap="medium")
+        period_order = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        
+        for idx, period in enumerate(period_order):
+            if period in time_pattern:
+                with pattern_cols[idx]:
+                    emoji = {"Breakfast": "🌅", "Lunch": "🍴", "Dinner": "🌙", "Snacks": "🍿"}.get(period, "📌")
+                    count = time_pattern[period]
+                    
+                    st.markdown(f"""
+                    <div style="text-align: center; padding: 12px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
+                        <div style="font-size: 24px; margin-bottom: 8px;">{emoji}</div>
+                        <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{count}</div>
+                        <div style="font-size: 12px; color: #a0a0a0;">{period}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+    else:
+        st.info("📊 Log meals to see your eating patterns!")
+    
+    st.markdown("</div>", unsafe_allow_html=True)
     
     # ===== Today's Meals =====
     st.markdown("## 🍽️ Today's Meals")
