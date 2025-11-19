@@ -457,6 +457,35 @@ def dashboard_page():
     # Display Statistics with Modern Card Layout
     st.markdown("## 📊 Statistics (Last 7 Days)")
     
+    # Add responsive CSS for mobile view - 2 cards per row on mobile
+    st.markdown(
+        """
+        <style>
+            @media (max-width: 640px) {
+                /* Force 2 columns on mobile for stat cards */
+                [data-testid="column"] {
+                    flex: 0 1 calc(50% - 8px) !important;
+                }
+                
+                /* Reduce padding in cards on mobile */
+                [style*="padding: 16px"] {
+                    padding: 12px !important;
+                }
+                
+                /* Reduce font sizes on mobile */
+                [style*="font-size: 24px"] {
+                    font-size: 18px !important;
+                }
+                
+                [style*="font-size: 32px"] {
+                    font-size: 24px !important;
+                }
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
     stats_cols = st.columns(4, gap="medium")
     
     # Avg Daily Calories Card
