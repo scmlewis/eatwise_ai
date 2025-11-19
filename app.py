@@ -880,90 +880,121 @@ def dashboard_page():
     st.divider()
     
     # ===== Quick Stats =====
-    st.markdown("## 📊 Today's Summary")
+    st.markdown("## 📊 Nutrition Summary")
     
-    col1, col2, col3, col4 = st.columns(4, gap="small")
-    
-    cards_data = [
+    # Unified nutrition cards with all key info + progress bars
+    nutrition_cards = [
         {
-            "col": col1,
             "icon": "🔥",
             "label": "Calories",
             "value": f"{daily_nutrition['calories']:.0f}",
+            "target": targets["calories"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["calories"], targets["calories"]),
-            "target": f"of {targets['calories']}"
+            "unit": "cal"
         },
         {
-            "col": col2,
             "icon": "💪",
             "label": "Protein",
-            "value": f"{daily_nutrition['protein']:.1f}g",
+            "value": f"{daily_nutrition['protein']:.1f}",
+            "target": targets["protein"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["protein"], targets["protein"]),
-            "target": f"of {targets['protein']}g"
+            "unit": "g"
         },
         {
-            "col": col3,
+            "icon": "🥗",
+            "label": "Carbs",
+            "value": f"{daily_nutrition['carbs']:.1f}",
+            "target": targets["carbs"],
+            "percentage": calculate_nutrition_percentage(daily_nutrition["carbs"], targets["carbs"]),
+            "unit": "g"
+        },
+        {
+            "icon": "🧈",
+            "label": "Fat",
+            "value": f"{daily_nutrition['fat']:.1f}",
+            "target": targets["fat"],
+            "percentage": calculate_nutrition_percentage(daily_nutrition["fat"], targets["fat"]),
+            "unit": "g"
+        },
+        {
             "icon": "🧂",
             "label": "Sodium",
-            "value": f"{daily_nutrition['sodium']:.0f}mg",
+            "value": f"{daily_nutrition['sodium']:.0f}",
+            "target": targets["sodium"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["sodium"], targets["sodium"]),
-            "target": f"of {targets['sodium']}mg"
+            "unit": "mg"
         },
         {
-            "col": col4,
             "icon": "🍬",
             "label": "Sugar",
-            "value": f"{daily_nutrition['sugar']:.1f}g",
+            "value": f"{daily_nutrition['sugar']:.1f}",
+            "target": targets["sugar"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["sugar"], targets["sugar"]),
-            "target": f"of {targets['sugar']}g"
+            "unit": "g"
         }
     ]
     
-    for card in cards_data:
-        with card["col"]:
-            # Determine color and status based on percentage
+    # Create 3-column grid for compact display
+    cols = st.columns(3, gap="medium")
+    
+    for idx, card in enumerate(nutrition_cards):
+        with cols[idx % 3]:
             percentage = card["percentage"]
-            if percentage > 100:
-                color = "#FF6B6B"  # Red for over
-                gradient_color = "#FF8A8A"
-                status_icon = "⚡"
-                status_text = f"+{percentage-100:.0f}%"
-            elif percentage >= 80:
-                color = "#51CF66"  # Green for good
-                gradient_color = "#80C342"
-                status_icon = "✅"
-                status_text = f"{percentage:.0f}%"
+            
+            # Determine color and status
+            if card["label"] in ["Sodium", "Sugar"]:
+                # Harmful nutrients - red for exceeding
+                if percentage > 100:
+                    color = "#FF6B6B"
+                    gradient_color = "#FF8A8A"
+                    status_icon = "⚠️"
+                    status_text = f"Over by {percentage-100:.0f}%"
+                elif percentage >= 80:
+                    color = "#FFD43B"
+                    gradient_color = "#FCC41A"
+                    status_icon = "⚠️"
+                    status_text = f"{percentage:.0f}%"
+                else:
+                    color = "#51CF66"
+                    gradient_color = "#80C342"
+                    status_icon = "✅"
+                    status_text = f"{percentage:.0f}%"
             else:
-                color = "#FFD43B"  # Yellow for low
-                gradient_color = "#FFC94D"
-                status_icon = "⚠️"
-                status_text = f"{percentage:.0f}%"
+                # Good nutrients - green for on target
+                if percentage > 100:
+                    color = "#51CF66"  # Green for over (protein ok to exceed)
+                    gradient_color = "#80C342"
+                    status_icon = "⚡"
+                    status_text = f"+{percentage-100:.0f}%"
+                elif percentage >= 80:
+                    color = "#51CF66"
+                    gradient_color = "#80C342"
+                    status_icon = "✅"
+                    status_text = f"{percentage:.0f}%"
+                else:
+                    color = "#FFD43B"
+                    gradient_color = "#FCC41A"
+                    status_icon = "⚠️"
+                    status_text = f"{percentage:.0f}%"
             
             st.markdown(f"""
             <div style="
                 background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
                 border: 2px solid {color};
-                border-radius: 10px;
-                padding: 10px;
+                border-radius: 12px;
+                padding: 14px;
                 text-align: center;
-                min-height: 110px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                gap: 4px;
-                box-shadow: 0 4px 12px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
+                transition: all 0.3s ease;
             ">
-                <div style="font-size: 24px;">{card['icon']}</div>
-                <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">{card['label']}</div>
-                <div style="font-size: 16px; font-weight: bold; color: #e0f2f1;">{card['value']}</div>
-                <div style="background: #0a0e27; border-radius: 3px; height: 2px; margin: 2px 0;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 3px;"></div></div>
-                <div style="font-size: 8px; color: {color}; font-weight: 600;">{status_icon} {status_text}</div>
+                <div style="font-size: 26px; margin-bottom: 6px;">{card['icon']}</div>
+                <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">{card['label']}</div>
+                <div style="font-size: 18px; font-weight: bold; color: #e0f2f1; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
+                <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
+                <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">{card['value']}{card['unit']} of {card['target']}{card['unit']}</div>
+                <div style="font-size: 9px; color: {color}; font-weight: 600;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
-    
-    # Display Nutrition Targets Progress in styled box
-    display_nutrition_targets_progress(daily_nutrition, targets)
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.divider()
