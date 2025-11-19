@@ -165,6 +165,14 @@ db_manager = DatabaseManager()
 nutrition_analyzer = NutritionAnalyzer()
 recommender = RecommendationEngine()
 
+# Track if this is the first load of the session (for reset email detection)
+if "_session_init_time" not in st.session_state:
+    import time
+    st.session_state._session_init_time = time.time()
+    st.session_state._is_fresh_session = True
+elif st.session_state._is_fresh_session is None:
+    st.session_state._is_fresh_session = False
+
 # ==================== AUTHENTICATION PAGES ====================
 
 def reset_password_page():
@@ -438,9 +446,23 @@ def login_page():
             
             st.markdown("---")
             
-            # Manual password reset trigger - user enters email to request reset link
-            # Automatic detection removed because Supabase sessions persist across private tabs
-            # URL parameter detection (type=recovery) is now the primary mechanism
+            # Check if user arrived via password reset link
+            # Only check on first load in this tab to avoid false positives on private tabs
+            auth_manager = st.session_state.auth_manager
+            if st.session_state.get("_is_fresh_session", False):
+                try:
+                    session = auth_manager.supabase.auth.get_session()
+                    # If there's an active Supabase session but user is not logged into the app
+                    # This likely means they clicked a reset link
+                    if session and session.user and not st.session_state.get("user_id"):
+                        st.info("🔐 We detected you clicked a password reset link. Click below to reset your password.")
+                        if st.button("Go to Password Reset", key="auto_reset_btn", use_container_width=True):
+                            st.session_state.reset_mode = True
+                            st.session_state._is_fresh_session = False  # Don't show again
+                            st.rerun()
+                        st.session_state._is_fresh_session = False  # Mark as checked
+                except Exception as e:
+                    st.session_state._is_fresh_session = False
         
         with tab2:
             st.markdown("#### Create new account")
@@ -1901,14 +1923,17 @@ def help_page():
 def main():
     """Main app logic"""
     
-    # Check for password reset in URL (Streamlit query params: ?type=recovery)
-    # This detects when user clicks the reset link from email
+    # Check for password reset in URL parameters from Supabase reset email
+    # When user clicks reset link, Supabase adds ?type=recovery&code=XXX to URL
     try:
-        from urllib.parse import urlparse, parse_qs
-        current_url = st.query_params
-        if current_url.get("type") == "recovery":
+        query_params = st.query_params
+        # Check if this is a password recovery URL
+        if query_params.get("type") == "recovery" or (query_params.get("type") and "recovery" in str(query_params.get("type"))):
             st.session_state.reset_mode = True
-    except:
+            # Also check for access_token which Supabase provides
+            if query_params.get("access_token"):
+                st.session_state.reset_access_token = query_params.get("access_token")
+    except Exception as e:
         pass
     
     # Check if user is in reset password mode (after clicking reset link from email)
