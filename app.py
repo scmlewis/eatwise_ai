@@ -586,7 +586,7 @@ def dashboard_page():
     meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
     streak_info = get_streak_info(meal_dates)
     
-    achieve_cols = st.columns(2, gap="medium")
+    achieve_cols = st.columns(2, gap="small")
     
     # Current Streak Card
     with achieve_cols[0]:
@@ -598,18 +598,18 @@ def dashboard_page():
             border: 1px solid #FF6715;
             border-left: 5px solid #FF6715;
             border-radius: 12px;
-            padding: 24px 20px;
+            padding: 16px 16px;
             text-align: center;
-            min-height: 180px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-shadow: 0 6px 20px rgba(255, 103, 21, 0.25);
+            box-shadow: 0 4px 12px rgba(255, 103, 21, 0.2);
         ">
-            <div style="font-size: 40px; margin-bottom: 12px;">{streak_emoji}</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700;">Current Streak</div>
-            <div style="font-size: 32px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{current_streak}</div>
-            <div style="font-size: 10px; color: #FF6715; font-weight: 700;">days in a row</div>
+            <div style="font-size: 32px; margin-bottom: 8px;">{streak_emoji}</div>
+            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">Current Streak</div>
+            <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 4px;">{current_streak}</div>
+            <div style="font-size: 9px; color: #FF6715; font-weight: 700;">days in a row</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -622,18 +622,18 @@ def dashboard_page():
             border: 1px solid #FFD43B;
             border-left: 5px solid #FFD43B;
             border-radius: 12px;
-            padding: 24px 20px;
+            padding: 16px 16px;
             text-align: center;
-            min-height: 180px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-shadow: 0 6px 20px rgba(255, 212, 59, 0.25);
+            box-shadow: 0 4px 12px rgba(255, 212, 59, 0.2);
         ">
-            <div style="font-size: 40px; margin-bottom: 12px;">🏅</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700;">Longest Streak</div>
-            <div style="font-size: 32px; font-weight: 900; color: #FFD43B; margin-bottom: 8px;">{longest_streak}</div>
-            <div style="font-size: 10px; color: #FFD43B; font-weight: 700;">personal record</div>
+            <div style="font-size: 32px; margin-bottom: 8px;">🏅</div>
+            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">Longest Streak</div>
+            <div style="font-size: 28px; font-weight: 900; color: #FFD43B; margin-bottom: 4px;">{longest_streak}</div>
+            <div style="font-size: 9px; color: #FFD43B; font-weight: 700;">personal record</div>
         </div>
         """, unsafe_allow_html=True)
     
