@@ -398,7 +398,7 @@ def login_page():
             reset_email = st.text_input(
                 "Enter your email address",
                 placeholder="your@email.com",
-                key="reset_email_input"
+                key="reset_email_input_field"
             )
             
             col1, col2 = st.columns(2)
@@ -409,9 +409,8 @@ def login_page():
                             success, message = auth_manager.reset_password(reset_email)
                             if success:
                                 st.success("✅ " + message)
-                                st.info("📧 Check your email inbox for a password reset link and follow the instructions.")
-                                st.session_state.show_forgot_password = False
-                                st.session_state.reset_email_input = ""
+                                st.info("📧 Check your email inbox for a password reset link and follow the instructions to set a new password.")
+                                st.info("⚠️ **Note**: The reset link may direct you to a configuration page. Your app URL needs to be configured in Supabase settings.")
                             else:
                                 st.error("❌ " + message)
                         except Exception as e:
@@ -422,7 +421,6 @@ def login_page():
             with col2:
                 if st.button("Back to Login", key="back_to_login_btn", use_container_width=True):
                     st.session_state.show_forgot_password = False
-                    st.session_state.reset_email_input = ""
                     st.rerun()
 
 def dashboard_page():
