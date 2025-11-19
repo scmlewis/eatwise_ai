@@ -405,19 +405,24 @@ def login_page():
             with col1:
                 if st.button("Send Reset Link", key="send_reset_btn", use_container_width=True):
                     if reset_email:
-                        success, message = auth_manager.reset_password(reset_email)
-                        if success:
-                            st.success(message)
-                            st.info("📧 A password reset link has been sent to your email. Check your inbox and follow the instructions to reset your password.")
-                            st.session_state.show_forgot_password = False
-                        else:
-                            st.error(message)
+                        try:
+                            success, message = auth_manager.reset_password(reset_email)
+                            if success:
+                                st.success("✅ " + message)
+                                st.info("📧 Check your email inbox for a password reset link and follow the instructions.")
+                                st.session_state.show_forgot_password = False
+                                st.session_state.reset_email_input = ""
+                            else:
+                                st.error("❌ " + message)
+                        except Exception as e:
+                            st.error(f"❌ Error: {str(e)}")
                     else:
                         st.warning("⚠️ Please enter your email address")
             
             with col2:
                 if st.button("Back to Login", key="back_to_login_btn", use_container_width=True):
                     st.session_state.show_forgot_password = False
+                    st.session_state.reset_email_input = ""
                     st.rerun()
 
 def dashboard_page():

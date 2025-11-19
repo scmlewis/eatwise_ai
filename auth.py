@@ -155,19 +155,17 @@ class AuthManager:
             Tuple of (success, message)
         """
         try:
-            # Supabase sends a magic link for password reset
-            response = self.supabase.auth.sign_in_with_otp({
-                "email": email,
-                "should_create_user": False
-            })
-            return True, "Password reset email sent! Check your email for instructions."
+            # Send magic link via email
+            response = self.supabase.auth.sign_in_with_otp(
+                {"email": email}
+            )
+            return True, "Password reset link sent! Check your email for instructions."
         except Exception as e:
-            error_str = str(e)
-            # If OTP doesn't work, provide fallback message
-            if "User" in error_str or "not found" in error_str.lower():
-                return False, "Email not found in our system"
+            error_str = str(e).lower()
+            if "user" in error_str or "not found" in error_str:
+                return False, "Email not found. Please check your email address."
             else:
-                return False, "Unable to send reset email. Please try again later."
+                return False, "Unable to send reset email. Please contact support."
 
 
 def init_auth_session():
