@@ -2434,13 +2434,12 @@ def main():
             # User info and menu at top (always accessible)
             st.sidebar.markdown(f"👤 **{st.session_state.user_email}**")
             
-            # Logout in expander for clean look
-            with st.sidebar.expander("⋮ Menu", expanded=False):
-                if st.button("🚪 Logout", use_container_width=True, key="logout_btn"):
-                    st.session_state.auth_manager.logout()
-                    st.session_state.clear()
-                    st.success("✅ Logged out!")
-                    st.rerun()
+            # Logout button - simple and straightforward
+            if st.sidebar.button("🚪 Logout", use_container_width=True, key="logout_btn"):
+                st.session_state.auth_manager.logout()
+                st.session_state.clear()
+                st.success("✅ Logged out!")
+                st.rerun()
             
             st.sidebar.markdown("---")
             
@@ -2490,7 +2489,7 @@ def main():
                     meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
                     streak_info = get_streak_info(meal_dates_all)
                     
-                    st.sidebar.metric("🔥 Streak", f"{streak_info['current_streak']} days")
+                    st.metric("🔥 Streak", f"{streak_info['current_streak']} days")
                 
                 # Today's calories
                 user_profile = st.session_state.user_profile
@@ -2498,15 +2497,15 @@ def main():
                     age_group = user_profile.get("age_group", "26-35")
                     targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
                     cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
-                    st.sidebar.metric("🔥 Calories", f"{today_nutrition['calories']:.0f}/{targets['calories']}", f"{cal_pct:.0f}%")
+                    st.metric("🔥 Calories", f"{today_nutrition['calories']:.0f}/{targets['calories']}", f"{cal_pct:.0f}%")
                 
                 # Meals logged today
-                st.sidebar.metric("🍽️ Meals", len(today_meals))
+                st.metric("🍽️ Meals", len(today_meals))
                 
                 # Water intake
                 water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
                 water_today = db_manager.get_daily_water_intake(st.session_state.user_id, date.today())
-                st.sidebar.metric("💧 Water", f"{water_today}/{water_goal} glasses")
+                st.metric("💧 Water", f"{water_today}/{water_goal} glasses")
             
             st.sidebar.markdown("---")
             
@@ -2514,9 +2513,9 @@ def main():
             with st.sidebar.expander("💡 Daily Insight", expanded=True):
                 try:
                     insight = recommender.get_nutrition_trivia()
-                    st.sidebar.info(f"💬 {insight}")
+                    st.info(f"💬 {insight}")
                 except:
-                    st.sidebar.info("💬 Log more meals to get personalized insights!")
+                    st.info("💬 Log more meals to get personalized insights!")
             
             # Clear the quick nav flag
             if st.session_state.get("quick_nav_to_meal"):
