@@ -122,9 +122,9 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
     """
     # Display title outside container
     st.markdown("""
-    <h3 style="color: #52C4B8; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+    <h2 style="color: white; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px; font-size: 1.5em; font-weight: 600;">
         📊 Nutrition Targets Progress
-    </h3>
+    </h2>
     """, unsafe_allow_html=True)
     
     # Create two columns for nutrition targets
