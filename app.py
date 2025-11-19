@@ -167,6 +167,100 @@ recommender = RecommendationEngine()
 
 # ==================== AUTHENTICATION PAGES ====================
 
+def reset_password_page():
+    """Password reset page when user is redirected from email link"""
+    st.markdown("""
+    <style>
+        .reset-container {
+            background: linear-gradient(135deg, #0D7A7620 0%, #10A19D10 100%);
+            padding: 50px;
+            border-radius: 20px;
+            border: 2px solid #10A19D;
+            max-width: 500px;
+            margin: 50px auto;
+            box-shadow: 0 10px 40px rgba(16, 161, 157, 0.15);
+        }
+        
+        .reset-container h2 {
+            color: #52C4B8;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="reset-container">', unsafe_allow_html=True)
+    st.markdown("## 🔐 Reset Your Password")
+    
+    # Get the OTP from URL parameters
+    query_params = st.query_params
+    otp = query_params.get("code", None)
+    
+    if not otp:
+        st.error("❌ Invalid reset link. Please request a new password reset.")
+        if st.button("Back to Login", key="reset_back_btn"):
+            st.query_params.clear()
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
+    
+    # Display reset form
+    st.markdown("Enter your email and new password below:")
+    
+    email = st.text_input(
+        "Email Address",
+        placeholder="your@email.com",
+        key="reset_email"
+    )
+    
+    new_password = st.text_input(
+        "New Password",
+        type="password",
+        placeholder="••••••••",
+        key="reset_new_password"
+    )
+    
+    confirm_password = st.text_input(
+        "Confirm Password",
+        type="password",
+        placeholder="••••••••",
+        key="reset_confirm_password"
+    )
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Reset Password", key="reset_submit_btn", use_container_width=True):
+            if not email:
+                st.warning("⚠️ Please enter your email address")
+            elif not new_password:
+                st.warning("⚠️ Please enter a new password")
+            elif new_password != confirm_password:
+                st.error("❌ Passwords do not match")
+            elif len(new_password) < 6:
+                st.error("❌ Password must be at least 6 characters")
+            else:
+                auth_manager = st.session_state.auth_manager
+                success, message = auth_manager.verify_otp_and_reset_password(email, otp, new_password)
+                
+                if success:
+                    st.success("✅ " + message)
+                    st.info("You can now login with your new password. Redirecting to login...")
+                    st.query_params.clear()
+                    import time
+                    time.sleep(2)
+                    st.rerun()
+                else:
+                    st.error("❌ " + message)
+    
+    with col2:
+        if st.button("Back to Login", key="reset_cancel_btn", use_container_width=True):
+            st.query_params.clear()
+            st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
 def login_page():
     """Login and signup page"""
     # Add custom CSS for login page
@@ -1798,6 +1892,12 @@ def help_page():
 
 def main():
     """Main app logic"""
+    
+    # Check if user is being redirected from password reset email
+    query_params = st.query_params
+    if query_params.get("type") == "recovery" and query_params.get("code"):
+        reset_password_page()
+        return
     
     if not is_authenticated():
         login_page()

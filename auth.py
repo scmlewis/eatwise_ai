@@ -172,6 +172,42 @@ class AuthManager:
                 return False, "Email not found in our system."
             else:
                 return False, "Unable to process reset. Please try again later."
+    
+    def verify_otp_and_reset_password(self, email: str, otp: str, new_password: str) -> Tuple[bool, str]:
+        """
+        Verify OTP and reset password
+        
+        Args:
+            email: User email address
+            otp: One-time password from email
+            new_password: New password to set
+            
+        Returns:
+            Tuple of (success, message)
+        """
+        try:
+            # Verify the OTP
+            response = self.supabase.auth.verify_otp({
+                "email": email,
+                "token": otp,
+                "type": "recovery"
+            })
+            
+            if response.user:
+                # Update the password
+                self.supabase.auth.update_user({
+                    "password": new_password
+                })
+                return True, "Password reset successfully!"
+            else:
+                return False, "Invalid or expired reset link."
+                
+        except Exception as e:
+            error_str = str(e).lower()
+            if "invalid" in error_str or "expired" in error_str:
+                return False, "The reset link is invalid or has expired. Please request a new one."
+            else:
+                return False, f"Error resetting password: {str(e)}"
 
 
 def init_auth_session():
