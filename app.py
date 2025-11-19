@@ -2021,55 +2021,6 @@ def meal_history_page():
         total_pages, paginated_meals = paginate_items(meals, page_size=page_size)
         
         st.markdown(f"### Found {len(meals)} meals")
-        
-        # Pagination controls at top with improved styling
-        if total_pages > 1:
-            st.markdown("---")
-            pag_col1, pag_col2, pag_col3 = st.columns([1, 2, 1], gap="medium")
-            
-            with pag_col1:
-                if st.button(
-                    "⬅️ Previous",
-                    key="prev_page",
-                    disabled=(st.session_state.pagination_page == 0),
-                    use_container_width=True,
-                    help="Go to previous page"
-                ):
-                    st.session_state.pagination_page -= 1
-                    st.rerun()
-            
-            with pag_col2:
-                # Page indicator with styled box
-                current_page = st.session_state.pagination_page + 1
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-                    border: 2px solid #10A19D;
-                    border-radius: 10px;
-                    padding: 12px 20px;
-                    text-align: center;
-                    margin-top: 5px;
-                ">
-                    <div style="font-size: 14px; font-weight: bold; color: #52C4B8;">
-                        Page {current_page} of {total_pages}
-                    </div>
-                    <div style="font-size: 11px; color: #a0a0a0; margin-top: 4px;">
-                        {len(paginated_meals)} meals • {page_size} per page
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            with pag_col3:
-                if st.button(
-                    "Next ➡️",
-                    key="next_page",
-                    disabled=(st.session_state.pagination_page >= total_pages - 1),
-                    use_container_width=True,
-                    help="Go to next page"
-                ):
-                    st.session_state.pagination_page += 1
-                    st.rerun()
-        
         st.divider()
         
         # Display meals with edit/delete options
@@ -2206,51 +2157,22 @@ def meal_history_page():
             
             st.divider()
         
-        # Pagination controls at bottom with improved styling
+        # Compact pagination at bottom
         if total_pages > 1:
-            st.markdown("---")
-            bottom_col1, bottom_col2, bottom_col3 = st.columns([1, 2, 1], gap="medium")
+            st.divider()
+            pag_col1, pag_col2, pag_col3 = st.columns([0.8, 1.4, 0.8], gap="small")
             
-            with bottom_col1:
-                if st.button(
-                    "⬅️ Previous",
-                    key="prev_page_bottom",
-                    disabled=(st.session_state.pagination_page == 0),
-                    use_container_width=True,
-                    help="Go to previous page"
-                ):
+            with pag_col1:
+                if st.button("⬅️ Previous", key="prev_bottom", disabled=(st.session_state.pagination_page == 0), use_container_width=True):
                     st.session_state.pagination_page -= 1
                     st.rerun()
             
-            with bottom_col2:
-                # Page indicator with styled box
+            with pag_col2:
                 current_page = st.session_state.pagination_page + 1
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-                    border: 2px solid #10A19D;
-                    border-radius: 10px;
-                    padding: 12px 20px;
-                    text-align: center;
-                    margin-top: 5px;
-                ">
-                    <div style="font-size: 14px; font-weight: bold; color: #52C4B8;">
-                        Page {current_page} of {total_pages}
-                    </div>
-                    <div style="font-size: 11px; color: #a0a0a0; margin-top: 4px;">
-                        {len(paginated_meals)} meals • {page_size} per page
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.caption(f"📄 Page {current_page}/{total_pages}")
             
-            with bottom_col3:
-                if st.button(
-                    "Next ➡️",
-                    key="next_page_bottom",
-                    disabled=(st.session_state.pagination_page >= total_pages - 1),
-                    use_container_width=True,
-                    help="Go to next page"
-                ):
+            with pag_col3:
+                if st.button("Next ➡️", key="next_bottom", disabled=(st.session_state.pagination_page >= total_pages - 1), use_container_width=True):
                     st.session_state.pagination_page += 1
                     st.rerun()
 
