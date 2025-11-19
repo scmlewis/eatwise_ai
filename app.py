@@ -600,60 +600,68 @@ def dashboard_page():
     df["Date"] = pd.to_datetime(df["Date"])
     df = df.sort_values("Date")
     
-    # ===== DAILY GOAL PROGRESS RING =====
+    # ===== DAILY GOAL PROGRESS - SIMPLIFIED CARD LAYOUT =====
     st.markdown("## 🎯 Today's Calorie Goal")
     
     cal_percentage = min((daily_nutrition['calories'] / targets['calories']) * 100, 100) if targets['calories'] > 0 else 0
     cal_color = "#51CF66" if 80 <= cal_percentage <= 120 else ("#FFD43B" if cal_percentage < 80 else "#FF6B6B")
     
-    # Use responsive columns - auto-wrap on mobile
-    col_gauge, col_info = st.columns([1.5, 1], gap="medium")
+    # Determine status and remaining calories
+    if daily_nutrition['calories'] < targets['calories']:
+        remaining = targets['calories'] - daily_nutrition['calories']
+        status_text = f"Need {remaining:.0f} cal ↑"
+        status_color = "#FFD43B"
+    elif daily_nutrition['calories'] == targets['calories']:
+        status_text = "✅ Perfect!"
+        status_color = "#51CF66"
+    else:
+        over = daily_nutrition['calories'] - targets['calories']
+        status_text = f"Over by {over:.0f} cal ↓"
+        status_color = "#FF6B6B"
     
-    with col_gauge:
-        # Create a gauge chart using Plotly with reduced height for better responsiveness
-        fig_gauge = go.Figure(data=[go.Indicator(
-            mode="gauge+number+delta",
-            value=daily_nutrition['calories'],
-            domain={'x': [0, 1], 'y': [0, 1]},
-            title={'text': "Calories Today", 'font': {'size': 14}},
-            delta={'reference': targets['calories'], 'suffix': " to target"},
-            gauge={
-                'axis': {'range': [0, targets['calories'] * 1.25]},
-                'bar': {'color': cal_color},
-                'steps': [
-                    {'range': [0, targets['calories'] * 0.5], 'color': "#FF6B6B"},
-                    {'range': [targets['calories'] * 0.5, targets['calories']], 'color': "#FFD43B"},
-                    {'range': [targets['calories'], targets['calories'] * 1.25], 'color': "#FF6B6B"}
-                ],
-                'threshold': {
-                    'line': {'color': "#10A19D", 'width': 4},
-                    'thickness': 0.75,
-                    'value': targets['calories']
-                }
-            }
-        )])
-        fig_gauge.update_layout(
-            font_size=11,
-            height=250,
-            margin=dict(l=10, r=10, t=30, b=10),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font_color='#e0f2f1'
-        )
-        st.plotly_chart(fig_gauge, use_container_width=True, config={'displayModeBar': False})
-    
-    with col_info:
-        st.markdown("")  # Spacing for alignment
-        st.markdown(f"<div style='text-align: center; padding: 20px 0;'><h3 style='color: #10A19D; margin: 0;'>{cal_percentage:.0f}%</h3><p style='color: #888; margin: 5px 0;'>of daily goal</p></div>", unsafe_allow_html=True)
+    # Single responsive card layout
+    card_html = f"""
+    <div style="
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%);
+        border: 1px solid rgba(16, 161, 157, 0.3);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+    ">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center;">
+            <!-- Left side: Main metrics -->
+            <div>
+                <div style="font-size: 14px; color: #888; margin-bottom: 8px;">Current Intake</div>
+                <div style="font-size: 36px; color: #fff; font-weight: bold; margin-bottom: 12px;">
+                    {daily_nutrition['calories']:.0f}
+                </div>
+                <div style="font-size: 12px; color: #888;">
+                    of {targets['calories']:.0f} cal target
+                </div>
+            </div>
+            
+            <!-- Right side: Progress and status -->
+            <div>
+                <div style="text-align: right;">
+                    <div style="font-size: 32px; color: {cal_color}; font-weight: bold; margin-bottom: 8px;">
+                        {cal_percentage:.0f}%
+                    </div>
+                    <div style="font-size: 12px; color: {status_color}; font-weight: 500;">
+                        {status_text}
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        if daily_nutrition['calories'] < targets['calories']:
-            remaining = targets['calories'] - daily_nutrition['calories']
-            st.metric("Need", f"{remaining:.0f} cal", "↑ Keep going!", delta_color="off")
-        elif daily_nutrition['calories'] == targets['calories']:
-            st.success("✅ Perfect Match!")
-        else:
-            over = daily_nutrition['calories'] - targets['calories']
-            st.metric("Over by", f"{over:.0f} cal", "↓", delta_color="off")
+        <!-- Progress bar -->
+        <div style="margin-top: 16px;">
+            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: {cal_color}; height: 100%; width: {min(cal_percentage, 100)}%; border-radius: 4px; transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+    </div>
+    """
+    st.markdown(card_html, unsafe_allow_html=True)
     
     # Display Statistics with Modern Card Layout
     st.markdown("## 📊 Statistics (Last 7 Days)")
