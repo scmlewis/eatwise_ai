@@ -60,9 +60,7 @@ st.markdown("""
     
     .main {
         padding-top: 2rem;
-        background: linear-gradient(135deg, #0a0e27 0%, #0d1a2f 25%, #1a1f3a 50%, #162a33 75%, #0d1820 100%);
-        background-attachment: fixed;
-        min-height: 100vh;
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
     }
     
     /* Modern gradient cards */
@@ -2874,7 +2872,6 @@ def main():
         /* Sidebar responsive adjustments */
         [data-testid="stSidebar"] {
             width: fit-content !important;
-            background: linear-gradient(180deg, #0f1419 0%, #132127 50%, #0d1620 100%) !important;
         }
         
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
