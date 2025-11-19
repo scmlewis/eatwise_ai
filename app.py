@@ -2160,19 +2160,16 @@ def meal_history_page():
         # Compact pagination at bottom
         if total_pages > 1:
             st.divider()
-            pag_col1, pag_col2, pag_col3 = st.columns([0.8, 1.4, 0.8], gap="small")
+            pag_col1, pag_col2 = st.columns([1, 1], gap="small")
             
+            current_page = st.session_state.pagination_page + 1
             with pag_col1:
-                if st.button("⬅️ Previous", key="prev_bottom", disabled=(st.session_state.pagination_page == 0), use_container_width=True):
+                if st.button(f"⬅️ Previous ({current_page}/{total_pages})", key="prev_bottom", disabled=(st.session_state.pagination_page == 0), use_container_width=True):
                     st.session_state.pagination_page -= 1
                     st.rerun()
             
             with pag_col2:
-                current_page = st.session_state.pagination_page + 1
-                st.caption(f"📄 Page {current_page}/{total_pages}")
-            
-            with pag_col3:
-                if st.button("Next ➡️", key="next_bottom", disabled=(st.session_state.pagination_page >= total_pages - 1), use_container_width=True):
+                if st.button(f"Next ({current_page}/{total_pages}) ➡️", key="next_bottom", disabled=(st.session_state.pagination_page >= total_pages - 1), use_container_width=True):
                     st.session_state.pagination_page += 1
                     st.rerun()
 
