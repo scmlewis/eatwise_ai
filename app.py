@@ -1782,26 +1782,15 @@ def main():
             )
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
             
-            # Detect page change and scroll to top
-            if "current_page" not in st.session_state:
-                st.session_state.current_page = selected_page
-            
-            page_changed = st.session_state.current_page != selected_page
-            if page_changed:
-                st.session_state.current_page = selected_page
-                # Inject scroll-to-top script immediately
-                st.markdown(
-                    """
-                    <script>
-                        window.scrollTo(0, 0);
-                        // Force scroll on next frame too for reliability
-                        setTimeout(function() {
-                            window.scrollTo(0, 0);
-                        }, 100);
-                    </script>
-                    """,
-                    unsafe_allow_html=True
-                )
+            # Simple scroll to top on every page render
+            st.markdown(
+                """
+                <script>
+                    window.scrollTo(0, 0);
+                </script>
+                """,
+                unsafe_allow_html=True
+            )
             
             st.sidebar.markdown("---")
             
