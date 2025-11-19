@@ -709,16 +709,7 @@ def dashboard_page():
         unsafe_allow_html=True
     )
     
-    # Section background container with title inside
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, rgba(16, 161, 157, 0.05) 0%, rgba(255, 107, 22, 0.03) 100%);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 24px;
-    ">
-        <h2 style="margin: 0 0 20px 0; font-size: 24px; font-weight: 700; color: #e0f2f1;">📊 Statistics (Last 7 Days)</h2>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📊 Statistics (Last 7 Days)")
     
     stats_cols = st.columns(4, gap="medium")
     
@@ -819,19 +810,7 @@ def dashboard_page():
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("</div>", unsafe_allow_html=True)  # Close statistics section background
-    
-    # Display Achievements with Modern Card Layout
-    # Section background container
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, rgba(255, 103, 21, 0.05) 0%, rgba(255, 212, 59, 0.03) 100%);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 24px;
-    ">
-        <h2 style="margin: 0 0 20px 0; font-size: 24px; font-weight: 700; color: #e0f2f1;">🏆 Achievements</h2>
-    """, unsafe_allow_html=True)
+    st.markdown("## 🏆 Achievements")
     
     meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
     streak_info = get_streak_info(meal_dates)
@@ -912,21 +891,10 @@ def dashboard_page():
                     </div>
                     """, unsafe_allow_html=True)
     
-    st.markdown("</div>", unsafe_allow_html=True)  # Close achievements section background
-    
     st.divider()
     
     # ===== Quick Stats =====
-    # Section background container with title inside
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, rgba(16, 161, 157, 0.05) 0%, rgba(255, 107, 22, 0.03) 100%);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 24px;
-    ">
-        <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #e0f2f1;">📊 Today's Nutrition Summary</h2>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📊 Today's Nutrition Summary")
     
     # Unified nutrition cards with all key info + progress bars
     nutrition_cards = [
@@ -1050,8 +1018,6 @@ def dashboard_page():
                 <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
-    
-    st.markdown("</div>", unsafe_allow_html=True)  # Close nutrition section background
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.divider()
