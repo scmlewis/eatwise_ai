@@ -936,7 +936,7 @@ def dashboard_page():
     ]
     
     # Create 3-column grid for compact display
-    cols = st.columns(3, gap="large")
+    cols = st.columns(3, gap="small")
     
     for idx, card in enumerate(nutrition_cards):
         with cols[idx % 3]:
