@@ -2685,46 +2685,63 @@ def main():
             
             st.sidebar.markdown("---")
             
-            # ===== QUICK STATS IN SIDEBAR - EXPANDABLE =====
-            with st.sidebar.expander("📊 Quick Stats", expanded=True):
-                # Get today's data for sidebar stats
-                today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
-                today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
-                
-                # Streak info
-                meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in today_meals]
-                if len(today_meals) > 0:
-                    recent_all_meals = db_manager.get_recent_meals(st.session_state.user_id, limit=30)
-                    meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
-                    streak_info = get_streak_info(meal_dates_all)
-                    
-                    st.metric("🔥 Streak", f"{streak_info['current_streak']} days")
-                
-                # Today's calories
-                user_profile = st.session_state.user_profile
-                if user_profile:
-                    age_group = user_profile.get("age_group", "26-35")
-                    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
-                    cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
-                    st.metric("🔥 Calories", f"{today_nutrition['calories']:.0f}/{targets['calories']}", f"{cal_pct:.0f}%")
-                
-                # Meals logged today
-                st.metric("🍽️ Meals", len(today_meals))
-                
-                # Water intake
-                water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
-                water_today = db_manager.get_daily_water_intake(st.session_state.user_id, date.today())
-                st.metric("💧 Water", f"{water_today}/{water_goal} glasses")
+            # ===== QUICK STATS IN SIDEBAR - COMPACT GRID =====
+            st.sidebar.markdown("### 📊 Quick Stats")
+            
+            # Get today's data for sidebar stats
+            today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
+            today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
+            user_profile = st.session_state.user_profile
+            
+            # Streak info
+            if len(today_meals) > 0:
+                recent_all_meals = db_manager.get_recent_meals(st.session_state.user_id, limit=30)
+                meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
+                streak_info = get_streak_info(meal_dates_all)
+                current_streak = streak_info.get('current_streak', 0)
+            else:
+                current_streak = 0
+            
+            # Get water intake
+            water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
+            water_today = db_manager.get_daily_water_intake(st.session_state.user_id, date.today())
+            
+            # Calories calculation
+            if user_profile:
+                age_group = user_profile.get("age_group", "26-35")
+                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
+                cal_display = f"{int(today_nutrition['calories'])}/{targets['calories']}"
+                cal_delta = f"{int(cal_pct)}%"
+            else:
+                cal_display = f"{int(today_nutrition['calories'])}"
+                cal_delta = "cal"
+            
+            # Create compact 2x2 grid stats
+            stat_col1, stat_col2 = st.sidebar.columns(2, gap="small")
+            
+            with stat_col1:
+                st.metric("🔥 Streak", f"{current_streak}", "days")
+            with stat_col2:
+                st.metric("🔥 Calories", cal_display, cal_delta)
+            
+            stat_col3, stat_col4 = st.sidebar.columns(2, gap="small")
+            with stat_col3:
+                st.metric("🍽️ Meals", len(today_meals), "logged")
+            with stat_col4:
+                st.metric("💧 Water", f"{water_today}/{water_goal}", "glasses")
             
             st.sidebar.markdown("---")
             
-            # Daily Insight in sidebar
-            with st.sidebar.expander("💡 Daily Insight", expanded=True):
+            # Daily Insight in sidebar - More compact
+            insight_header = st.sidebar.container()
+            with insight_header:
+                st.markdown("### 💡 Daily Insight", help="Nutrition tips and insights for better health")
                 try:
                     insight = recommender.get_nutrition_trivia()
-                    st.info(f"💬 {insight}")
+                    st.markdown(f"<div style='background: rgba(16, 161, 157, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid #10A19D; font-size: 13px; line-height: 1.4;'>{insight}</div>", unsafe_allow_html=True)
                 except:
-                    st.info("💬 Log more meals to get personalized insights!")
+                    st.markdown("<div style='background: rgba(16, 161, 157, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid #10A19D; font-size: 13px;'>💭 Log meals to get personalized tips!</div>", unsafe_allow_html=True)
             
             # Clear the quick nav flag
             if st.session_state.get("quick_nav_to_meal"):
