@@ -1385,16 +1385,7 @@ def meal_logging_page():
 
 def analytics_page():
     """Analytics and insights page"""
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-    ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📈 Analytics & Insights</h1>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📈 Analytics & Insights")
     
     user_profile = st.session_state.user_profile
     if not user_profile:
@@ -1443,16 +1434,7 @@ def analytics_page():
     targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
     
     # ===== STATISTICS CARDS =====
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #3B82F6;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📊 Statistics")
     
     # Prepare data for stats
     df_list = []
@@ -1568,16 +1550,7 @@ def analytics_page():
         """, unsafe_allow_html=True)
     
     # ===== Nutrition Trends =====
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #FF6B16;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📊 Nutrition Trends")
     
     # Prepare data for charts using utility function
     nutrition_by_date = build_nutrition_by_date(meals)
@@ -1615,16 +1588,7 @@ def analytics_page():
     st.plotly_chart(fig_macro, use_container_width=True)
     
     # ===== Meal Type Distribution =====
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #06B6D420 0%, #14B8A640 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #06B6D4;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 🍽️ Meal Type Distribution")
     
     meal_types_count = {}
     for meal in meals:
@@ -1642,16 +1606,7 @@ def analytics_page():
 
 def insights_page():
     """Health insights and recommendations page"""
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-    ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">💡 Health Insights & Recommendations</h1>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 💡 Health Insights & Recommendations")
     
     user_profile = st.session_state.user_profile
     if not user_profile:
@@ -1675,16 +1630,7 @@ def insights_page():
     today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
     
     # ===== Personalized Recommendations =====
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #EC4D6320 0%, #F43F5E40 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #EC4D63;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 🎯 Today's Meal Recommendations")
     st.caption("💡 Click the button below to generate personalized meal recommendations (this uses API calls)")
     
     if st.button("🤖 Generate Meal Recommendations", use_container_width=True):
@@ -1714,16 +1660,7 @@ def insights_page():
                             st.success(f"**Benefits:** {', '.join(rec.get('health_benefits', []))}")
     
     # ===== Weekly Meal Plan =====
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #06B6D420 0%, #14B8A640 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #06B6D4;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📅 Weekly Meal Plan")
     
     if st.button("Generate 7-Day Meal Plan", use_container_width=True):
         with st.spinner("🤖 Creating your personalized meal plan..."):
@@ -1742,16 +1679,7 @@ def insights_page():
     
     # ===== BEST & WORST MEALS =====
     st.divider()
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #F59E0B20 0%, #FBBF2440 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #F59E0B;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 🏆 Your Meal Quality")
     
     # Sort meals by healthiness score
     sorted_meals = sorted(meals, key=lambda x: x.get('healthiness_score', 0), reverse=True)
@@ -1774,16 +1702,7 @@ def insights_page():
                 st.caption(meal.get('description', 'N/A')[:100])
     
     # ===== Health Insights =====
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #10A19D;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📊 Health Insights")
     st.caption("💡 Click the button below to analyze your eating patterns (this uses API calls)")
     
     if st.button("🤖 Analyze Health Insights", use_container_width=True):
@@ -1855,16 +1774,7 @@ def insights_page():
     
     # ===== NUTRITION COMPARISON (TODAY VS WEEKLY AVG) =====
     st.divider()
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #845EF7;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📊 Today vs Weekly Average")
     
     end_date = date.today()
     start_date = end_date - timedelta(days=7)
@@ -1905,16 +1815,7 @@ def insights_page():
     
     # ===== MEAL TYPE DISTRIBUTION =====
     st.divider()
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #FF6B16;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 🍽️ Meal Type Distribution This Week")
     
     if weekly_meals:
         meal_type_counts = {}
@@ -1939,16 +1840,7 @@ def insights_page():
     
     # ===== NUTRITION TIPS =====
     st.divider()
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #51CF66;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 💡 Nutrition Tips")
     
     nutrition_tips = [
         "🥗 Eat a variety of colorful vegetables - each color has different nutrients!",
@@ -1974,16 +1866,7 @@ def insights_page():
     
     # ===== NUTRITION TARGETS SUMMARY =====
     st.divider()
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #E84C3D20 0%, #FF6B6B40 100%);
-        padding: 20px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border-left: 5px solid #E84C3D;
-        height: 5px;
-    "></div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 🎯 Your Nutrition Targets")
     
     if user_profile:
         # ===== PERSONALIZATION CONTEXT =====
