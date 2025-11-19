@@ -2683,7 +2683,7 @@ def main():
             )
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
             
-            st.sidebar.markdown("---")
+            st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
             
             # ===== QUICK STATS IN SIDEBAR - COMPACT SINGLE ROW =====
             # Get today's data for sidebar stats
@@ -2719,7 +2719,7 @@ def main():
                 st.markdown(f"""
                 <div style="text-align: center;">
                     <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{current_streak}</div>
-                    <div style="font-size: 11px; color: #a0a0a0;">🔥 Streak</div>
+                    <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Streak</div>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -2727,7 +2727,7 @@ def main():
                 st.markdown(f"""
                 <div style="text-align: center;">
                     <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{cal_display}</div>
-                    <div style="font-size: 11px; color: #a0a0a0;">🔥 Calories</div>
+                    <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Calories</div>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -2735,11 +2735,11 @@ def main():
                 st.markdown(f"""
                 <div style="text-align: center;">
                     <div style="font-size: 24px; font-weight: bold; color: #3B82F6; margin-bottom: 4px;">{water_today}/{water_goal}</div>
-                    <div style="font-size: 11px; color: #a0a0a0;">💧 Water</div>
+                    <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Water</div>
                 </div>
                 """, unsafe_allow_html=True)
             
-            st.sidebar.markdown("---")
+            st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
             
             # Daily Insight in sidebar - More compact
             insight_header = st.sidebar.container()
