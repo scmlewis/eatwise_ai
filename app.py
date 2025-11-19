@@ -2630,14 +2630,13 @@ def main():
             background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
             padding: 12px 20px;
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
             word-wrap: break-word;
         ">
-            <h1 style="color: white; margin: 0; font-size: 1.5em;">🥗 {APP_NAME}</h1>
+            <h1 style="color: white; margin: 0; font-size: 1.5em;">🥗 eatwise</h1>
         </div>
         """, unsafe_allow_html=True)
-        st.sidebar.markdown("---")
         
         if st.session_state.user_email:
             # User info - with word wrapping
@@ -2650,7 +2649,7 @@ def main():
                 st.success("✅ Logged out!")
                 st.rerun()
             
-            st.sidebar.markdown("---")
+            st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
             
             # Navigation pages dictionary
             pages = {
