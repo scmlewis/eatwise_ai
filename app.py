@@ -1216,17 +1216,28 @@ def meal_history_page():
     
     user_id = st.session_state.user_id
     
-    # Date range filters
-    col1, col2, col3 = st.columns([2, 2, 1])
+    # Date range filters with proper alignment
+    st.markdown("### 📅 Filter by Date Range")
+    
+    col1, col2, col3 = st.columns([1.5, 1.5, 0.8], gap="medium")
     
     with col1:
-        start_date = st.date_input("Start Date", value=date.today() - timedelta(days=30))
+        start_date = st.date_input(
+            "Start Date", 
+            value=date.today() - timedelta(days=30),
+            key="start_date_input"
+        )
     
     with col2:
-        end_date = st.date_input("End Date", value=date.today())
+        end_date = st.date_input(
+            "End Date", 
+            value=date.today(),
+            key="end_date_input"
+        )
     
     with col3:
-        if st.button("📊 Search", use_container_width=True):
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+        if st.button("🔍 Search", use_container_width=True, key="search_meals_btn"):
             st.session_state.search_triggered = True
     
     # Get meals in range
