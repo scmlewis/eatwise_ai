@@ -71,18 +71,7 @@ def format_nutrition_dict(nutrition: Dict[str, float]) -> Dict[str, str]:
     }
 
 
-def get_date_range(days: int) -> tuple:
-    """Get date range for analytics"""
-    end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=days)
-    return start_date, end_date
 
-
-def serialize_datetime(obj):
-    """JSON serializer for datetime objects"""
-    if isinstance(obj, (datetime, )):
-        return obj.isoformat()
-    raise TypeError(f"Type {type(obj)} not serializable")
 
 
 def init_session_state():
@@ -99,12 +88,7 @@ def init_session_state():
         st.session_state.meal_cache = {}
 
 
-def clear_session():
-    """Clear session state"""
-    st.session_state.user_id = None
-    st.session_state.user_email = None
-    st.session_state.user_profile = None
-    st.session_state.current_page = "Dashboard"
+
 
 
 def get_streak_info(meal_dates: List[datetime]) -> Dict[str, int]:
@@ -140,3 +124,45 @@ def get_earned_badges(badges_earned: List[str]) -> Dict[str, Any]:
     """Get details of earned badges"""
     from constants import BADGES
     return {badge_id: BADGES.get(badge_id, {}) for badge_id in badges_earned if badge_id in BADGES}
+
+
+def build_nutrition_by_date(meals: List[Dict]) -> Dict[str, Dict[str, float]]:
+    """
+    Build a nutrition summary organized by date from a list of meals.
+    
+    Consolidates nutritional data across multiple meals for each date.
+    Used by analytics and dashboard pages to prepare data for visualization.
+    
+    Args:
+        meals: List of meal dictionaries with nutrition data
+        
+    Returns:
+        Dictionary with dates as keys and nutrition summaries as values
+        {
+            "2025-11-20": {
+                "calories": 2150,
+                "protein": 85.5,
+                "carbs": 250,
+                "fat": 75
+            }
+        }
+    """
+    nutrition_by_date = {}
+    for meal in meals:
+        meal_date = meal.get("logged_at", "").split("T")[0]
+        nutrition = meal.get("nutrition", {})
+        
+        if meal_date not in nutrition_by_date:
+            nutrition_by_date[meal_date] = {
+                "calories": 0,
+                "protein": 0,
+                "carbs": 0,
+                "fat": 0,
+            }
+        
+        nutrition_by_date[meal_date]["calories"] += nutrition.get("calories", 0)
+        nutrition_by_date[meal_date]["protein"] += nutrition.get("protein", 0)
+        nutrition_by_date[meal_date]["carbs"] += nutrition.get("carbs", 0)
+        nutrition_by_date[meal_date]["fat"] += nutrition.get("fat", 0)
+    
+    return nutrition_by_date

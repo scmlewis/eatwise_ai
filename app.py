@@ -29,7 +29,7 @@ from nutrition_components import display_nutrition_targets_progress
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
     get_nutrition_status, format_nutrition_dict, get_streak_info,
-    get_earned_badges
+    get_earned_badges, build_nutrition_by_date
 )
 
 # ==================== PAGE CONFIG ====================
@@ -523,24 +523,8 @@ def dashboard_page():
     start_date = end_date - timedelta(days=days_back)
     recent_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
     
-    # Prepare data for statistics
-    nutrition_by_date = {}
-    for meal in recent_meals:
-        meal_date = meal.get("logged_at", "").split("T")[0]
-        nutrition = meal.get("nutrition", {})
-        
-        if meal_date not in nutrition_by_date:
-            nutrition_by_date[meal_date] = {
-                "calories": 0,
-                "protein": 0,
-                "carbs": 0,
-                "fat": 0,
-            }
-        
-        nutrition_by_date[meal_date]["calories"] += nutrition.get("calories", 0)
-        nutrition_by_date[meal_date]["protein"] += nutrition.get("protein", 0)
-        nutrition_by_date[meal_date]["carbs"] += nutrition.get("carbs", 0)
-        nutrition_by_date[meal_date]["fat"] += nutrition.get("fat", 0)
+    # Prepare data for statistics using utility function
+    nutrition_by_date = build_nutrition_by_date(recent_meals)
     
     # Convert to DataFrame for statistics
     df = pd.DataFrame(list(nutrition_by_date.items()), columns=["Date", "Nutrition"])
@@ -1575,24 +1559,8 @@ def analytics_page():
     # ===== Nutrition Trends =====
     st.markdown("## 📊 Nutrition Trends")
     
-    # Prepare data for charts
-    nutrition_by_date = {}
-    for meal in meals:
-        meal_date = meal.get("logged_at", "").split("T")[0]
-        nutrition = meal.get("nutrition", {})
-        
-        if meal_date not in nutrition_by_date:
-            nutrition_by_date[meal_date] = {
-                "calories": 0,
-                "protein": 0,
-                "carbs": 0,
-                "fat": 0,
-            }
-        
-        nutrition_by_date[meal_date]["calories"] += nutrition.get("calories", 0)
-        nutrition_by_date[meal_date]["protein"] += nutrition.get("protein", 0)
-        nutrition_by_date[meal_date]["carbs"] += nutrition.get("carbs", 0)
-        nutrition_by_date[meal_date]["fat"] += nutrition.get("fat", 0)
+    # Prepare data for charts using utility function
+    nutrition_by_date = build_nutrition_by_date(meals)
     
     # Convert to DataFrame with proper date handling
     df = pd.DataFrame(list(nutrition_by_date.items()), columns=["Date", "Nutrition"])
