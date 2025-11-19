@@ -606,15 +606,16 @@ def dashboard_page():
     cal_percentage = min((daily_nutrition['calories'] / targets['calories']) * 100, 100) if targets['calories'] > 0 else 0
     cal_color = "#51CF66" if 80 <= cal_percentage <= 120 else ("#FFD43B" if cal_percentage < 80 else "#FF6B6B")
     
-    progress_col1, progress_col2 = st.columns([2, 1])
+    # Use responsive columns - auto-wrap on mobile
+    col_gauge, col_info = st.columns([1.5, 1], gap="medium")
     
-    with progress_col1:
-        # Create a gauge chart using Plotly
+    with col_gauge:
+        # Create a gauge chart using Plotly with reduced height for better responsiveness
         fig_gauge = go.Figure(data=[go.Indicator(
             mode="gauge+number+delta",
             value=daily_nutrition['calories'],
             domain={'x': [0, 1], 'y': [0, 1]},
-            title={'text': "Calories Today"},
+            title={'text': "Calories Today", 'font': {'size': 14}},
             delta={'reference': targets['calories'], 'suffix': " to target"},
             gauge={
                 'axis': {'range': [0, targets['calories'] * 1.25]},
@@ -632,24 +633,27 @@ def dashboard_page():
             }
         )])
         fig_gauge.update_layout(
-            font_size=12,
-            height=300,
-            margin=dict(l=20, r=20, t=40, b=20),
+            font_size=11,
+            height=250,
+            margin=dict(l=10, r=10, t=30, b=10),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
             font_color='#e0f2f1'
         )
-        st.plotly_chart(fig_gauge, use_container_width=True)
+        st.plotly_chart(fig_gauge, use_container_width=True, config={'displayModeBar': False})
     
-    with progress_col2:
+    with col_info:
+        st.markdown("")  # Spacing for alignment
+        st.markdown(f"<div style='text-align: center; padding: 20px 0;'><h3 style='color: #10A19D; margin: 0;'>{cal_percentage:.0f}%</h3><p style='color: #888; margin: 5px 0;'>of daily goal</p></div>", unsafe_allow_html=True)
+        
         if daily_nutrition['calories'] < targets['calories']:
             remaining = targets['calories'] - daily_nutrition['calories']
-            st.metric(f"Need", f"{remaining:.0f} cal", "↑ Keep going!")
+            st.metric("Need", f"{remaining:.0f} cal", "↑ Keep going!", delta_color="off")
         elif daily_nutrition['calories'] == targets['calories']:
-            st.success(f"✅ Perfect Match!")
+            st.success("✅ Perfect Match!")
         else:
             over = daily_nutrition['calories'] - targets['calories']
-            st.metric(f"Over by", f"{over:.0f} cal", "↓")
+            st.metric("Over by", f"{over:.0f} cal", "↓", delta_color="off")
     
     # Display Statistics with Modern Card Layout
     st.markdown("## 📊 Statistics (Last 7 Days)")
