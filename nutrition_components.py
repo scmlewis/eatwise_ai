@@ -69,43 +69,10 @@ def render_nutrition_progress_bar(
     warning_html = ""
     if is_limit_nutrient and percentage > 100:
         excess_amount = current - target
-        warning_html = f"""
-        <div style="color: #FF6B6B; font-size: 12px; font-weight: 600; margin-bottom: 6px;">
-            ⚠️ Exceeded by {excess_amount:.1f}{unit}
-        </div>
-        """
+        warning_html = f'<div style="color: #FF6B6B; font-size: 12px; font-weight: 600; margin-bottom: 6px;">⚠️ Exceeded by {excess_amount:.1f}{unit}</div>'
     
     # Create complete progress bar with label, bar, and text in one HTML block
-    progress_html = f"""
-    <div style="width: 100%; margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <span style="color: #e0f2f1; font-size: 13px; font-weight: 500;">{icon} {label}</span>
-        </div>
-        {warning_html}
-        <div style="
-            width: 100%;
-            background: #2a2a3e;
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 6px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-            box-sizing: border-box;
-        ">
-            <div style="
-                background: linear-gradient(90deg, {primary_color} 0%, {gradient_color} 100%);
-                height: 100%;
-                width: {bar_width}%;
-                border-radius: 4px;
-                transition: width 0.3s ease;
-                box-shadow: 0 0 10px rgba({rgb_str}, 0.5);
-            "></div>
-        </div>
-        <div style="color: #a0a0a0; font-size: 11px; text-align: left;">
-            {percentage_text}
-        </div>
-    </div>
-    """
+    progress_html = f'<div style="width: 100%; margin-bottom: 16px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;"><span style="color: #e0f2f1; font-size: 13px; font-weight: 500;">{icon} {label}</span></div>{warning_html}<div style="width: 100%; background: #2a2a3e; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 6px; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); box-sizing: border-box;"><div style="background: linear-gradient(90deg, {primary_color} 0%, {gradient_color} 100%); height: 100%; width: {bar_width}%; border-radius: 4px; transition: width 0.3s ease; box-shadow: 0 0 10px rgba({rgb_str}, 0.5);"></div></div><div style="color: #a0a0a0; font-size: 11px; text-align: left;">{percentage_text}</div></div>'
     
     st.markdown(progress_html, unsafe_allow_html=True)
 
