@@ -1771,9 +1771,10 @@ def main():
             if "nav_index" not in st.session_state:
                 st.session_state.nav_index = default_index
             
-            # Navigation in sidebar - right below logged in
-            selected_page = st.sidebar.selectbox(
-                "Navigate to:",
+            # Navigation in sidebar - radio buttons instead of dropdown
+            st.sidebar.markdown("**Navigation**")
+            selected_page = st.sidebar.radio(
+                "Pages",
                 options=list(pages.keys()),
                 index=st.session_state.nav_index,
                 format_func=lambda x: f"{pages[x]} {x}",
