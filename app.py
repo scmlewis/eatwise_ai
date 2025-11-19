@@ -958,10 +958,29 @@ def analytics_page():
             st.info("Please complete your profile first!")
             return
     
-    # Date range selector
-    col1, col2 = st.columns(2)
+    # Time period button options
+    st.markdown("### Select time period")
+    col1, col2, col3 = st.columns(3, gap="small")
+    
+    days = 7  # Default value
     with col1:
-        days = st.slider("Select time period", 1, 30, 7, help="Days to analyze")
+        if st.button("Last 7 days", use_container_width=True):
+            days = 7
+            st.session_state.analytics_days = 7
+    
+    with col2:
+        if st.button("Last 2 weeks", use_container_width=True):
+            days = 14
+            st.session_state.analytics_days = 14
+    
+    with col3:
+        if st.button("Last 30 days", use_container_width=True):
+            days = 30
+            st.session_state.analytics_days = 30
+    
+    # Use session state value if it exists
+    if "analytics_days" in st.session_state:
+        days = st.session_state.analytics_days
     
     # Get data
     end_date = date.today()
