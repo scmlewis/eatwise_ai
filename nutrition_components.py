@@ -120,19 +120,11 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
         ... }
         >>> display_nutrition_targets_progress(daily_nutrition, targets)
     """
-    # Container with modern gradient border
+    # Display title outside container
     st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #1a3a3820 0%, #2a4a4a25 100%);
-        border: 2px solid #10A19D40;
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 25px;
-        box-sizing: border-box;
-    ">
-        <h3 style="color: #52C4B8; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
-            📊 Nutrition Targets Progress
-        </h3>
+    <h3 style="color: #52C4B8; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+        📊 Nutrition Targets Progress
+    </h3>
     """, unsafe_allow_html=True)
     
     # Create two columns for nutrition targets
@@ -193,8 +185,6 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
                 target=targets.get(item["key"], 0),
                 unit=item["unit"]
             )
-    
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def display_nutrition_summary_cards(daily_nutrition: dict, targets: dict) -> None:
