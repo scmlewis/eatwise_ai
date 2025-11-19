@@ -2431,7 +2431,24 @@ def main():
         st.sidebar.markdown("---")
         
         if st.session_state.user_email:
-            st.sidebar.markdown(f"**Logged in as:**\n{st.session_state.user_email}")
+            # User menu at top (always accessible)
+            col_user, col_menu = st.sidebar.columns([3, 1])
+            with col_user:
+                st.markdown(f"👤 **{st.session_state.user_email.split('@')[0]}**\n\n*{st.session_state.user_email}*", help="Logged in account")
+            
+            with col_menu:
+                if st.button("⋮", key="user_menu", help="Menu", use_container_width=True):
+                    st.session_state.show_user_menu = not st.session_state.get("show_user_menu", False)
+            
+            # User menu dropdown
+            if st.session_state.get("show_user_menu", False):
+                if st.button("🚪 Logout", use_container_width=True, key="logout_btn"):
+                    st.session_state.auth_manager.logout()
+                    st.session_state.clear()
+                    st.success("✅ Logged out!")
+                    st.rerun()
+            
+            st.sidebar.markdown("---")
             
             # Navigation pages dictionary
             pages = {
@@ -2466,39 +2483,40 @@ def main():
             
             st.sidebar.markdown("---")
             
-            # ===== QUICK STATS IN SIDEBAR =====
-            st.sidebar.markdown("## 📊 Quick Stats")
+            # ===== QUICK STATS IN SIDEBAR - COLLAPSIBLE =====
+            stats_expanded = st.sidebar.checkbox("📊 Quick Stats", value=True, key="quick_stats_expanded")
             
-            # Get today's data for sidebar stats
-            today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
-            today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
-            
-            # Streak info
-            meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in today_meals]
-            if len(today_meals) > 0:
-                recent_all_meals = db_manager.get_recent_meals(st.session_state.user_id, limit=30)
-                meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
-                streak_info = get_streak_info(meal_dates_all)
+            if stats_expanded:
+                # Get today's data for sidebar stats
+                today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
+                today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
                 
-                st.sidebar.metric("🔥 Streak", f"{streak_info['current_streak']} days")
-            
-            # Today's calories
-            user_profile = st.session_state.user_profile
-            if user_profile:
-                age_group = user_profile.get("age_group", "26-35")
-                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
-                cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
-                st.sidebar.metric("🔥 Calories", f"{today_nutrition['calories']:.0f}/{targets['calories']}", f"{cal_pct:.0f}%")
-            
-            # Meals logged today
-            st.sidebar.metric("🍽️ Meals", len(today_meals))
-            
-            # Water intake
-            water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
-            water_today = db_manager.get_daily_water_intake(st.session_state.user_id, date.today())
-            st.sidebar.metric("💧 Water", f"{water_today}/{water_goal} glasses")
-            
-            st.sidebar.markdown("---")
+                # Streak info
+                meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in today_meals]
+                if len(today_meals) > 0:
+                    recent_all_meals = db_manager.get_recent_meals(st.session_state.user_id, limit=30)
+                    meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
+                    streak_info = get_streak_info(meal_dates_all)
+                    
+                    st.sidebar.metric("🔥 Streak", f"{streak_info['current_streak']} days")
+                
+                # Today's calories
+                user_profile = st.session_state.user_profile
+                if user_profile:
+                    age_group = user_profile.get("age_group", "26-35")
+                    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                    cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
+                    st.sidebar.metric("🔥 Calories", f"{today_nutrition['calories']:.0f}/{targets['calories']}", f"{cal_pct:.0f}%")
+                
+                # Meals logged today
+                st.sidebar.metric("🍽️ Meals", len(today_meals))
+                
+                # Water intake
+                water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
+                water_today = db_manager.get_daily_water_intake(st.session_state.user_id, date.today())
+                st.sidebar.metric("💧 Water", f"{water_today}/{water_goal} glasses")
+                
+                st.sidebar.markdown("---")
             
             # Daily Insight in sidebar
             st.sidebar.markdown("## 💡 Daily Insight")
@@ -2507,15 +2525,6 @@ def main():
                 st.sidebar.info(f"💬 {insight}")
             except:
                 st.sidebar.info("💬 Log more meals to get personalized insights!")
-            
-            st.sidebar.markdown("---")
-            
-            # Logout button below daily insight
-            if st.sidebar.button("🚪 Logout", use_container_width=True):
-                st.session_state.auth_manager.logout()
-                st.session_state.clear()
-                st.success("✅ Logged out!")
-                st.rerun()
             
             # Clear the quick nav flag
             if st.session_state.get("quick_nav_to_meal"):
