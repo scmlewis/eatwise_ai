@@ -769,11 +769,11 @@ def meal_logging_page():
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-        padding: 25px;
+        padding: 15px 25px;
         border-radius: 15px;
         margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2em;">📸 Log Your Meal</h1>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📸 Log Your Meal</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -950,11 +950,11 @@ def analytics_page():
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
-        padding: 25px;
+        padding: 15px 25px;
         border-radius: 15px;
         margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2em;">📈 Analytics & Insights</h1>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📈 Analytics & Insights</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1078,11 +1078,11 @@ def insights_page():
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
-        padding: 25px;
+        padding: 15px 25px;
         border-radius: 15px;
         margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2em;">💡 Health Insights & Recommendations</h1>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">💡 Health Insights & Recommendations</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1232,11 +1232,11 @@ def meal_history_page():
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-        padding: 25px;
+        padding: 15px 25px;
         border-radius: 15px;
         margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2em;">📋 Meal History</h1>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📋 Meal History</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1375,11 +1375,11 @@ def profile_page():
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #FF6B16 0%, #FF8A4D 100%);
-        padding: 25px;
+        padding: 15px 25px;
         border-radius: 15px;
         margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2em;">👤 My Profile</h1>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">👤 My Profile</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1565,11 +1565,11 @@ def help_page():
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-        padding: 25px;
+        padding: 15px 25px;
         border-radius: 15px;
         margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2em;">❓ Help & About</h1>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">❓ Help & About</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1769,28 +1769,18 @@ def main():
         st.sidebar.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-            padding: 20px;
+            padding: 12px 20px;
             border-radius: 12px;
             margin-bottom: 10px;
             text-align: center;
         ">
-            <h1 style="color: white; margin: 0; font-size: 1.8em;">🥗 {APP_NAME}</h1>
+            <h1 style="color: white; margin: 0; font-size: 1.5em;">🥗 {APP_NAME}</h1>
         </div>
         """, unsafe_allow_html=True)
         st.sidebar.markdown("---")
         
         if st.session_state.user_email:
             st.sidebar.markdown(f"**Logged in as:**\n{st.session_state.user_email}")
-            st.sidebar.markdown("---")
-            
-            # Logout button in sidebar
-            if st.sidebar.button("🚪 Logout", use_container_width=True):
-                st.session_state.auth_manager.logout()
-                st.session_state.clear()
-                st.success("✅ Logged out!")
-                st.rerun()
-            
-            st.sidebar.markdown("---")
             
             # Navigation pages dictionary
             pages = {
@@ -1811,8 +1801,7 @@ def main():
             if "nav_index" not in st.session_state:
                 st.session_state.nav_index = default_index
             
-            # Navigation in sidebar
-            st.sidebar.markdown("### 📂 Pages")
+            # Navigation in sidebar - right below logged in
             selected_page = st.sidebar.selectbox(
                 "Navigate to:",
                 options=list(pages.keys()),
@@ -1832,6 +1821,15 @@ def main():
                 st.sidebar.info(f"💬 {insight}")
             except:
                 st.sidebar.info("💬 Log more meals to get personalized insights!")
+            
+            st.sidebar.markdown("---")
+            
+            # Logout button below daily insight
+            if st.sidebar.button("🚪 Logout", use_container_width=True):
+                st.session_state.auth_manager.logout()
+                st.session_state.clear()
+                st.success("✅ Logged out!")
+                st.rerun()
         
         # Clear the quick nav flag
         if st.session_state.get("quick_nav_to_meal"):
