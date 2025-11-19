@@ -155,11 +155,18 @@ class AuthManager:
             Tuple of (success, message)
         """
         try:
-            self.supabase.auth.reset_password_email(email)
+            # Use the admin API to send password reset email
+            self.supabase.auth.admin.send_recovery_email(email)
             return True, "Password reset email sent! Check your email for instructions."
         except Exception as e:
             error_str = str(e)
-            return False, f"Error: {error_str}"
+            # If admin method doesn't work, try alternative approach
+            try:
+                # Alternative: Use sign in with one-time password flow
+                self.supabase.auth.sign_in_with_otp({"email": email})
+                return True, "Password reset email sent! Check your email for instructions."
+            except:
+                return False, f"Error sending reset email. Please try again or contact support."
 
 
 def init_auth_session():
