@@ -54,22 +54,26 @@ def render_nutrition_progress_bar(
     # Cap bar at 100% visually but show actual percentage in text
     bar_width = min(percentage, 100)
     
-    # Create warning if exceeded limit nutrients
-    warning_indicator = ""
-    if is_limit_nutrient and percentage > 100:
-        excess_amount = current - target
-        warning_indicator = f'<div style="color: #FF6B6B; font-size: 12px; font-weight: 600; margin-bottom: 4px;">⚠️ Exceeded by {excess_amount:.1f}{unit}</div>'
-    
     # Display percentage and value text
     if show_value:
         value_text = f"{current:.1f}{unit}" if unit else f"{current:.0f}"
         target_text = f"{target:.1f}{unit}" if unit else f"{target:.0f}"
-        if percentage > 100:
-            percentage_text = f"↑ {percentage:.0f}% • {value_text} of {target_text}"
-        else:
-            percentage_text = f"↑ {percentage:.0f}% • {value_text} of {target_text}"
+        percentage_text = f"↑ {percentage:.0f}% • {value_text} of {target_text}"
     else:
         percentage_text = f"↑ {percentage:.0f}%"
+    
+    # Extract RGB values from hex color for glow effect
+    rgb_str = f"{int(primary_color[1:3], 16)}, {int(primary_color[3:5], 16)}, {int(primary_color[5:7], 16)}"
+    
+    # Build warning section if needed
+    warning_html = ""
+    if is_limit_nutrient and percentage > 100:
+        excess_amount = current - target
+        warning_html = f"""
+        <div style="color: #FF6B6B; font-size: 12px; font-weight: 600; margin-bottom: 6px;">
+            ⚠️ Exceeded by {excess_amount:.1f}{unit}
+        </div>
+        """
     
     # Create complete progress bar with label, bar, and text in one HTML block
     progress_html = f"""
@@ -77,7 +81,7 @@ def render_nutrition_progress_bar(
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
             <span style="color: #e0f2f1; font-size: 13px; font-weight: 500;">{icon} {label}</span>
         </div>
-        {warning_indicator}
+        {warning_html}
         <div style="
             width: 100%;
             background: #2a2a3e;
@@ -94,7 +98,7 @@ def render_nutrition_progress_bar(
                 width: {bar_width}%;
                 border-radius: 4px;
                 transition: width 0.3s ease;
-                box-shadow: 0 0 10px rgba({int(primary_color[1:3], 16)}, {int(primary_color[3:5], 16)}, {int(primary_color[5:7], 16)}, 0.5);
+                box-shadow: 0 0 10px rgba({rgb_str}, 0.5);
             "></div>
         </div>
         <div style="color: #a0a0a0; font-size: 11px; text-align: left;">
