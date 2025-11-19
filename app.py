@@ -2874,7 +2874,7 @@ def main():
         /* Sidebar responsive adjustments */
         [data-testid="stSidebar"] {
             width: fit-content !important;
-            background: linear-gradient(180deg, #0d1820 0%, #162a33 50%, #0a0e27 100%) !important;
+            background: linear-gradient(180deg, #0f1419 0%, #132127 50%, #0d1620 100%) !important;
         }
         
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
