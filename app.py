@@ -620,9 +620,9 @@ def dashboard_page():
                 'axis': {'range': [0, targets['calories'] * 1.25]},
                 'bar': {'color': cal_color},
                 'steps': [
-                    {'range': [0, targets['calories'] * 0.5], 'color': "#FF6B6B20"},
-                    {'range': [targets['calories'] * 0.5, targets['calories']], 'color': "#FFD43B20"},
-                    {'range': [targets['calories'], targets['calories'] * 1.25], 'color': "#FF6B6B20"}
+                    {'range': [0, targets['calories'] * 0.5], 'color': "#FF6B6B"},
+                    {'range': [targets['calories'] * 0.5, targets['calories']], 'color': "#FFD43B"},
+                    {'range': [targets['calories'], targets['calories'] * 1.25], 'color': "#FF6B6B"}
                 ],
                 'threshold': {
                     'line': {'color': "#10A19D", 'width': 4},
