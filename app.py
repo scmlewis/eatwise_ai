@@ -1806,6 +1806,44 @@ def main():
             if st.session_state.get("quick_nav_to_meal"):
                 st.session_state.quick_nav_to_meal = False
             
+            # Add floating Back to Top button
+            st.markdown(
+                """
+                <style>
+                    .back-to-top {
+                        position: fixed;
+                        bottom: 30px;
+                        right: 30px;
+                        z-index: 999;
+                    }
+                    .back-to-top button {
+                        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 50px;
+                        height: 50px;
+                        font-size: 24px;
+                        cursor: pointer;
+                        box-shadow: 0 4px 15px rgba(16, 161, 157, 0.4);
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .back-to-top button:hover {
+                        background: linear-gradient(135deg, #52C4B8 0%, #10A19D 100%);
+                        box-shadow: 0 6px 20px rgba(16, 161, 157, 0.6);
+                        transform: translateY(-2px);
+                    }
+                </style>
+                <div class="back-to-top">
+                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'});" title="Back to top">⬆️</button>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
             # Route to selected page
             if selected_page == "Dashboard":
                 dashboard_page()
