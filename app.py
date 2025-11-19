@@ -553,33 +553,83 @@ def dashboard_page():
     </div>
     """, unsafe_allow_html=True)
     
+    # Initialize notification state
+    if "water_notification" not in st.session_state:
+        st.session_state.water_notification = None
+    
+    # Display notification if exists
+    if st.session_state.water_notification:
+        notification_type, notification_msg = st.session_state.water_notification
+        
+        # Color scheme for notifications
+        notification_colors = {
+            "success": ("#51CF66", "#0d3d0d", "#69DB7C"),
+            "warning": ("#FFD43B", "#3d3d0d", "#FCC419"),
+            "error": ("#FF6B6B", "#3d0d0d", "#FF8A80"),
+        }
+        
+        color, bg_color, border_color = notification_colors.get(notification_type, notification_colors["success"])
+        
+        st.markdown(f"""
+        <div style="
+            background: {bg_color};
+            border: 2px solid {color};
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        ">
+            <div style="color: {color}; font-weight: 600; font-size: 14px;">
+                {notification_msg}
+            </div>
+        </div>
+        <style>
+            @keyframes slideIn {{
+                from {{
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }}
+                to {{
+                    opacity: 1;
+                    transform: translateY(0);
+                }}
+            }}
+        </style>
+        """, unsafe_allow_html=True)
+    
     # Action buttons
     water_btn_col1, water_btn_col2, water_btn_col3 = st.columns(3)
     
     with water_btn_col1:
         if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
             if db_manager.log_water(st.session_state.user_id, 1, today):
-                st.success("💧 Glass logged!")
+                st.session_state.water_notification = ("success", "✅ Glass added!")
                 st.rerun()
             else:
-                st.error("Failed to log water")
+                st.session_state.water_notification = ("error", "❌ Failed to log water")
+                st.rerun()
     
     with water_btn_col2:
         if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
             if current_water > 0:
                 if db_manager.log_water(st.session_state.user_id, -1, today):
-                    st.success("Removed 1 glass")
+                    st.session_state.water_notification = ("success", "✅ Removed 1 glass")
                     st.rerun()
                 else:
-                    st.error("Failed to remove water")
+                    st.session_state.water_notification = ("error", "❌ Failed to remove water")
+                    st.rerun()
             else:
-                st.warning("No water logged yet")
+                st.session_state.water_notification = ("warning", "⚠️ No water logged yet")
+                st.rerun()
     
     with water_btn_col3:
         if st.button("🏁 Mark Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
             remaining = max(0, water_goal - current_water)
             if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
-                st.success(f"✅ Added {remaining} glasses to complete goal!")
+                st.session_state.water_notification = ("success", f"✅ Added {remaining} glasses to complete goal!")
                 st.rerun()
     
     st.divider()
