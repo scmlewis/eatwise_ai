@@ -1904,16 +1904,33 @@ def main():
     query_params = st.query_params
     
     # Debug: Log the query params to understand what we're receiving
-    # Uncomment to debug URL parameters
-    # st.write("Query params:", dict(query_params))
+    if query_params:
+        st.write("DEBUG - Query params detected:", dict(query_params))
     
-    # Check if this is a password recovery URL
-    # Handle both string and list values from query params
+    # Check if this is a password recovery URL from Supabase
     type_param = query_params.get("type")
     if type_param == "recovery" or type_param == ["recovery"]:
         st.session_state.reset_mode = True
     elif type_param and "recovery" in str(type_param):
         st.session_state.reset_mode = True
+    
+    # Also check for Supabase recovery session (session created by recovery email)
+    # This handles the case where Supabase doesn't pass URL params in the redirect
+    if not st.session_state.get("reset_mode", False) and not st.session_state.get("user_id"):
+        try:
+            auth_manager = st.session_state.auth_manager
+            session = auth_manager.supabase.auth.get_session()
+            if session and session.user:
+                # Check if this is a recovery session by looking at the session metadata
+                # Recovery sessions have specific characteristics
+                if session.user.app_metadata and session.user.app_metadata.get("provider") == "email":
+                    # Additional check: if user has a session but hasn't logged in via the app
+                    # This might be from a recovery email
+                    if not st.session_state.get("_recovery_check_done", False):
+                        st.session_state.reset_mode = True
+                        st.session_state._recovery_check_done = True
+        except:
+            pass
     
     # Check if user is in reset password mode (after clicking reset link from email)
     if st.session_state.get("reset_mode", False):
