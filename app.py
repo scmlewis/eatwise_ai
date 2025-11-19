@@ -507,51 +507,80 @@ def dashboard_page():
     st.divider()
     
     # ===== WATER INTAKE TRACKER =====
-    st.markdown("## 💧 Water Intake")
-    
     water_goal = user_profile.get("water_goal_glasses", 8)
     current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
     
-    water_col1, water_col2, water_col3 = st.columns([2, 1, 1])
+    water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
     
-    with water_col1:
-        # Progress bar
-        water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%);
-            border: 2px solid #3B82F6;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-        ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="color: #e0f2f1; font-weight: 600;">Today's Water Intake</span>
-                <span style="color: #3B82F6; font-weight: bold;">{current_water}/{water_goal} glasses</span>
-            </div>
-            <div style="background: #0a0e27; border-radius: 8px; height: 12px; overflow: hidden;">
-                <div style="background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
-            </div>
-            <div style="text-align: center; margin-top: 8px; color: #a0a0a0; font-size: 12px;">
-                {water_percentage:.0f}% Complete
-            </div>
+    # Determine water status message
+    if current_water >= water_goal:
+        water_status = "🎉 Daily goal achieved!"
+        water_status_color = "#51CF66"
+        water_bg = "linear-gradient(135deg, #51CF6620 0%, #69DB7C40 100%)"
+        water_border = "#51CF66"
+    elif current_water >= water_goal * 0.75:
+        water_status = "💪 Almost there! Keep going!"
+        water_status_color = "#FFD43B"
+        water_bg = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
+        water_border = "#FFD43B"
+    else:
+        water_status = "💧 Stay hydrated! Keep drinking"
+        water_status_color = "#3B82F6"
+        water_bg = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
+        water_border = "#3B82F6"
+    
+    # Main water intake card
+    st.markdown(f"""
+    <div style="
+        background: {water_bg};
+        border: 2px solid {water_border};
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        margin-bottom: 12px;
+    ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="color: #e0f2f1; font-weight: 600; font-size: 15px;">💧 Water Intake</span>
+            <span style="color: {water_status_color}; font-weight: bold; font-size: 13px;">{current_water}/{water_goal} glasses</span>
         </div>
-        """, unsafe_allow_html=True)
+        <div style="background: #0a0e27; border-radius: 8px; height: 12px; overflow: hidden; margin-bottom: 10px;">
+            <div style="background: linear-gradient(90deg, {water_border} 0%, {water_status_color} 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: {water_status_color}; font-weight: 600; font-size: 13px;">{water_status}</span>
+            <span style="color: #a0a0a0; font-size: 12px;">{water_percentage:.0f}% Complete</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    with water_col2:
+    # Action buttons
+    water_btn_col1, water_btn_col2, water_btn_col3 = st.columns(3)
+    
+    with water_btn_col1:
         if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
             if db_manager.log_water(st.session_state.user_id, 1, today):
-                st.success("💧 Glass added!")
+                st.success("💧 Glass logged!")
                 st.rerun()
             else:
                 st.error("Failed to log water")
     
-    with water_col3:
-        if current_water >= water_goal:
-            st.success(f"🎉 Goal met!")
-        else:
-            remaining = water_goal - current_water
-            st.info(f"🎯 {remaining} more")
+    with water_btn_col2:
+        if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
+            if current_water > 0:
+                if db_manager.log_water(st.session_state.user_id, -1, today):
+                    st.success("Removed 1 glass")
+                    st.rerun()
+                else:
+                    st.error("Failed to remove water")
+            else:
+                st.warning("No water logged yet")
+    
+    with water_btn_col3:
+        if st.button("🏁 Mark Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
+            remaining = max(0, water_goal - current_water)
+            if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
+                st.success(f"✅ Added {remaining} glasses to complete goal!")
+                st.rerun()
     
     st.divider()
     
