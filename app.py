@@ -621,15 +621,8 @@ def dashboard_page():
     
     # Single responsive card layout
     card_html = f"""
-    <div style="
-        background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%);
-        border: 1px solid rgba(16, 161, 157, 0.3);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 20px;
-    ">
+    <div style="background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%); border: 1px solid rgba(16, 161, 157, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 20px;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center;">
-            <!-- Left side: Main metrics -->
             <div>
                 <div style="font-size: 14px; color: #888; margin-bottom: 8px;">Current Intake</div>
                 <div style="font-size: 36px; color: #fff; font-weight: bold; margin-bottom: 12px;">
@@ -639,21 +632,15 @@ def dashboard_page():
                     of {targets['calories']:.0f} cal target
                 </div>
             </div>
-            
-            <!-- Right side: Progress and status -->
-            <div>
-                <div style="text-align: right;">
-                    <div style="font-size: 32px; color: {cal_color}; font-weight: bold; margin-bottom: 8px;">
-                        {cal_percentage:.0f}%
-                    </div>
-                    <div style="font-size: 12px; color: {status_color}; font-weight: 500;">
-                        {status_text}
-                    </div>
+            <div style="text-align: right;">
+                <div style="font-size: 32px; color: {cal_color}; font-weight: bold; margin-bottom: 8px;">
+                    {cal_percentage:.0f}%
+                </div>
+                <div style="font-size: 12px; color: {status_color}; font-weight: 500;">
+                    {status_text}
                 </div>
             </div>
         </div>
-        
-        <!-- Progress bar -->
         <div style="margin-top: 16px;">
             <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 4px; overflow: hidden;">
                 <div style="background: {cal_color}; height: 100%; width: {min(cal_percentage, 100)}%; border-radius: 4px; transition: width 0.3s ease;"></div>
