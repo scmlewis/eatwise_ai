@@ -976,11 +976,13 @@ def dashboard_page():
             time_pattern[period] = time_pattern.get(period, 0) + 1
     
     if time_pattern:
-        pattern_cols = st.columns(len(time_pattern), gap="medium")
         period_order = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        periods_to_show = [p for p in period_order if p in time_pattern]
         
-        for idx, period in enumerate(period_order):
-            if period in time_pattern:
+        if periods_to_show:
+            pattern_cols = st.columns(len(periods_to_show), gap="medium")
+            
+            for idx, period in enumerate(periods_to_show):
                 with pattern_cols[idx]:
                     emoji = {"Breakfast": "🌅", "Lunch": "🍴", "Dinner": "🌙", "Snacks": "🍿"}.get(period, "📌")
                     count = time_pattern[period]
