@@ -56,26 +56,6 @@ st.markdown("""
         --accent-blue: #3B82F6;
     }
     
-    /* Force sidebar to be expanded on desktop only */
-    @media (min-width: 768px) {
-        section[data-testid="stSidebar"] {
-            display: block !important;
-            width: 250px !important;
-            visibility: visible !important;
-        }
-    }
-    
-    /* Allow sidebar to collapse on mobile */
-    @media (max-width: 767px) {
-        section[data-testid="stSidebar"] {
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            z-index: 999999;
-        }
-    }
-    
     .main {
         padding-top: 2rem;
         background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
@@ -186,10 +166,6 @@ st.markdown("""
 
 init_session_state()
 init_auth_session()
-
-# Ensure sidebar is expanded on desktop after login
-if is_authenticated():
-    st.session_state.sidebar_expanded = True
 
 auth_manager = st.session_state.auth_manager
 db_manager = DatabaseManager()
