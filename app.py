@@ -343,10 +343,30 @@ def login_page():
                 else:
                     st.warning("⚠️ Please enter email and password")
             
-            # Forgot password link (subtle markdown link)
-            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-            with col2:
-                if st.button("Forgot Password?", key="forgot_pwd_btn", use_container_width=True):
+            # Forgot password button side by side with login
+            btn_col1, btn_col2 = st.columns([2, 1])
+            with btn_col1:
+                pass
+            with btn_col2:
+                st.markdown("""
+                <style>
+                div[data-testid="stButton"]:nth-of-type(2) > button {
+                    background: linear-gradient(135deg, #0D7A76 0%, #0a5f5a 100%) !important;
+                    color: white !important;
+                    border: none !important;
+                    border-radius: 8px !important;
+                    padding: 10px 20px !important;
+                    font-weight: 600 !important;
+                    transition: all 0.3s ease !important;
+                    box-shadow: 0 4px 10px rgba(13, 122, 118, 0.2) !important;
+                }
+                div[data-testid="stButton"]:nth-of-type(2) > button:hover {
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 6px 15px rgba(13, 122, 118, 0.3) !important;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+                if st.button("🔑 Forgot Password?", key="forgot_pwd_btn", use_container_width=True):
                     st.session_state.show_forgot_password = True
             
             st.markdown("""
