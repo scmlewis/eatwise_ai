@@ -1843,19 +1843,8 @@ def main():
                     }
                 </style>
                 <div class="back-to-top">
-                    <button id="backToTopBtn" title="Back to top">↑</button>
+                    <button onclick="document.documentElement.scrollTop = 0; document.body.scrollTop = 0; window.scrollTo({top: 0, behavior: 'smooth'});" title="Back to top">↑</button>
                 </div>
-                <script>
-                    var backToTopBtn = document.getElementById('backToTopBtn');
-                    if (backToTopBtn) {
-                        backToTopBtn.addEventListener('click', function() {
-                            window.scrollTo({
-                                top: 0,
-                                behavior: 'smooth'
-                            });
-                        });
-                    }
-                </script>
                 """,
                 unsafe_allow_html=True
             )
