@@ -1437,7 +1437,16 @@ def meal_logging_page():
 
 def analytics_page():
     """Analytics and insights page"""
-    st.markdown("## 📈 Analytics & Insights")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
+        padding: 15px 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📈 Analytics & Insights</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     user_profile = st.session_state.user_profile
     if not user_profile:
@@ -1677,7 +1686,16 @@ def analytics_page():
 
 def insights_page():
     """Health insights and recommendations page"""
-    st.markdown("## 💡 Health Insights & Recommendations")
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
+        padding: 15px 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">💡 Health Insights & Recommendations</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     user_profile = st.session_state.user_profile
     if not user_profile:
