@@ -709,107 +709,6 @@ def dashboard_page():
         unsafe_allow_html=True
     )
     
-    st.markdown("## 📊 Statistics (Last 7 Days)")
-    
-    stats_cols = st.columns(4, gap="medium")
-    
-    # Avg Daily Calories Card
-    with stats_cols[0]:
-        avg_cal = df["calories"].mean() if len(df) > 0 else 0
-        target_cal = targets['calories']
-        cal_pct = (avg_cal / target_cal * 100) if target_cal > 0 else 0
-        cal_status = "✅" if 80 <= cal_pct <= 120 else ("⚠️" if cal_pct < 80 else "⚡")
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
-            border: 1px solid #FF6B16;
-            border-left: 5px solid #FF6B16;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(255, 107, 22, 0.2);
-            transition: transform 0.2s ease;
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">🔥</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Calories</div>
-            <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{avg_cal:.0f}</div>
-            <div style="font-size: 9px; color: #FF6B16; font-weight: 700; margin-bottom: 6px;">of {target_cal}</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #FF6B16 0%, #FF8A4A 100%); height: 100%; width: {min(cal_pct, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #FF6B16; font-weight: 600;">{cal_status} {cal_pct:.0f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Total Meals Card
-    with stats_cols[1]:
-        total_meals = len(recent_meals)
-        meals_status = "🔥" if total_meals >= 14 else ("✅" if total_meals >= 7 else "⚠️")
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-            border: 1px solid #10A19D;
-            border-left: 5px solid #10A19D;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(16, 161, 157, 0.2);
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">🍽️</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Total Meals</div>
-            <div style="font-size: 28px; font-weight: 900; color: #5DDCD6; margin-bottom: 8px;">{total_meals}</div>
-            <div style="font-size: 9px; color: #10A19D; font-weight: 700; margin-bottom: 6px;">{days_back} days</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #10A19D 0%, #52C4B8 100%); height: 100%; width: {min((total_meals/21)*100, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #10A19D; font-weight: 600;">{meals_status} {(total_meals/days_back):.1f}/day</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Avg Meals Per Day Card
-    with stats_cols[2]:
-        avg_meals_per_day = total_meals / days_back if days_back > 0 else 0
-        meal_freq_status = "✅" if 2 <= avg_meals_per_day <= 4 else ("⚠️" if avg_meals_per_day < 2 else "⚡")
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
-            border: 1px solid #845EF7;
-            border-left: 5px solid #845EF7;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(132, 94, 247, 0.2);
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">📈</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Meals/Day</div>
-            <div style="font-size: 28px; font-weight: 900; color: #B89FFF; margin-bottom: 8px;">{avg_meals_per_day:.1f}</div>
-            <div style="font-size: 9px; color: #845EF7; font-weight: 700; margin-bottom: 6px;">avg</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #845EF7 0%, #BE80FF 100%); height: 100%; width: {min((avg_meals_per_day/5)*100, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #845EF7; font-weight: 600;">{meal_freq_status}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Avg Protein Card
-    with stats_cols[3]:
-        avg_protein = df["protein"].mean() if len(df) > 0 else 0
-        target_protein = targets['protein']
-        protein_pct = (avg_protein / target_protein * 100) if target_protein > 0 else 0
-        protein_status = "✅" if 80 <= protein_pct <= 120 else ("⚠️" if protein_pct < 80 else "⚡")
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
-            border: 1px solid #51CF66;
-            border-left: 5px solid #51CF66;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">💪</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Protein</div>
-            <div style="font-size: 28px; font-weight: 900; color: #7FDB8F; margin-bottom: 8px;">{avg_protein:.1f}g</div>
-            <div style="font-size: 9px; color: #51CF66; font-weight: 700; margin-bottom: 6px;">of {target_protein}g</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #51CF66 0%, #80C342 100%); height: 100%; width: {min(protein_pct, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #51CF66; font-weight: 600;">{protein_status} {protein_pct:.0f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
     st.markdown("## 🏆 Achievements")
     
     meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
@@ -1594,6 +1493,122 @@ def analytics_page():
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
     targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    
+    # ===== STATISTICS CARDS =====
+    st.markdown("## 📊 Statistics")
+    
+    # Prepare data for stats
+    df_list = []
+    for meal in meals:
+        meal_date = meal.get("logged_at", "").split("T")[0]
+        nutrition = meal.get("Nutrition", {})
+        df_list.append({
+            "Date": meal_date,
+            "calories": nutrition.get("calories", 0),
+            "protein": nutrition.get("protein", 0),
+            "carbs": nutrition.get("carbs", 0),
+            "fat": nutrition.get("fat", 0)
+        })
+    df = pd.DataFrame(df_list)
+    
+    stats_cols = st.columns(4, gap="medium")
+    
+    # Avg Daily Calories Card
+    with stats_cols[0]:
+        avg_cal = df["calories"].mean() if len(df) > 0 else 0
+        target_cal = targets['calories']
+        cal_pct = (avg_cal / target_cal * 100) if target_cal > 0 else 0
+        cal_status = "✅" if 80 <= cal_pct <= 120 else ("⚠️" if cal_pct < 80 else "⚡")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
+            border: 1px solid #FF6B16;
+            border-left: 5px solid #FF6B16;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 22, 0.2);
+            transition: transform 0.2s ease;
+        ">
+            <div style="font-size: 28px; margin-bottom: 6px;">🔥</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Calories</div>
+            <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{avg_cal:.0f}</div>
+            <div style="font-size: 9px; color: #FF6B16; font-weight: 700; margin-bottom: 6px;">of {target_cal}</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #FF6B16 0%, #FF8A4A 100%); height: 100%; width: {min(cal_pct, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #FF6B16; font-weight: 600;">{cal_status} {cal_pct:.0f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Total Meals Card
+    with stats_cols[1]:
+        total_meals = len(meals)
+        meals_status = "🔥" if total_meals >= 14 else ("✅" if total_meals >= 7 else "⚠️")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
+            border: 1px solid #10A19D;
+            border-left: 5px solid #10A19D;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(16, 161, 157, 0.2);
+        ">
+            <div style="font-size: 28px; margin-bottom: 6px;">🍽️</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Total Meals</div>
+            <div style="font-size: 28px; font-weight: 900; color: #5DDCD6; margin-bottom: 8px;">{total_meals}</div>
+            <div style="font-size: 9px; color: #10A19D; font-weight: 700; margin-bottom: 6px;">{days} days</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #10A19D 0%, #52C4B8 100%); height: 100%; width: {min((total_meals/21)*100, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #10A19D; font-weight: 600;">{meals_status} {(total_meals/days):.1f}/day</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Avg Meals Per Day Card
+    with stats_cols[2]:
+        avg_meals_per_day = total_meals / days if days > 0 else 0
+        meal_freq_status = "✅" if 2 <= avg_meals_per_day <= 4 else ("⚠️" if avg_meals_per_day < 2 else "⚡")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
+            border: 1px solid #845EF7;
+            border-left: 5px solid #845EF7;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(132, 94, 247, 0.2);
+        ">
+            <div style="font-size: 28px; margin-bottom: 6px;">📈</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Meals/Day</div>
+            <div style="font-size: 28px; font-weight: 900; color: #B89FFF; margin-bottom: 8px;">{avg_meals_per_day:.1f}</div>
+            <div style="font-size: 9px; color: #845EF7; font-weight: 700; margin-bottom: 6px;">avg</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #845EF7 0%, #BE80FF 100%); height: 100%; width: {min((avg_meals_per_day/5)*100, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #845EF7; font-weight: 600;">{meal_freq_status}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Avg Protein Card
+    with stats_cols[3]:
+        avg_protein = df["protein"].mean() if len(df) > 0 else 0
+        target_protein = targets['protein']
+        protein_pct = (avg_protein / target_protein * 100) if target_protein > 0 else 0
+        protein_status = "✅" if 80 <= protein_pct <= 120 else ("⚠️" if protein_pct < 80 else "⚡")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
+            border: 1px solid #51CF66;
+            border-left: 5px solid #51CF66;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
+        ">
+            <div style="font-size: 28px; margin-bottom: 6px;">💪</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Protein</div>
+            <div style="font-size: 28px; font-weight: 900; color: #7FDB8F; margin-bottom: 8px;">{avg_protein:.1f}g</div>
+            <div style="font-size: 9px; color: #51CF66; font-weight: 700; margin-bottom: 6px;">of {target_protein}g</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #51CF66 0%, #80C342 100%); height: 100%; width: {min(protein_pct, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #51CF66; font-weight: 600;">{protein_status} {protein_pct:.0f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # ===== Nutrition Trends =====
     st.markdown("## 📊 Nutrition Trends")
