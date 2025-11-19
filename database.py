@@ -18,7 +18,16 @@ class DatabaseManager:
         """Create user health profile"""
         try:
             profile_data["user_id"] = user_id
-            self.supabase.table("health_profiles").insert(profile_data).execute()
+            
+            # Filter out fields that don't exist in the schema
+            valid_fields = {
+                "user_id", "full_name", "age_group", "gender", "timezone", 
+                "health_conditions", "dietary_preferences", "health_goal"
+            }
+            
+            filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
+            
+            self.supabase.table("health_profiles").insert(filtered_data).execute()
             return True
         except Exception as e:
             st.error(f"Error creating health profile: {str(e)}")
@@ -36,7 +45,20 @@ class DatabaseManager:
     def update_health_profile(self, user_id: str, profile_data: Dict) -> bool:
         """Update user health profile"""
         try:
-            self.supabase.table("health_profiles").update(profile_data).eq("user_id", user_id).execute()
+            # Filter out fields that don't exist in the schema
+            # Only update fields that are known to exist in health_profiles table
+            valid_fields = {
+                "full_name", "age_group", "gender", "timezone", 
+                "health_conditions", "dietary_preferences", "health_goal"
+            }
+            
+            filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
+            
+            if not filtered_data:
+                st.error("No valid profile fields to update")
+                return False
+            
+            self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
             return True
         except Exception as e:
             st.error(f"Error updating health profile: {str(e)}")
