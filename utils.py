@@ -166,3 +166,39 @@ def build_nutrition_by_date(meals: List[Dict]) -> Dict[str, Dict[str, float]]:
         nutrition_by_date[meal_date]["fat"] += nutrition.get("fat", 0)
     
     return nutrition_by_date
+
+
+def paginate_items(items: List, page_size: int = 10) -> tuple[int, List]:
+    """
+    Paginate a list of items with session state management.
+    
+    Handles pagination state and returns the current page and paginated items.
+    Uses session state to persist page selection across reruns.
+    
+    Args:
+        items: List of items to paginate
+        page_size: Number of items per page (default: 10)
+        
+    Returns:
+        Tuple of (total_pages, paginated_items)
+    """
+    import streamlit as st
+    
+    # Initialize pagination state
+    if "pagination_page" not in st.session_state:
+        st.session_state.pagination_page = 0
+    
+    total_items = len(items)
+    total_pages = (total_items + page_size - 1) // page_size  # Ceiling division
+    
+    # Ensure current page is valid
+    if st.session_state.pagination_page >= total_pages:
+        st.session_state.pagination_page = max(0, total_pages - 1)
+    
+    # Calculate slice indices
+    start_idx = st.session_state.pagination_page * page_size
+    end_idx = start_idx + page_size
+    
+    paginated_items = items[start_idx:end_idx]
+    
+    return total_pages, paginated_items

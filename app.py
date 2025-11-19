@@ -29,7 +29,7 @@ from nutrition_components import display_nutrition_targets_progress
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
     get_nutrition_status, format_nutrition_dict, get_streak_info,
-    get_earned_badges, build_nutrition_by_date
+    get_earned_badges, build_nutrition_by_date, paginate_items
 )
 
 # ==================== PAGE CONFIG ====================
@@ -2016,11 +2016,33 @@ def meal_history_page():
         # Sort by date descending
         meals = sorted(meals, key=lambda x: x.get("logged_at", ""), reverse=True)
         
+        # Pagination
+        page_size = 10
+        total_pages, paginated_meals = paginate_items(meals, page_size=page_size)
+        
         st.markdown(f"### Found {len(meals)} meals")
+        
+        # Pagination controls at top
+        if total_pages > 1:
+            pag_col1, pag_col2, pag_col3, pag_col4, pag_col5 = st.columns([0.5, 0.5, 2, 0.5, 0.5], gap="small")
+            
+            with pag_col1:
+                if st.button("⬅️", key="prev_page", disabled=(st.session_state.pagination_page == 0)):
+                    st.session_state.pagination_page -= 1
+                    st.rerun()
+            
+            with pag_col3:
+                st.markdown(f"<div style='text-align: center; padding-top: 8px;'>Page {st.session_state.pagination_page + 1} of {total_pages}</div>", unsafe_allow_html=True)
+            
+            with pag_col5:
+                if st.button("➡️", key="next_page", disabled=(st.session_state.pagination_page >= total_pages - 1)):
+                    st.session_state.pagination_page += 1
+                    st.rerun()
+        
         st.divider()
         
         # Display meals with edit/delete options
-        for meal in meals:
+        for meal in paginated_meals:
             col1, col2, col3, col4 = st.columns([2, 0.4, 0.4, 0.4])
             
             with col1:
@@ -2152,6 +2174,24 @@ def meal_history_page():
                             st.rerun()
             
             st.divider()
+        
+        # Pagination controls at bottom
+        if total_pages > 1:
+            st.markdown("---")
+            pag_col1, pag_col2, pag_col3, pag_col4, pag_col5 = st.columns([0.5, 0.5, 2, 0.5, 0.5], gap="small")
+            
+            with pag_col1:
+                if st.button("⬅️ Previous", key="prev_page_bottom", disabled=(st.session_state.pagination_page == 0), use_container_width=True):
+                    st.session_state.pagination_page -= 1
+                    st.rerun()
+            
+            with pag_col3:
+                st.markdown(f"<div style='text-align: center; padding-top: 10px;'><strong>Page {st.session_state.pagination_page + 1} of {total_pages}</strong> ({page_size} meals per page)</div>", unsafe_allow_html=True)
+            
+            with pag_col5:
+                if st.button("Next ➡️", key="next_page_bottom", disabled=(st.session_state.pagination_page >= total_pages - 1), use_container_width=True):
+                    st.session_state.pagination_page += 1
+                    st.rerun()
 
 
 def profile_page():
