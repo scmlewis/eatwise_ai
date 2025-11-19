@@ -711,6 +711,16 @@ def dashboard_page():
         unsafe_allow_html=True
     )
     
+    # Section background container
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.05) 0%, rgba(255, 107, 22, 0.03) 100%);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+    ">
+    """, unsafe_allow_html=True)
+    
     stats_cols = st.columns(4, gap="medium")
     
     # Avg Daily Calories Card
@@ -722,14 +732,15 @@ def dashboard_page():
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
-            border: 2px solid #FF6B16;
+            border: 1px solid #FF6B16;
+            border-left: 5px solid #FF6B16;
             border-radius: 12px;
             padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(255, 107, 22, 0.2);
             transition: transform 0.2s ease;
         ">
-            <div style="font-size: 28px; margin-bottom: 4px;">🔥</div>
+            <div style="font-size: 24px; margin-bottom: 4px;">🔥</div>
             <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Avg Calories</div>
             <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_cal:.0f}</div>
             <div style="font-size: 8px; color: #FF6B16; font-weight: 600; margin-bottom: 4px;">of {target_cal}</div>
@@ -745,13 +756,14 @@ def dashboard_page():
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-            border: 2px solid #10A19D;
+            border: 1px solid #10A19D;
+            border-left: 5px solid #10A19D;
             border-radius: 12px;
             padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(16, 161, 157, 0.2);
         ">
-            <div style="font-size: 28px; margin-bottom: 4px;">🍽️</div>
+            <div style="font-size: 24px; margin-bottom: 4px;">🍽️</div>
             <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Total Meals</div>
             <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{total_meals}</div>
             <div style="font-size: 8px; color: #10A19D; font-weight: 600; margin-bottom: 4px;">{days_back} days</div>
@@ -767,13 +779,14 @@ def dashboard_page():
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
-            border: 2px solid #845EF7;
+            border: 1px solid #845EF7;
+            border-left: 5px solid #845EF7;
             border-radius: 12px;
             padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(132, 94, 247, 0.2);
         ">
-            <div style="font-size: 28px; margin-bottom: 4px;">📈</div>
+            <div style="font-size: 24px; margin-bottom: 4px;">📈</div>
             <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Meals/Day</div>
             <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_meals_per_day:.1f}</div>
             <div style="font-size: 8px; color: #845EF7; font-weight: 600; margin-bottom: 4px;">avg</div>
@@ -791,13 +804,14 @@ def dashboard_page():
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
-            border: 2px solid #51CF66;
+            border: 1px solid #51CF66;
+            border-left: 5px solid #51CF66;
             border-radius: 12px;
             padding: 12px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
         ">
-            <div style="font-size: 28px; margin-bottom: 4px;">💪</div>
+            <div style="font-size: 24px; margin-bottom: 4px;">💪</div>
             <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Avg Protein</div>
             <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_protein:.1f}g</div>
             <div style="font-size: 8px; color: #51CF66; font-weight: 600; margin-bottom: 4px;">of {target_protein}g</div>
@@ -806,8 +820,20 @@ def dashboard_page():
         </div>
         """, unsafe_allow_html=True)
     
+    st.markdown("</div>", unsafe_allow_html=True)  # Close statistics section background
+    
     # Display Achievements with Modern Card Layout
     st.markdown("## 🏆 Achievements")
+    
+    # Section background container
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, rgba(255, 103, 21, 0.05) 0%, rgba(255, 212, 59, 0.03) 100%);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+    ">
+    """, unsafe_allow_html=True)
     
     meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
     streak_info = get_streak_info(meal_dates)
@@ -821,10 +847,15 @@ def dashboard_page():
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #FF671520 0%, #FF671540 100%);
-            border: 2px solid #FF6715;
+            border: 1px solid #FF6715;
+            border-left: 5px solid #FF6715;
             border-radius: 12px;
-            padding: 14px;
+            padding: 20px;
             text-align: center;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             box-shadow: 0 6px 20px rgba(255, 103, 21, 0.25);
         ">
             <div style="font-size: 36px; margin-bottom: 8px;">{streak_emoji}</div>
@@ -840,10 +871,15 @@ def dashboard_page():
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #FFD43B20 0%, #FFC94D40 100%);
-            border: 2px solid #FFD43B;
+            border: 1px solid #FFD43B;
+            border-left: 5px solid #FFD43B;
             border-radius: 12px;
             padding: 20px;
             text-align: center;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             box-shadow: 0 6px 20px rgba(255, 212, 59, 0.25);
         ">
             <div style="font-size: 40px; margin-bottom: 12px;">🏅</div>
@@ -865,7 +901,8 @@ def dashboard_page():
                     st.markdown(f"""
                     <div style="
                         background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-                        border: 2px solid #10A19D;
+                        border: 1px solid #10A19D;
+                        border-left: 4px solid #10A19D;
                         border-radius: 10px;
                         padding: 12px;
                         text-align: center;
@@ -877,10 +914,22 @@ def dashboard_page():
                     </div>
                     """, unsafe_allow_html=True)
     
+    st.markdown("</div>", unsafe_allow_html=True)  # Close achievements section background
+    
     st.divider()
     
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Nutrition Summary")
+    
+    # Section background container
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.05) 0%, rgba(255, 107, 22, 0.03) 100%);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+    ">
+    """, unsafe_allow_html=True)
     st.markdown("")  # Add spacing above
     
     # Unified nutrition cards with all key info + progress bars
@@ -981,7 +1030,8 @@ def dashboard_page():
             st.markdown(f"""
             <div style="
                 background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
-                border: 2px solid {color};
+                border: 1px solid {color};
+                border-left: 5px solid {color};
                 border-radius: 14px;
                 padding: 18px;
                 text-align: center;
@@ -1005,7 +1055,7 @@ def dashboard_page():
             </div>
             """, unsafe_allow_html=True)
     
-    st.markdown("")  # Add spacing below
+    st.markdown("</div>", unsafe_allow_html=True)  # Close nutrition section background
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.divider()
