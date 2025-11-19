@@ -711,12 +711,12 @@ def dashboard_page():
         unsafe_allow_html=True
     )
     
-    # Section background container
+    # Section background container with title inside
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, rgba(16, 161, 157, 0.05) 0%, rgba(255, 107, 22, 0.03) 100%);
         border-radius: 16px;
-        padding: 20px;
+        padding: 24px 20px 20px 20px;
         margin-bottom: 24px;
     ">
     """, unsafe_allow_html=True)
@@ -735,17 +735,17 @@ def dashboard_page():
             border: 1px solid #FF6B16;
             border-left: 5px solid #FF6B16;
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 16px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(255, 107, 22, 0.2);
             transition: transform 0.2s ease;
         ">
-            <div style="font-size: 24px; margin-bottom: 4px;">🔥</div>
-            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Avg Calories</div>
-            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_cal:.0f}</div>
-            <div style="font-size: 8px; color: #FF6B16; font-weight: 600; margin-bottom: 4px;">of {target_cal}</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #FF6B16 0%, #FF8A4A 100%); height: 100%; width: {min(cal_pct, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 8px; color: #FF6B16;">{cal_status} {cal_pct:.0f}%</div>
+            <div style="font-size: 28px; margin-bottom: 6px;">🔥</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Calories</div>
+            <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{avg_cal:.0f}</div>
+            <div style="font-size: 9px; color: #FF6B16; font-weight: 700; margin-bottom: 6px;">of {target_cal}</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #FF6B16 0%, #FF8A4A 100%); height: 100%; width: {min(cal_pct, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #FF6B16; font-weight: 600;">{cal_status} {cal_pct:.0f}%</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -759,16 +759,16 @@ def dashboard_page():
             border: 1px solid #10A19D;
             border-left: 5px solid #10A19D;
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 16px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(16, 161, 157, 0.2);
         ">
-            <div style="font-size: 24px; margin-bottom: 4px;">🍽️</div>
-            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Total Meals</div>
-            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{total_meals}</div>
-            <div style="font-size: 8px; color: #10A19D; font-weight: 600; margin-bottom: 4px;">{days_back} days</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #10A19D 0%, #52C4B8 100%); height: 100%; width: {min((total_meals/21)*100, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 8px; color: #10A19D;">{meals_status} {(total_meals/days_back):.1f}/day</div>
+            <div style="font-size: 28px; margin-bottom: 6px;">🍽️</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Total Meals</div>
+            <div style="font-size: 28px; font-weight: 900; color: #5DDCD6; margin-bottom: 8px;">{total_meals}</div>
+            <div style="font-size: 9px; color: #10A19D; font-weight: 700; margin-bottom: 6px;">{days_back} days</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #10A19D 0%, #52C4B8 100%); height: 100%; width: {min((total_meals/21)*100, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #10A19D; font-weight: 600;">{meals_status} {(total_meals/days_back):.1f}/day</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -782,16 +782,16 @@ def dashboard_page():
             border: 1px solid #845EF7;
             border-left: 5px solid #845EF7;
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 16px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(132, 94, 247, 0.2);
         ">
-            <div style="font-size: 24px; margin-bottom: 4px;">📈</div>
-            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Meals/Day</div>
-            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_meals_per_day:.1f}</div>
-            <div style="font-size: 8px; color: #845EF7; font-weight: 600; margin-bottom: 4px;">avg</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #845EF7 0%, #BE80FF 100%); height: 100%; width: {min((avg_meals_per_day/5)*100, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 8px; color: #845EF7;">{meal_freq_status}</div>
+            <div style="font-size: 28px; margin-bottom: 6px;">📈</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Meals/Day</div>
+            <div style="font-size: 28px; font-weight: 900; color: #B89FFF; margin-bottom: 8px;">{avg_meals_per_day:.1f}</div>
+            <div style="font-size: 9px; color: #845EF7; font-weight: 700; margin-bottom: 6px;">avg</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #845EF7 0%, #BE80FF 100%); height: 100%; width: {min((avg_meals_per_day/5)*100, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #845EF7; font-weight: 600;">{meal_freq_status}</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -807,16 +807,16 @@ def dashboard_page():
             border: 1px solid #51CF66;
             border-left: 5px solid #51CF66;
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 16px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
         ">
-            <div style="font-size: 24px; margin-bottom: 4px;">💪</div>
-            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;">Avg Protein</div>
-            <div style="font-size: 20px; font-weight: bold; color: #e0f2f1; margin-bottom: 4px;">{avg_protein:.1f}g</div>
-            <div style="font-size: 8px; color: #51CF66; font-weight: 600; margin-bottom: 4px;">of {target_protein}g</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 3px; margin-bottom: 4px;"><div style="background: linear-gradient(90deg, #51CF66 0%, #80C342 100%); height: 100%; width: {min(protein_pct, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 8px; color: #51CF66;">{protein_status} {protein_pct:.0f}%</div>
+            <div style="font-size: 28px; margin-bottom: 6px;">💪</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Protein</div>
+            <div style="font-size: 28px; font-weight: 900; color: #7FDB8F; margin-bottom: 8px;">{avg_protein:.1f}g</div>
+            <div style="font-size: 9px; color: #51CF66; font-weight: 700; margin-bottom: 6px;">of {target_protein}g</div>
+            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #51CF66 0%, #80C342 100%); height: 100%; width: {min(protein_pct, 100)}%; border-radius: 4px;"></div></div>
+            <div style="font-size: 9px; color: #51CF66; font-weight: 600;">{protein_status} {protein_pct:.0f}%</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -850,18 +850,18 @@ def dashboard_page():
             border: 1px solid #FF6715;
             border-left: 5px solid #FF6715;
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px 20px;
             text-align: center;
-            min-height: 160px;
+            min-height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             box-shadow: 0 6px 20px rgba(255, 103, 21, 0.25);
         ">
-            <div style="font-size: 36px; margin-bottom: 8px;">{streak_emoji}</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">Current Streak</div>
-            <div style="font-size: 28px; font-weight: bold; color: #e0f2f1;">{current_streak}</div>
-            <div style="font-size: 9px; color: #FF6715; margin-top: 6px; font-weight: 600;">days in a row</div>
+            <div style="font-size: 40px; margin-bottom: 12px;">{streak_emoji}</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700;">Current Streak</div>
+            <div style="font-size: 32px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{current_streak}</div>
+            <div style="font-size: 10px; color: #FF6715; font-weight: 700;">days in a row</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -874,18 +874,18 @@ def dashboard_page():
             border: 1px solid #FFD43B;
             border-left: 5px solid #FFD43B;
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px 20px;
             text-align: center;
-            min-height: 160px;
+            min-height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             box-shadow: 0 6px 20px rgba(255, 212, 59, 0.25);
         ">
             <div style="font-size: 40px; margin-bottom: 12px;">🏅</div>
-            <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600;">Longest Streak</div>
-            <div style="font-size: 32px; font-weight: bold; color: #e0f2f1;">{longest_streak}</div>
-            <div style="font-size: 11px; color: #FFD43B; margin-top: 8px; font-weight: 600;">personal record</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700;">Longest Streak</div>
+            <div style="font-size: 32px; font-weight: 900; color: #FFD43B; margin-bottom: 8px;">{longest_streak}</div>
+            <div style="font-size: 10px; color: #FFD43B; font-weight: 700;">personal record</div>
         </div>
         """, unsafe_allow_html=True)
     
