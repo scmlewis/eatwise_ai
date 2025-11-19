@@ -208,6 +208,24 @@ class AuthManager:
                 return False, "The reset link is invalid or has expired. Please request a new one."
             else:
                 return False, f"Error resetting password: {str(e)}"
+    
+    def get_session_user(self) -> Optional[Dict]:
+        """
+        Get the current session user (used after password reset redirect)
+        
+        Returns:
+            User data if session exists, None otherwise
+        """
+        try:
+            session = self.supabase.auth.get_session()
+            if session and session.user:
+                return {
+                    "user_id": session.user.id,
+                    "email": session.user.email,
+                }
+            return None
+        except Exception:
+            return None
 
 
 def init_auth_session():
