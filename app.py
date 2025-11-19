@@ -1821,25 +1821,41 @@ def main():
                         color: white;
                         border: none;
                         border-radius: 50%;
-                        width: 50px;
-                        height: 50px;
-                        font-size: 24px;
+                        width: 56px;
+                        height: 56px;
+                        font-size: 20px;
                         cursor: pointer;
                         box-shadow: 0 4px 15px rgba(16, 161, 157, 0.4);
                         transition: all 0.3s ease;
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                        padding: 0;
+                        line-height: 1;
                     }
                     .back-to-top button:hover {
                         background: linear-gradient(135deg, #52C4B8 0%, #10A19D 100%);
                         box-shadow: 0 6px 20px rgba(16, 161, 157, 0.6);
                         transform: translateY(-2px);
                     }
+                    .back-to-top button:active {
+                        transform: translateY(0px);
+                    }
                 </style>
                 <div class="back-to-top">
-                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'});" title="Back to top">⬆️</button>
+                    <button id="backToTopBtn" title="Back to top">↑</button>
                 </div>
+                <script>
+                    var backToTopBtn = document.getElementById('backToTopBtn');
+                    if (backToTopBtn) {
+                        backToTopBtn.addEventListener('click', function() {
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        });
+                    }
+                </script>
                 """,
                 unsafe_allow_html=True
             )
