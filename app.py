@@ -2422,7 +2422,8 @@ def profile_page():
                     }
                     
                     if db_manager.create_health_profile(st.session_state.user_id, profile_data):
-                        st.session_state.user_profile = profile_data
+                        # Refresh profile from DB to ensure stored representation matches
+                        st.session_state.user_profile = db_manager.get_health_profile(st.session_state.user_id) or profile_data
                         st.success("✅ Profile created!")
                         st.rerun()
                     else:
@@ -2504,6 +2505,8 @@ def profile_page():
                     }
                     
                     if db_manager.update_health_profile(st.session_state.user_id, update_data):
+                        # Refresh the session profile so other pages reflect updated values immediately
+                        st.session_state.user_profile = db_manager.get_health_profile(st.session_state.user_id) or {**user_profile, **update_data}
                         st.success("✅ Profile updated!")
                         st.rerun()
                     else:
