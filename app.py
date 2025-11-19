@@ -32,6 +32,56 @@ from utils import (
     get_earned_badges, build_nutrition_by_date, paginate_items
 )
 
+
+def normalize_profile(profile: dict) -> dict:
+    """Ensure profile fields are present and properly typed.
+
+    - Parses JSON strings for list fields coming from DB.
+    - Ensures defaults for missing keys so UI doesn't show N/A unexpectedly.
+    """
+    if not profile:
+        return profile
+
+    p = dict(profile)  # shallow copy
+
+    # health_conditions may be stored as JSON string in DB
+    hc = p.get('health_conditions')
+    if isinstance(hc, str):
+        try:
+            p['health_conditions'] = json.loads(hc)
+        except Exception:
+            p['health_conditions'] = [hc] if hc else []
+    elif hc is None:
+        p['health_conditions'] = []
+    elif not isinstance(hc, list):
+        p['health_conditions'] = [hc]
+
+    # dietary_preferences may be stored as JSON string
+    dp = p.get('dietary_preferences')
+    if isinstance(dp, str):
+        try:
+            p['dietary_preferences'] = json.loads(dp)
+        except Exception:
+            p['dietary_preferences'] = [dp] if dp else []
+    elif dp is None:
+        p['dietary_preferences'] = []
+    elif not isinstance(dp, list):
+        p['dietary_preferences'] = [dp]
+
+    # Ensure water goal is numeric
+    try:
+        p['water_goal_glasses'] = int(p.get('water_goal_glasses', 8) or 8)
+    except Exception:
+        p['water_goal_glasses'] = 8
+
+    # Defaults for compact display
+    if not p.get('age_group'):
+        p['age_group'] = 'N/A'
+    if not p.get('health_goal'):
+        p['health_goal'] = 'N/A'
+
+    return p
+
 # ==================== PAGE CONFIG ====================
 
 st.set_page_config(
@@ -462,6 +512,8 @@ def dashboard_page():
     user_profile = st.session_state.user_profile
     if not user_profile:
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
+        # normalize after fetch
+        user_profile = normalize_profile(user_profile) if user_profile else user_profile
         if not user_profile:
             st.info("Please complete your profile first!")
             profile_page()
@@ -1393,6 +1445,14 @@ def analytics_page():
         if not user_profile:
             st.info("Please complete your profile first!")
             return
+
+    # Normalize profile structure to avoid mapping issues (strings vs lists etc.)
+    try:
+        user_profile = normalize_profile(user_profile)
+        st.session_state.user_profile = user_profile
+    except Exception:
+        # non-fatal - fall back to raw profile
+        pass
 
     # Optional debug output to inspect profile objects when mapping targets
     try:
@@ -2434,7 +2494,8 @@ def profile_page():
                     
                     if db_manager.create_health_profile(st.session_state.user_id, profile_data):
                         # Refresh profile from DB to ensure stored representation matches
-                        st.session_state.user_profile = db_manager.get_health_profile(st.session_state.user_id) or profile_data
+                        fetched = db_manager.get_health_profile(st.session_state.user_id) or profile_data
+                        st.session_state.user_profile = normalize_profile(fetched)
                         st.success("✅ Profile created!")
                         st.rerun()
                     else:
@@ -2517,7 +2578,8 @@ def profile_page():
                     
                     if db_manager.update_health_profile(st.session_state.user_id, update_data):
                         # Refresh the session profile so other pages reflect updated values immediately
-                        st.session_state.user_profile = db_manager.get_health_profile(st.session_state.user_id) or {**user_profile, **update_data}
+                        fetched = db_manager.get_health_profile(st.session_state.user_id) or {**user_profile, **update_data}
+                        st.session_state.user_profile = normalize_profile(fetched)
                         st.success("✅ Profile updated!")
                         st.rerun()
                     else:
