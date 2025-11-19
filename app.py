@@ -244,6 +244,7 @@ def reset_password_page():
 
 def login_page():
     """Login and signup page"""
+    auth_manager = st.session_state.auth_manager
     # Add custom CSS for login page
     st.markdown("""
     <style>
