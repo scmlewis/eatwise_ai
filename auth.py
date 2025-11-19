@@ -143,6 +143,23 @@ class AuthManager:
                 return False, "Current password is incorrect"
             else:
                 return False, f"Error changing password: {error_str}"
+    
+    def reset_password(self, email: str) -> Tuple[bool, str]:
+        """
+        Send password reset email to user
+        
+        Args:
+            email: User email address
+            
+        Returns:
+            Tuple of (success, message)
+        """
+        try:
+            self.supabase.auth.reset_password_for_email(email)
+            return True, "Password reset email sent! Check your email for instructions."
+        except Exception as e:
+            error_str = str(e)
+            return False, f"Error: {error_str}"
 
 
 def init_auth_session():

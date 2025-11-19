@@ -343,6 +343,14 @@ def login_page():
                 else:
                     st.warning("⚠️ Please enter email and password")
             
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("🔑 Forgot Password?", key="forgot_pwd_btn", use_container_width=True):
+                    st.session_state.show_forgot_password = True
+            
+            with col2:
+                pass
+            
             st.markdown("""
             <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
                 Don't have an account? Create one in the Sign Up tab ↗️
@@ -376,9 +384,36 @@ def login_page():
                 Already have an account? Login in the Login tab ↖️
             </p>
             """, unsafe_allow_html=True)
-
-
-# ==================== MAIN APP PAGES ====================
+        
+        # Forgot Password Modal
+        if st.session_state.get("show_forgot_password", False):
+            st.divider()
+            st.markdown("### 🔐 Reset Your Password")
+            
+            reset_email = st.text_input(
+                "Enter your email address",
+                placeholder="your@email.com",
+                key="reset_email_input"
+            )
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Send Reset Link", key="send_reset_btn", use_container_width=True):
+                    if reset_email:
+                        success, message = auth_manager.reset_password(reset_email)
+                        if success:
+                            st.success(message)
+                            st.info("📧 A password reset link has been sent to your email. Check your inbox and follow the instructions to reset your password.")
+                            st.session_state.show_forgot_password = False
+                        else:
+                            st.error(message)
+                    else:
+                        st.warning("⚠️ Please enter your email address")
+            
+            with col2:
+                if st.button("Back to Login", key="back_to_login_btn", use_container_width=True):
+                    st.session_state.show_forgot_password = False
+                    st.rerun()
 
 def dashboard_page():
     """Dashboard/Home page"""
