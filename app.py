@@ -1800,42 +1800,42 @@ def main():
                 st.session_state.clear()
                 st.success("✅ Logged out!")
                 st.rerun()
-        
-        # Clear the quick nav flag
-        if st.session_state.get("quick_nav_to_meal"):
-            st.session_state.quick_nav_to_meal = False
-        
-        # Store previous page to detect navigation
-        if "prev_page" not in st.session_state:
-            st.session_state.prev_page = selected_page
-        
-        # Route to selected page
-        if selected_page == "Dashboard":
-            dashboard_page()
-        elif selected_page == "Log Meal":
-            meal_logging_page()
-        elif selected_page == "Analytics":
-            analytics_page()
-        elif selected_page == "Meal History":
-            meal_history_page()
-        elif selected_page == "Insights":
-            insights_page()
-        elif selected_page == "My Profile":
-            profile_page()
-        elif selected_page == "Help":
-            help_page()
-        
-        # Scroll to top if page changed
-        if st.session_state.prev_page != selected_page:
-            st.session_state.prev_page = selected_page
-            st.markdown(
-                """
-                <script>
-                    window.scrollTo(0, 0);
-                </script>
-                """,
-                unsafe_allow_html=True
-            )
+            
+            # Clear the quick nav flag
+            if st.session_state.get("quick_nav_to_meal"):
+                st.session_state.quick_nav_to_meal = False
+            
+            # Store previous page to detect navigation
+            if "prev_page" not in st.session_state:
+                st.session_state.prev_page = selected_page
+            
+            # Route to selected page
+            if selected_page == "Dashboard":
+                dashboard_page()
+            elif selected_page == "Log Meal":
+                meal_logging_page()
+            elif selected_page == "Analytics":
+                analytics_page()
+            elif selected_page == "Meal History":
+                meal_history_page()
+            elif selected_page == "Insights":
+                insights_page()
+            elif selected_page == "My Profile":
+                profile_page()
+            elif selected_page == "Help":
+                help_page()
+            
+            # Scroll to top if page changed
+            if st.session_state.prev_page != selected_page:
+                st.session_state.prev_page = selected_page
+                st.markdown(
+                    """
+                    <script>
+                        window.scrollTo(0, 0);
+                    </script>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
 if __name__ == "__main__":
