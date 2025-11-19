@@ -343,13 +343,11 @@ def login_page():
                 else:
                     st.warning("⚠️ Please enter email and password")
             
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("🔑 Forgot Password?", key="forgot_pwd_btn", use_container_width=True):
-                    st.session_state.show_forgot_password = True
-            
+            # Forgot password link (subtle markdown link)
+            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
-                pass
+                if st.button("Forgot Password?", key="forgot_pwd_btn", use_container_width=True):
+                    st.session_state.show_forgot_password = True
             
             st.markdown("""
             <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
