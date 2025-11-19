@@ -880,7 +880,8 @@ def dashboard_page():
     st.divider()
     
     # ===== Quick Stats =====
-    st.markdown("## 📊 Nutrition Summary")
+    st.markdown("## 📊 Today's Nutrition Summary")
+    st.markdown("")  # Add spacing above
     
     # Unified nutrition cards with all key info + progress bars
     nutrition_cards = [
@@ -1003,6 +1004,8 @@ def dashboard_page():
                 <div style="font-size: 9px; color: {color}; font-weight: 600;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
+    
+    st.markdown("")  # Add spacing below
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.divider()
