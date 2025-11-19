@@ -1941,55 +1941,69 @@ def insights_page():
     
     if user_profile:
         # ===== PERSONALIZATION CONTEXT =====
-        st.markdown("**Your targets are personalized based on:**")
-        context_cols = st.columns(3, gap="small")
-        
-        with context_cols[0]:
-            age_group = user_profile.get('age_group', 'N/A')
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%);
-                border: 1px solid #3B82F6;
-                border-radius: 10px;
-                padding: 12px 16px;
-                text-align: center;
-            ">
-                <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; margin-bottom: 4px; font-weight: 700;">Age Group</div>
-                <div style="font-size: 16px; font-weight: 900; color: #60A5FA;">{age_group}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with context_cols[1]:
-            health_goal = user_profile.get('health_goal', 'N/A').replace('_', ' ').title()
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #10B98120 0%, #34D39940 100%);
-                border: 1px solid #10B981;
-                border-radius: 10px;
-                padding: 12px 16px;
-                text-align: center;
-            ">
-                <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; margin-bottom: 4px; font-weight: 700;">Health Goal</div>
-                <div style="font-size: 16px; font-weight: 900; color: #34D399;">{health_goal}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with context_cols[2]:
-            health_conditions = ', '.join(user_profile.get('health_conditions', [])) or 'None'
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #8B5CF620 0%, #D97706 40 100%);
-                border: 1px solid #8B5CF6;
-                border-radius: 10px;
-                padding: 12px 16px;
-                text-align: center;
-            ">
-                <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; margin-bottom: 4px; font-weight: 700;">Health Conditions</div>
-                <div style="font-size: 14px; font-weight: 700; color: #C4B5FD;">{health_conditions}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("")  # Spacing
+        # Only render the three context boxes when meaningful profile values exist.
+        age_group = user_profile.get('age_group', 'N/A')
+        health_goal_val = user_profile.get('health_goal', 'N/A')
+        health_conditions_list = user_profile.get('health_conditions', []) or []
+
+        has_personalization = (
+            (age_group and age_group != 'N/A') or
+            (health_goal_val and health_goal_val != 'N/A') or
+            (isinstance(health_conditions_list, list) and len(health_conditions_list) > 0)
+        )
+
+        if has_personalization:
+            st.markdown("**Your targets are personalized based on:**")
+            context_cols = st.columns(3, gap="small")
+
+            with context_cols[0]:
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%);
+                    border: 1px solid #3B82F6;
+                    border-radius: 10px;
+                    padding: 12px 16px;
+                    text-align: center;
+                ">
+                    <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; margin-bottom: 4px; font-weight: 700;">Age Group</div>
+                    <div style="font-size: 16px; font-weight: 900; color: #60A5FA;">{age_group}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with context_cols[1]:
+                health_goal = str(health_goal_val).replace('_', ' ').title()
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #10B98120 0%, #34D39940 100%);
+                    border: 1px solid #10B981;
+                    border-radius: 10px;
+                    padding: 12px 16px;
+                    text-align: center;
+                ">
+                    <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; margin-bottom: 4px; font-weight: 700;">Health Goal</div>
+                    <div style="font-size: 16px; font-weight: 900; color: #34D399;">{health_goal}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with context_cols[2]:
+                health_conditions = ', '.join(health_conditions_list) or 'None'
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #8B5CF620 0%, #D97706 40 100%);
+                    border: 1px solid #8B5CF6;
+                    border-radius: 10px;
+                    padding: 12px 16px;
+                    text-align: center;
+                ">
+                    <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; margin-bottom: 4px; font-weight: 700;">Health Conditions</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #C4B5FD;">{health_conditions}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("")  # Spacing
+        else:
+            # If no personalization data available, hide the decorative boxes and prompt to complete profile.
+            st.info("Complete your profile under 'My Profile' to see personalized targets.")
         
         # ===== NUTRITION TARGETS WITH PROGRESS =====
         st.markdown("**Daily Nutrition Targets:**")
