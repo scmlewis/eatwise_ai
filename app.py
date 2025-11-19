@@ -172,6 +172,16 @@ def login_page():
     # Add custom CSS for login page
     st.markdown("""
     <style>
+        @media (max-width: 768px) {
+            .login-container {
+                display: block !important;
+            }
+            
+            .login-hero {
+                margin-bottom: 30px !important;
+            }
+        }
+        
         .login-container {
             display: flex;
             gap: 40px;
@@ -188,6 +198,20 @@ def login_page():
             flex-direction: column;
             justify-content: center;
             box-shadow: 0 10px 40px rgba(16, 161, 157, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .login-hero {
+                padding: 30px;
+            }
+            
+            .login-hero h1 {
+                font-size: 2em !important;
+            }
+            
+            .login-hero h2 {
+                font-size: 1.2em !important;
+            }
         }
         
         .login-hero h1 {
@@ -208,6 +232,12 @@ def login_page():
             line-height: 1.8;
         }
         
+        @media (max-width: 768px) {
+            .login-hero ul {
+                font-size: 0.95em;
+            }
+        }
+        
         .login-hero li {
             margin-bottom: 12px;
             display: flex;
@@ -218,49 +248,78 @@ def login_page():
         .login-form-container {
             flex: 1;
             background: linear-gradient(135deg, #0D7A7620 0%, #10A19D10 100%);
-            padding: 50px;
+            padding: 40px;
             border-radius: 20px;
             border: 2px solid #10A19D;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             box-shadow: 0 10px 40px rgba(16, 161, 157, 0.15);
         }
         
+        @media (max-width: 768px) {
+            .login-form-container {
+                padding: 25px;
+            }
+        }
+        
         .login-header {
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             text-align: center;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(16, 161, 157, 0.3);
         }
         
         .login-header h3 {
             color: #52C4B8;
             font-size: 1.8em;
             margin: 0;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
-        .login-tabs {
-            margin-bottom: 25px;
+        @media (max-width: 768px) {
+            .login-header h3 {
+                font-size: 1.4em;
+            }
         }
         
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 10px;
+        .login-tabs-container {
+            margin-bottom: 24px;
+        }
+        
+        .login-tab-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .login-tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid rgba(16, 161, 157, 0.4);
             background: transparent;
-        }
-        
-        .stTabs [data-baseweb="tab"] {
-            background: transparent;
-            border: 2px solid #10A19D40;
-            border-radius: 10px;
             color: #a0a0a0;
-            padding: 10px 20px;
+            border-radius: 10px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
         }
         
-        .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        .login-tab-btn:hover {
+            border-color: #10A19D;
+            color: #e0f2f1;
+        }
+        
+        .login-tab-btn.active {
             background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
             color: white;
             border: 2px solid #10A19D;
+            box-shadow: 0 4px 15px rgba(16, 161, 157, 0.3);
+        }
+        
+        .stTabs [data-baseweb="tab-list"] {
+            display: none;
         }
         
         .form-input-group {
@@ -284,6 +343,12 @@ def login_page():
             font-size: 1em !important;
         }
         
+        @media (max-width: 768px) {
+            .stTextInput input {
+                font-size: 16px !important;
+            }
+        }
+        
         .stTextInput input:focus {
             border: 2px solid #10A19D !important;
             box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.2) !important;
@@ -291,7 +356,7 @@ def login_page():
     </style>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1.1, 1], gap="large")
+    col1, col2 = st.columns([1.1, 1], gap="large", vertical_alignment="top")
     
     with col1:
         st.markdown("""
@@ -316,14 +381,27 @@ def login_page():
         <div class="login-form-container">
             <div class="login-header">
                 <h3>Get Started</h3>
-                <p style="color: #a0a0a0; margin: 0;">Join thousands of users tracking their nutrition</p>
+                <p style="color: #a0a0a0; margin: 0; font-size: 0.95em;">Join thousands of users</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        tab1, tab2 = st.tabs(["Login", "Sign Up"])
+        # Create custom tab selection
+        if "login_tab" not in st.session_state:
+            st.session_state.login_tab = "login"
         
-        with tab1:
+        col_login, col_signup = st.columns(2, gap="small")
+        with col_login:
+            if st.button("🔐 Login", key="tab_login", use_container_width=True):
+                st.session_state.login_tab = "login"
+        
+        with col_signup:
+            if st.button("✨ Sign Up", key="tab_signup", use_container_width=True):
+                st.session_state.login_tab = "signup"
+        
+        st.divider()
+        
+        if st.session_state.login_tab == "login":
             st.markdown("#### Login to your account")
             
             email = st.text_input("Email", key="login_email", placeholder="your@email.com")
@@ -345,11 +423,11 @@ def login_page():
             
             st.markdown("""
             <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
-                Don't have an account? Create one in the Sign Up tab ↗️
+                Don't have an account? Click the Sign Up button above ↗️
             </p>
             """, unsafe_allow_html=True)
         
-        with tab2:
+        else:
             st.markdown("#### Create new account")
             
             new_email = st.text_input("Email", key="signup_email", placeholder="your@email.com")
@@ -373,7 +451,7 @@ def login_page():
             
             st.markdown("""
             <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
-                Already have an account? Login in the Login tab ↖️
+                Already have an account? Click the Login button above ↖️
             </p>
             """, unsafe_allow_html=True)
 
