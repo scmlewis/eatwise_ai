@@ -244,20 +244,6 @@ def reset_password_page():
 
 def login_page():
     """Login and signup page"""
-    
-    # Check if user came from password reset email (has a fresh session)
-    auth_manager = st.session_state.auth_manager
-    if not is_authenticated():
-        try:
-            session = auth_manager.supabase.auth.get_session()
-            # If there's a session but user_id is not in session_state, 
-            # it means they came from reset link
-            if session and session.user and not st.session_state.get("user_id"):
-                st.session_state.reset_mode = True
-                st.rerun()
-        except:
-            pass
-    
     # Add custom CSS for login page
     st.markdown("""
     <style>
@@ -450,6 +436,21 @@ def login_page():
                 Don't have an account? Create one in the Sign Up tab ↗️
             </p>
             """, unsafe_allow_html=True)
+            
+            st.markdown("---")
+            
+            # Check if user has a reset session from email
+            auth_manager = st.session_state.auth_manager
+            try:
+                session = auth_manager.supabase.auth.get_session()
+                if session and session.user and not st.session_state.get("user_id"):
+                    # User has a session from reset email link
+                    st.info("🔐 We detected you clicked a password reset link. Click below to reset your password.")
+                    if st.button("Go to Password Reset", key="auto_reset_btn", use_container_width=True):
+                        st.session_state.reset_mode = True
+                        st.rerun()
+            except:
+                pass
         
         with tab2:
             st.markdown("#### Create new account")
