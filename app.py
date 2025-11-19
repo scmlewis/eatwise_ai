@@ -506,6 +506,55 @@ def dashboard_page():
     
     st.divider()
     
+    # ===== WATER INTAKE TRACKER =====
+    st.markdown("## 💧 Water Intake")
+    
+    water_goal = user_profile.get("water_goal_glasses", 8)
+    current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
+    
+    water_col1, water_col2, water_col3 = st.columns([2, 1, 1])
+    
+    with water_col1:
+        # Progress bar
+        water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%);
+            border: 2px solid #3B82F6;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: #e0f2f1; font-weight: 600;">Today's Water Intake</span>
+                <span style="color: #3B82F6; font-weight: bold;">{current_water}/{water_goal} glasses</span>
+            </div>
+            <div style="background: #0a0e27; border-radius: 8px; height: 12px; overflow: hidden;">
+                <div style="background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
+            </div>
+            <div style="text-align: center; margin-top: 8px; color: #a0a0a0; font-size: 12px;">
+                {water_percentage:.0f}% Complete
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with water_col2:
+        if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
+            if db_manager.log_water(st.session_state.user_id, 1, today):
+                st.success("💧 Glass added!")
+                st.rerun()
+            else:
+                st.error("Failed to log water")
+    
+    with water_col3:
+        if current_water >= water_goal:
+            st.success(f"🎉 Goal met!")
+        else:
+            remaining = water_goal - current_water
+            st.info(f"🎯 {remaining} more")
+    
+    st.divider()
+    
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
     targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
@@ -550,6 +599,57 @@ def dashboard_page():
     df["fat"] = df["Nutrition"].apply(lambda x: x["fat"])
     df["Date"] = pd.to_datetime(df["Date"])
     df = df.sort_values("Date")
+    
+    # ===== DAILY GOAL PROGRESS RING =====
+    st.markdown("## 🎯 Today's Calorie Goal")
+    
+    cal_percentage = min((daily_nutrition['calories'] / targets['calories']) * 100, 100) if targets['calories'] > 0 else 0
+    cal_color = "#51CF66" if 80 <= cal_percentage <= 120 else ("#FFD43B" if cal_percentage < 80 else "#FF6B6B")
+    
+    progress_col1, progress_col2 = st.columns([2, 1])
+    
+    with progress_col1:
+        # Create a gauge chart using Plotly
+        fig_gauge = go.Figure(data=[go.Indicator(
+            mode="gauge+number+delta",
+            value=daily_nutrition['calories'],
+            domain={'x': [0, 1], 'y': [0, 1]},
+            title={'text': "Calories Today"},
+            delta={'reference': targets['calories'], 'suffix': " to target"},
+            gauge={
+                'axis': {'range': [0, targets['calories'] * 1.25]},
+                'bar': {'color': cal_color},
+                'steps': [
+                    {'range': [0, targets['calories'] * 0.5], 'color': "#FF6B6B20"},
+                    {'range': [targets['calories'] * 0.5, targets['calories']], 'color': "#FFD43B20"},
+                    {'range': [targets['calories'], targets['calories'] * 1.25], 'color': "#FF6B6B20"}
+                ],
+                'threshold': {
+                    'line': {'color': "#10A19D", 'width': 4},
+                    'thickness': 0.75,
+                    'value': targets['calories']
+                }
+            }
+        )])
+        fig_gauge.update_layout(
+            font_size=12,
+            height=300,
+            margin=dict(l=20, r=20, t=40, b=20),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font_color='#e0f2f1'
+        )
+        st.plotly_chart(fig_gauge, use_container_width=True)
+    
+    with progress_col2:
+        if daily_nutrition['calories'] < targets['calories']:
+            remaining = targets['calories'] - daily_nutrition['calories']
+            st.metric(f"Need", f"{remaining:.0f} cal", "↑ Keep going!")
+        elif daily_nutrition['calories'] == targets['calories']:
+            st.success(f"✅ Perfect Match!")
+        else:
+            over = daily_nutrition['calories'] - targets['calories']
+            st.metric(f"Over by", f"{over:.0f} cal", "↓")
     
     # Display Statistics with Modern Card Layout
     st.markdown("## 📊 Statistics (Last 7 Days)")
@@ -952,6 +1052,25 @@ def meal_logging_page():
         <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📸 Log Your Meal</h1>
     </div>
     """, unsafe_allow_html=True)
+    
+    # ===== TIME-BASED SUGGESTIONS =====
+    from datetime import datetime as dt
+    current_hour = dt.now().hour
+    
+    if 6 <= current_hour < 10:
+        suggestion = "🌅 Good morning! It's breakfast time. Fuel your day with a healthy breakfast!"
+        suggested_type = "breakfast"
+    elif 10 <= current_hour < 15:
+        suggestion = "🍴 It's lunch time! Time to refuel with a balanced meal!"
+        suggested_type = "lunch"
+    elif 15 <= current_hour < 21:
+        suggestion = "🌙 Dinner time approaches! What's for dinner?"
+        suggested_type = "dinner"
+    else:
+        suggestion = "🍿 Looking for a snack? Log what you're having!"
+        suggested_type = "snack"
+    
+    st.info(suggestion)
     
     # ===== QUICK ADD FROM HISTORY =====
     st.markdown("### 🚀 Quick Add From History")
@@ -1476,6 +1595,30 @@ def insights_page():
                             st.write(f"**{meal.get('meal_type').title()}:** {meal.get('meal_name')}")
                             st.caption(meal.get('description', ''))
     
+    # ===== BEST & WORST MEALS =====
+    st.divider()
+    st.markdown("## 🏆 Your Meal Quality")
+    
+    # Sort meals by healthiness score
+    sorted_meals = sorted(meals, key=lambda x: x.get('healthiness_score', 0), reverse=True)
+    
+    if sorted_meals:
+        best_worst_col1, best_worst_col2 = st.columns(2)
+        
+        with best_worst_col1:
+            st.markdown("### ✅ Healthiest Meals")
+            for idx, meal in enumerate(sorted_meals[:3], 1):
+                score = meal.get('healthiness_score', 0)
+                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
+                st.caption(meal.get('description', 'N/A')[:100])
+        
+        with best_worst_col2:
+            st.markdown("### ⚠️ Meals to Improve")
+            for idx, meal in enumerate(reversed(sorted_meals[-3:]), 1):
+                score = meal.get('healthiness_score', 0)
+                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
+                st.caption(meal.get('description', 'N/A')[:100])
+    
     # ===== Health Insights =====
     st.markdown("## 📊 Health Insights")
     st.caption("💡 Click the button below to analyze your eating patterns (this uses API calls)")
@@ -1546,6 +1689,124 @@ def insights_page():
                         # Show formatted text for sharing
                         with st.expander("📧 Shareable Format", expanded=True):
                             st.text_area("Copy and share this:", value=insights_text, height=250, disabled=True, key="share_insights")
+    
+    # ===== NUTRITION COMPARISON (TODAY VS WEEKLY AVG) =====
+    st.divider()
+    st.markdown("## 📊 Today vs Weekly Average")
+    
+    end_date = date.today()
+    start_date = end_date - timedelta(days=7)
+    weekly_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
+    
+    if weekly_meals:
+        weekly_nutrition = {
+            "calories": sum(m.get('nutrition', {}).get('calories', 0) for m in weekly_meals) / 7,
+            "protein": sum(m.get('nutrition', {}).get('protein', 0) for m in weekly_meals) / 7,
+            "carbs": sum(m.get('nutrition', {}).get('carbs', 0) for m in weekly_meals) / 7,
+            "fat": sum(m.get('nutrition', {}).get('fat', 0) for m in weekly_meals) / 7,
+        }
+        
+        comp_col1, comp_col2, comp_col3, comp_col4 = st.columns(4)
+        
+        nutrients = [("Calories", "calories", "🔥"), ("Protein", "protein", "💪"), ("Carbs", "carbs", "🌾"), ("Fat", "fat", "🧈")]
+        
+        for idx, (col, (label, key, emoji)) in enumerate(zip([comp_col1, comp_col2, comp_col3, comp_col4], nutrients)):
+            with col:
+                today_val = today_nutrition.get(key, 0)
+                avg_val = weekly_nutrition.get(key, 0)
+                
+                if today_val > avg_val:
+                    trend = "↑ Above avg"
+                    trend_color = "#FFD43B"
+                    delta = today_val - avg_val
+                elif today_val < avg_val:
+                    trend = "↓ Below avg"
+                    trend_color = "#FF6B6B"
+                    delta = avg_val - today_val
+                else:
+                    trend = "= On track"
+                    trend_color = "#51CF66"
+                    delta = 0
+                
+                unit = "g" if key != "calories" else ""
+                st.metric(f"{emoji} {label}", f"{today_val:.1f}{unit}", f"{delta:.1f}{unit} {trend}")
+    
+    # ===== MEAL TYPE DISTRIBUTION =====
+    st.divider()
+    st.markdown("## 🍽️ Meal Type Distribution This Week")
+    
+    if weekly_meals:
+        meal_type_counts = {}
+        for meal in weekly_meals:
+            meal_type = meal.get("meal_type", "unknown")
+            meal_type_counts[meal_type] = meal_type_counts.get(meal_type, 0) + 1
+        
+        if meal_type_counts:
+            dist_col1, dist_col2 = st.columns(2)
+            
+            with dist_col1:
+                meal_type_df = pd.DataFrame(list(meal_type_counts.items()), columns=["Type", "Count"])
+                fig_dist = px.bar(meal_type_df, x="Type", y="Count", title="Meals by Type", color="Count")
+                st.plotly_chart(fig_dist, use_container_width=True)
+            
+            with dist_col2:
+                st.markdown("### Your eating patterns:")
+                total_week_meals = sum(meal_type_counts.values())
+                for meal_type, count in sorted(meal_type_counts.items(), key=lambda x: x[1], reverse=True):
+                    pct = (count / total_week_meals) * 100
+                    st.write(f"**{meal_type.title()}:** {count} meals ({pct:.0f}%)")
+    
+    # ===== NUTRITION TIPS =====
+    st.divider()
+    st.markdown("## 💡 Nutrition Tips")
+    
+    nutrition_tips = [
+        "🥗 Eat a variety of colorful vegetables - each color has different nutrients!",
+        "💧 Aim to drink 8 glasses of water daily for optimal hydration",
+        "🍗 Include lean proteins in every meal to keep you feeling full longer",
+        "🌾 Whole grains are better than refined grains for sustained energy",
+        "🥑 Healthy fats from avocados, nuts, and olive oil support heart health",
+        "🍓 Berries are packed with antioxidants and vitamins",
+        "🥦 Cruciferous vegetables like broccoli are anti-inflammatory powerhouses",
+        "🍚 Balance your macros: aim for 40% carbs, 30% protein, 30% fat",
+        "⏰ Eat smaller meals more frequently to maintain stable energy levels",
+        "🚫 Limit added sugars - they provide empty calories",
+        "🧂 Reduce sodium intake to support heart and kidney health",
+        "🥜 Nuts and seeds are great sources of protein and healthy fats",
+        "🍌 Potassium-rich foods help maintain healthy blood pressure",
+        "🥕 Vitamin A from orange vegetables supports eye health",
+        "🍊 Citrus fruits are excellent sources of vitamin C for immunity",
+    ]
+    
+    import random
+    daily_tip = random.choice(nutrition_tips)
+    st.info(f"**Did you know?** {daily_tip}")
+    
+    # ===== NUTRITION TARGETS SUMMARY =====
+    st.divider()
+    st.markdown("## 🎯 Your Nutrition Targets")
+    
+    if user_profile:
+        st.markdown(f"""
+        Your targets are personalized based on:
+        - **Age Group:** {user_profile.get('age_group', 'N/A')}
+        - **Health Goal:** {user_profile.get('health_goal', 'N/A').replace('_', ' ').title()}
+        - **Health Conditions:** {', '.join(user_profile.get('health_conditions', [])) or 'None'}
+        """)
+        
+        targets_col1, targets_col2, targets_col3 = st.columns(3)
+        
+        with targets_col1:
+            st.metric("Calories", f"{targets['calories']}/day", "Energy")
+            st.metric("Protein", f"{targets['protein']}g", "Muscle")
+        
+        with targets_col2:
+            st.metric("Carbs", f"{targets['carbs']}g", "Energy")
+            st.metric("Fat", f"{targets['fat']}g", "Hormones")
+        
+        with targets_col3:
+            st.metric("Sodium", f"{targets['sodium']}mg", "Hydration")
+            st.metric("Fiber", f"{targets.get('fiber', 25)}g", "Digestion")
     
     # ===== Export Data =====
     st.divider()
@@ -1660,7 +1921,7 @@ def meal_history_page():
         
         # Display meals with edit/delete options
         for meal in meals:
-            col1, col2, col3 = st.columns([2, 0.5, 0.5])
+            col1, col2, col3, col4 = st.columns([2, 0.4, 0.4, 0.4])
             
             with col1:
                 st.write(f"🍴 **{meal.get('meal_name', 'Unknown')}** - {meal.get('meal_type', 'meal')}")
@@ -1671,12 +1932,57 @@ def meal_history_page():
                     st.session_state[f"edit_meal_id_{meal['id']}"] = True
             
             with col3:
+                if st.button("Duplicate", key=f"dup_hist_{meal['id']}", use_container_width=True):
+                    st.session_state[f"dup_meal_id_{meal['id']}"] = True
+            
+            with col4:
                 if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
                     if db_manager.delete_meal(meal['id']):
                         st.success("Meal deleted!")
                         st.rerun()
                     else:
                         st.error("Failed to delete meal")
+            
+            # Duplicate meal section
+            if st.session_state.get(f"dup_meal_id_{meal['id']}", False):
+                st.divider()
+                st.subheader(f"Duplicate: {meal.get('meal_name', 'Meal')}")
+                
+                dup_date = st.date_input(
+                    "Log this meal on:",
+                    value=date.today(),
+                    max_value=date.today(),
+                    key=f"dup_date_{meal['id']}"
+                )
+                
+                dup_col1, dup_col2 = st.columns(2)
+                
+                with dup_col1:
+                    if st.button("✅ Duplicate Meal", use_container_width=True, key=f"confirm_dup_{meal['id']}"):
+                        meal_data = {
+                            "user_id": st.session_state.user_id,
+                            "meal_name": meal.get('meal_name', 'Unknown'),
+                            "description": meal.get('description', ''),
+                            "meal_type": meal.get('meal_type'),
+                            "nutrition": meal.get('nutrition', {}),
+                            "healthiness_score": meal.get('healthiness_score', 0),
+                            "health_notes": meal.get('health_notes', ''),
+                            "logged_at": datetime.combine(dup_date, time(12, 0, 0)).isoformat(),
+                        }
+                        
+                        if db_manager.log_meal(meal_data):
+                            st.success(f"✅ {meal.get('meal_name')} duplicated to {dup_date}!")
+                            st.session_state[f"dup_meal_id_{meal['id']}"] = False
+                            st.rerun()
+                        else:
+                            st.error("Failed to duplicate meal")
+                
+                with dup_col2:
+                    if st.button("❌ Cancel", use_container_width=True, key=f"cancel_dup_{meal['id']}"):
+                        st.session_state[f"dup_meal_id_{meal['id']}"] = False
+                        st.rerun()
+                
+                st.divider()
             
             # Show details
             with st.expander("View Details", expanded=False):
@@ -1819,6 +2125,14 @@ def profile_page():
                     help="What's your primary health goal?"
                 )
                 
+                water_goal = st.number_input(
+                    "Daily Water Goal (glasses)",
+                    min_value=1,
+                    max_value=20,
+                    value=8,
+                    help="Recommended: 8 glasses per day (2 liters)"
+                )
+                
                 if st.form_submit_button("Save Profile", use_container_width=True):
                     profile_data = {
                         "user_id": st.session_state.user_id,
@@ -1829,6 +2143,7 @@ def profile_page():
                         "health_conditions": health_conditions,
                         "dietary_preferences": dietary_preferences,
                         "health_goal": goal,
+                        "water_goal_glasses": water_goal,
                         "badges_earned": [],
                     }
                     
@@ -1894,6 +2209,14 @@ def profile_page():
                     )
                 )
                 
+                water_goal = st.number_input(
+                    "Daily Water Goal (glasses)",
+                    min_value=1,
+                    max_value=20,
+                    value=user_profile.get("water_goal_glasses", 8),
+                    help="Recommended: 8 glasses per day (2 liters)"
+                )
+                
                 if st.form_submit_button("Update Profile", use_container_width=True):
                     update_data = {
                         "full_name": full_name,
@@ -1903,6 +2226,7 @@ def profile_page():
                         "health_conditions": health_conditions,
                         "dietary_preferences": dietary_preferences,
                         "health_goal": goal,
+                        "water_goal_glasses": water_goal,
                     }
                     
                     if db_manager.update_health_profile(st.session_state.user_id, update_data):
@@ -2190,6 +2514,40 @@ def main():
                 key="page_selector"
             )
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
+            
+            st.sidebar.markdown("---")
+            
+            # ===== QUICK STATS IN SIDEBAR =====
+            st.sidebar.markdown("## 📊 Quick Stats")
+            
+            # Get today's data for sidebar stats
+            today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
+            today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
+            
+            # Streak info
+            meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in today_meals]
+            if len(today_meals) > 0:
+                recent_all_meals = db_manager.get_recent_meals(st.session_state.user_id, limit=30)
+                meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
+                streak_info = get_streak_info(meal_dates_all)
+                
+                st.sidebar.metric("🔥 Streak", f"{streak_info['current_streak']} days")
+            
+            # Today's calories
+            user_profile = st.session_state.user_profile
+            if user_profile:
+                age_group = user_profile.get("age_group", "26-35")
+                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
+                st.sidebar.metric("🔥 Calories", f"{today_nutrition['calories']:.0f}/{targets['calories']}", f"{cal_pct:.0f}%")
+            
+            # Meals logged today
+            st.sidebar.metric("🍽️ Meals", len(today_meals))
+            
+            # Water intake
+            water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
+            water_today = db_manager.get_daily_water_intake(st.session_state.user_id, date.today())
+            st.sidebar.metric("💧 Water", f"{water_today}/{water_goal} glasses")
             
             st.sidebar.markdown("---")
             

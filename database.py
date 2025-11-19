@@ -244,3 +244,37 @@ class DatabaseManager:
         except Exception as e:
             st.error(f"Error fetching food history: {str(e)}")
             return []
+    
+    # ==================== WATER TRACKING ====================
+    
+    def log_water(self, user_id: str, glasses: int = 1, logged_date: Optional[date] = None) -> bool:
+        """Log water intake"""
+        try:
+            if logged_date is None:
+                logged_date = date.today()
+            
+            water_entry = {
+                "user_id": user_id,
+                "glasses": glasses,
+                "logged_at": datetime.combine(logged_date, datetime.min.time()).isoformat(),
+            }
+            self.supabase.table("water_intake").insert(water_entry).execute()
+            return True
+        except Exception as e:
+            st.error(f"Error logging water: {str(e)}")
+            return False
+    
+    def get_daily_water_intake(self, user_id: str, water_date: date) -> int:
+        """Get total water intake for a specific date"""
+        try:
+            date_str = water_date.isoformat()
+            response = self.supabase.table("water_intake").select("glasses").eq("user_id", user_id).gte("logged_at", f"{date_str}T00:00:00").lte("logged_at", f"{date_str}T23:59:59").execute()
+            
+            total_glasses = 0
+            if response.data:
+                for entry in response.data:
+                    total_glasses += entry.get("glasses", 0)
+            return total_glasses
+        except Exception as e:
+            print(f"Error fetching water intake: {str(e)}")
+            return 0
