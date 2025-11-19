@@ -1450,9 +1450,8 @@ def analytics_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #3B82F6;
-    ">
-        <h2 style="color: #60A5FA; margin: 0; font-size: 1.5em;\">📊 Statistics</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     # Prepare data for stats
@@ -1576,9 +1575,8 @@ def analytics_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #FF6B16;
-    ">
-        <h2 style="color: #FFB84D; margin: 0; font-size: 1.5em;\">📊 Nutrition Trends</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     # Prepare data for charts using utility function
@@ -1624,9 +1622,8 @@ def analytics_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #06B6D4;
-    ">
-        <h2 style="color: #22D3EE; margin: 0; font-size: 1.5em;\">🍽️ Meal Type Distribution</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     meal_types_count = {}
@@ -1685,9 +1682,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #EC4D63;
-    ">
-        <h2 style="color: #FF8BA8; margin: 0; font-size: 1.5em;">🎯 Today's Meal Recommendations</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     st.caption("💡 Click the button below to generate personalized meal recommendations (this uses API calls)")
     
@@ -1725,9 +1721,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #06B6D4;
-    ">
-        <h2 style="color: #22D3EE; margin: 0; font-size: 1.5em;">📅 Weekly Meal Plan</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     if st.button("Generate 7-Day Meal Plan", use_container_width=True):
@@ -1754,9 +1749,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #F59E0B;
-    ">
-        <h2 style="color: #FCD34D; margin: 0; font-size: 1.5em;">🏆 Your Meal Quality</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     # Sort meals by healthiness score
@@ -1787,9 +1781,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #10A19D;
-    ">
-        <h2 style="color: #5DDCD6; margin: 0; font-size: 1.5em;\">📊 Health Insights</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     st.caption("💡 Click the button below to analyze your eating patterns (this uses API calls)")
     
@@ -1869,9 +1862,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #845EF7;
-    ">
-        <h2 style="color: #B89FFF; margin: 0; font-size: 1.5em;\">📊 Today vs Weekly Average</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     end_date = date.today()
@@ -1920,9 +1912,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #FF6B16;
-    ">
-        <h2 style="color: #FFB84D; margin: 0; font-size: 1.5em;\">🍽️ Meal Type Distribution This Week</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     if weekly_meals:
@@ -1955,9 +1946,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #51CF66;
-    ">
-        <h2 style="color: #7FDB8F; margin: 0; font-size: 1.5em;\">💡 Nutrition Tips</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     nutrition_tips = [
@@ -1991,9 +1981,8 @@ def insights_page():
         border-radius: 15px;
         margin-bottom: 20px;
         border-left: 5px solid #E84C3D;
-    ">
-        <h2 style="color: #FFB3B3; margin: 0; font-size: 1.5em;">🎯 Your Nutrition Targets</h2>
-    </div>
+        height: 5px;
+    "></div>
     """, unsafe_allow_html=True)
     
     if user_profile:
