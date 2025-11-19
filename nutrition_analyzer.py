@@ -294,52 +294,37 @@ Please provide the response in JSON format:
         sodium = nutrition_data.get('sodium', 0)
         sugar = nutrition_data.get('sugar', 0)
         
-        html = f"""
-        <div style="
-            background: linear-gradient(135deg, #10A19D15 0%, #52C4B825 100%);
-            border: 2px solid #10A19D;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(16, 161, 157, 0.15);
-        ">
-            <div style="font-size: 14px; font-weight: bold; color: #52C4B8; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">📊 Nutrition Facts</div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                <div style="background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FF6B16;">
-                    <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🔥 Calories</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{calories:.0f} kcal</div>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #51CF66;">
-                    <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">💪 Protein</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{protein:.1f}g</div>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #3B82F6;">
-                    <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🍚 Carbs</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{carbs:.1f}g</div>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #FFA50020 0%, #FFB84D40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FFA500;">
-                    <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🫒 Fat</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{fat:.1f}g</div>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #845EF7;">
-                    <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🌾 Fiber</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{fiber:.1f}g</div>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #FF6B6B20 0%, #FF8A8A40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FF6B6B;">
-                    <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🧂 Sodium</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{sodium:.0f}mg</div>
-                </div>
-            </div>
-            
-            <div style="background: linear-gradient(135deg, #FFD43B20 0%, #FFC94D40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FFD43B;">
-                <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🍬 Sugar</div>
-                <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{sugar:.1f}g</div>
-            </div>
-        </div>
-        """
+        html = f"""<div style="background: linear-gradient(135deg, #10A19D15 0%, #52C4B825 100%); border: 2px solid #10A19D; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(16, 161, 157, 0.15);">
+<div style="font-size: 14px; font-weight: bold; color: #52C4B8; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">📊 Nutrition Facts</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+<div style="background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FF6B16;">
+<div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🔥 Calories</div>
+<div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{calories:.0f} kcal</div>
+</div>
+<div style="background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #51CF66;">
+<div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">💪 Protein</div>
+<div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{protein:.1f}g</div>
+</div>
+<div style="background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #3B82F6;">
+<div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🍚 Carbs</div>
+<div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{carbs:.1f}g</div>
+</div>
+<div style="background: linear-gradient(135deg, #FFA50020 0%, #FFB84D40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FFA500;">
+<div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🫒 Fat</div>
+<div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{fat:.1f}g</div>
+</div>
+<div style="background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #845EF7;">
+<div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🌾 Fiber</div>
+<div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{fiber:.1f}g</div>
+</div>
+<div style="background: linear-gradient(135deg, #FF6B6B20 0%, #FF8A8A40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FF6B6B;">
+<div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🧂 Sodium</div>
+<div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{sodium:.0f}mg</div>
+</div>
+</div>
+<div style="background: linear-gradient(135deg, #FFD43B20 0%, #FFC94D40 100%); border-radius: 8px; padding: 12px; border-left: 3px solid #FFD43B;">
+<div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">🍬 Sugar</div>
+<div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{sugar:.1f}g</div>
+</div>
+</div>"""
         return html
