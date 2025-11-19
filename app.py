@@ -1895,6 +1895,11 @@ def main():
     
     # Check if user is being redirected from password reset email
     query_params = st.query_params
+    
+    # Debug: Show query params if present
+    if query_params:
+        st.write(f"DEBUG - Query params: {dict(query_params)}")
+    
     if query_params.get("type") == "recovery" and query_params.get("code"):
         reset_password_page()
         return
