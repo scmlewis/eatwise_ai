@@ -1403,29 +1403,31 @@ def analytics_page():
             st.info("Please complete your profile first!")
             return
     
+    # Initialize days from session state or use default
+    if "analytics_days" not in st.session_state:
+        st.session_state.analytics_days = 7
+    
     # Time period button options
     st.markdown("### Select time period")
     col1, col2, col3 = st.columns(3, gap="small")
     
-    days = 7  # Default value
     with col1:
         if st.button("Last 7 days", use_container_width=True):
-            days = 7
             st.session_state.analytics_days = 7
+            st.rerun()
     
     with col2:
         if st.button("Last 2 weeks", use_container_width=True):
-            days = 14
             st.session_state.analytics_days = 14
+            st.rerun()
     
     with col3:
         if st.button("Last 30 days", use_container_width=True):
-            days = 30
             st.session_state.analytics_days = 30
+            st.rerun()
     
-    # Use session state value if it exists
-    if "analytics_days" in st.session_state:
-        days = st.session_state.analytics_days
+    # Get the selected number of days from session state
+    days = st.session_state.analytics_days
     
     # Get data
     end_date = date.today()
@@ -2602,7 +2604,7 @@ def main():
             text-align: center;
             word-wrap: break-word;
         ">
-            <h1 style="color: white; margin: 0; font-size: 1.5em;">🥗 eatwise</h1>
+            <h1 style="color: white; margin: 0; font-size: 1.5em;">🥗 EatWise</h1>
         </div>
         """, unsafe_allow_html=True)
         
