@@ -208,45 +208,6 @@ class AuthManager:
                 return False, "The reset link is invalid or has expired. Please request a new one."
             else:
                 return False, f"Error resetting password: {str(e)}"
-    
-    def get_current_user(self) -> Optional[Dict]:
-        """
-        Get the currently authenticated user (if any)
-        This checks if user was authenticated via magic link/recovery
-        
-        Returns:
-            User data if authenticated, None otherwise
-        """
-        try:
-            # Try to get the current session/user
-            user = self.supabase.auth.get_user()
-            if user and user.user:
-                return {
-                    "user_id": user.user.id,
-                    "email": user.user.email,
-                    "user_metadata": user.user.user_metadata
-                }
-            return None
-        except Exception:
-            return None
-    
-    def complete_password_reset(self, new_password: str) -> Tuple[bool, str]:
-        """
-        Complete password reset for already-authenticated user (from magic link)
-        
-        Args:
-            new_password: New password to set
-            
-        Returns:
-            Tuple of (success, message)
-        """
-        try:
-            self.supabase.auth.update_user({
-                "password": new_password
-            })
-            return True, "Password reset successfully!"
-        except Exception as e:
-            return False, f"Error resetting password: {str(e)}"
 
 
 def init_auth_session():
