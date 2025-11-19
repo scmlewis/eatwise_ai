@@ -10,6 +10,8 @@ import plotly.graph_objects as go
 from datetime import datetime, date, timedelta, time
 from typing import Optional, Dict, List
 import json
+import io
+import csv
 
 # Import modules
 from config import (
@@ -171,6 +173,65 @@ auth_manager = st.session_state.auth_manager
 db_manager = DatabaseManager()
 nutrition_analyzer = NutritionAnalyzer()
 recommender = RecommendationEngine()
+
+# ==================== EXPORT & SHARE FUNCTIONS ====================
+
+def generate_nutrition_report(meals: List, daily_nutrition: Dict, targets: Dict, report_type: str = "weekly") -> str:
+    """Generate a text-based nutrition report"""
+    report = f"🥗 EatWise Nutrition Report ({report_type.title()})\n"
+    report += "=" * 50 + "\n\n"
+    
+    report += "📊 SUMMARY\n"
+    report += "-" * 50 + "\n"
+    report += f"Total Meals Logged: {len(meals)}\n"
+    report += f"Average Daily Calories: {daily_nutrition.get('calories', 0):.0f} / {targets.get('calories', 2000)}\n"
+    report += f"Average Daily Protein: {daily_nutrition.get('protein', 0):.1f}g / {targets.get('protein', 50)}g\n"
+    report += f"Average Daily Carbs: {daily_nutrition.get('carbs', 0):.1f}g / {targets.get('carbs', 300)}g\n"
+    report += f"Average Daily Fat: {daily_nutrition.get('fat', 0):.1f}g / {targets.get('fat', 65)}g\n\n"
+    
+    report += "📋 MEAL LIST\n"
+    report += "-" * 50 + "\n"
+    for meal in meals[:20]:  # Last 20 meals
+        report += f"• {meal.get('meal_name')} ({meal.get('meal_type')})\n"
+        report += f"  {meal.get('description', 'N/A')}\n"
+        nutrition = meal.get('nutrition', {})
+        report += f"  Calories: {nutrition.get('calories', 0):.0f} | Protein: {nutrition.get('protein', 0):.1f}g\n\n"
+    
+    report += "=" * 50 + "\n"
+    report += f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n"
+    
+    return report
+
+
+def generate_csv_export(meals: List) -> str:
+    """Generate a CSV export of meals"""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow(['Date', 'Meal Name', 'Type', 'Calories', 'Protein (g)', 'Carbs (g)', 'Fat (g)', 'Sodium (mg)', 'Sugar (g)', 'Fiber (g)', 'Description'])
+    
+    # Write meal data
+    for meal in meals:
+        nutrition = meal.get('nutrition', {})
+        logged_at = meal.get('logged_at', '').split('T')[0] if meal.get('logged_at') else ''
+        
+        writer.writerow([
+            logged_at,
+            meal.get('meal_name', ''),
+            meal.get('meal_type', ''),
+            f"{nutrition.get('calories', 0):.0f}",
+            f"{nutrition.get('protein', 0):.1f}",
+            f"{nutrition.get('carbs', 0):.1f}",
+            f"{nutrition.get('fat', 0):.1f}",
+            f"{nutrition.get('sodium', 0):.0f}",
+            f"{nutrition.get('sugar', 0):.1f}",
+            f"{nutrition.get('fiber', 0):.1f}",
+            meal.get('description', '')
+        ])
+    
+    return output.getvalue()
+
 
 # ==================== AUTHENTICATION PAGES ====================
 
@@ -414,6 +475,36 @@ def dashboard_page():
     today = date.today()
     meals = db_manager.get_meals_by_date(st.session_state.user_id, today)
     daily_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
+    
+    # ===== STREAK NOTIFICATIONS & MOTIVATIONAL BANNERS =====
+    days_back = 7
+    end_date = today
+    start_date = end_date - timedelta(days=days_back)
+    recent_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
+    
+    # Get streak info
+    meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
+    streak_info = get_streak_info(meal_dates)
+    current_streak = streak_info['current_streak']
+    longest_streak = streak_info['longest_streak']
+    
+    # Motivational notifications
+    if current_streak >= 7 and current_streak % 7 == 0:
+        st.success(f"🎉 **Amazing!** You've achieved a {current_streak}-day streak! Keep up the great work!")
+    elif current_streak >= 3:
+        st.info(f"🔥 **Nice!** You're on a {current_streak}-day streak! Log a meal today to keep it going!")
+    elif current_streak == 1:
+        st.info(f"🌟 **Great start!** You're 1 day in. Tomorrow's the test!")
+    elif current_streak == 0 and len(meals) == 0:
+        st.warning(f"📝 Don't forget to log a meal today to start building your streak!")
+    
+    # Milestone notifications
+    if longest_streak == 30:
+        st.success("🏆 **Congratulations!** You've hit a 30-day streak! You're a nutrition champion!")
+    elif longest_streak == 14:
+        st.info("🎯 **Epic!** 14-day record! You're committed to your health!")
+    
+    st.divider()
     
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
@@ -727,6 +818,86 @@ def dashboard_page():
     # Display Nutrition Targets Progress in styled box
     display_nutrition_targets_progress(daily_nutrition, targets)
     
+    # ===== MACRO BREAKDOWN & INSIGHTS =====
+    st.divider()
+    st.markdown("## 📊 Nutrition Breakdown & Patterns")
+    
+    insight_col1, insight_col2 = st.columns(2)
+    
+    # Macro Balance Pie Chart
+    with insight_col1:
+        if daily_nutrition['protein'] > 0 or daily_nutrition['carbs'] > 0 or daily_nutrition['fat'] > 0:
+            macro_data = {
+                "Nutrient": ["Protein", "Carbs", "Fat"],
+                "Grams": [
+                    daily_nutrition['protein'],
+                    daily_nutrition['carbs'],
+                    daily_nutrition['fat']
+                ]
+            }
+            
+            fig_macro = px.pie(
+                macro_data,
+                values="Grams",
+                names="Nutrient",
+                title="Today's Macro Balance",
+                color_discrete_map={"Protein": "#51CF66", "Carbs": "#FFD43B", "Fat": "#FF6B6B"}
+            )
+            fig_macro.update_traces(textinfo="percent+label", textposition="inside")
+            st.plotly_chart(fig_macro, use_container_width=True)
+        else:
+            st.info("Log some meals to see macro balance!")
+    
+    # Most Frequent Foods
+    with insight_col2:
+        # Get food frequency from recent meals
+        food_frequency = {}
+        for meal in meals[:30]:
+            description = meal.get('description', '').lower()
+            if description:
+                foods = [f.strip() for f in description.split(',')]
+                for food in foods[:2]:  # Get first 2 foods mentioned
+                    if len(food) > 3:
+                        food_frequency[food] = food_frequency.get(food, 0) + 1
+        
+        if food_frequency:
+            # Get top 5 foods
+            top_foods = sorted(food_frequency.items(), key=lambda x: x[1], reverse=True)[:5]
+            
+            st.markdown("### 🥘 Most Frequent Foods")
+            for food, count in top_foods:
+                st.write(f"• {food.title()} ({count}x)")
+        else:
+            st.info("Log more meals to see eating patterns!")
+    
+    # Eating Time Patterns
+    st.markdown("### 🕐 Eating Patterns")
+    
+    time_pattern = {}
+    for meal in meals[:30]:
+        logged_at = meal.get('logged_at', '')
+        if logged_at:
+            hour = int(logged_at.split('T')[1].split(':')[0])
+            period = "Breakfast (6am-10am)" if 6 <= hour < 10 else \
+                    "Lunch (10am-3pm)" if 10 <= hour < 15 else \
+                    "Dinner (3pm-9pm)" if 15 <= hour < 21 else \
+                    "Snack/Other"
+            time_pattern[period] = time_pattern.get(period, 0) + 1
+    
+    if time_pattern:
+        pattern_col1, pattern_col2, pattern_col3 = st.columns(3)
+        for idx, (period, count) in enumerate(sorted(time_pattern.items(), key=lambda x: x[1], reverse=True)):
+            if idx == 0:
+                col = pattern_col1
+            elif idx == 1:
+                col = pattern_col2
+            else:
+                col = pattern_col3
+            
+            with col:
+                emoji = "🌅" if "Breakfast" in period else "🍴" if "Lunch" in period else "🌙" if "Dinner" in period else "🍿"
+                st.metric(period.split('(')[0].strip(), f"{count} meals", emoji)
+    
     # ===== Today's Meals =====
     st.markdown("## 🍽️ Today's Meals")
     
@@ -782,13 +953,55 @@ def meal_logging_page():
     </div>
     """, unsafe_allow_html=True)
     
+    # ===== QUICK ADD FROM HISTORY =====
+    st.markdown("### 🚀 Quick Add From History")
+    
+    # Get recent meals for quick add
+    recent_meals = db_manager.get_recent_meals(st.session_state.user_id, limit=10)
+    
+    if recent_meals:
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            meal_options = {f"{m.get('meal_name')} ({m.get('meal_type')})" : m for m in recent_meals}
+            selected_quick_meal = st.selectbox(
+                "Select a meal you've had before",
+                options=list(meal_options.keys()),
+                format_func=lambda x: x,
+                label_visibility="collapsed",
+                key="quick_add_selector"
+            )
+        
+        with col2:
+            if st.button("➕ Quick Add", use_container_width=True, key="quick_add_btn"):
+                meal = meal_options[selected_quick_meal]
+                meal_data = {
+                    "user_id": st.session_state.user_id,
+                    "meal_name": meal.get('meal_name', 'Unknown'),
+                    "description": meal.get('description', ''),
+                    "meal_type": meal.get('meal_type'),
+                    "nutrition": meal.get('nutrition', {}),
+                    "healthiness_score": meal.get('healthiness_score', 0),
+                    "health_notes": meal.get('health_notes', ''),
+                    "logged_at": datetime.now().isoformat(),
+                }
+                
+                if db_manager.log_meal(meal_data):
+                    st.success(f"✅ {meal.get('meal_name')} added!")
+                    st.rerun()
+                else:
+                    st.error("❌ Failed to add meal")
+        
+        st.divider()
+    
     st.markdown("""
     ### Choose how you'd like to log your meal:
     1. **Text Description** - Describe your meal in words
     2. **Photo** - Take a photo of your meal
+    3. **Batch Log** - Log multiple meals for past days
     """)
     
-    tab1, tab2 = st.tabs(["📝 Text", "📸 Photo"])
+    tab1, tab2, tab3 = st.tabs(["📝 Text", "📸 Photo", "📅 Batch Log"])
     
     with tab1:
         st.markdown("## Describe Your Meal")
@@ -948,6 +1161,109 @@ def meal_logging_page():
                     st.rerun()
                 else:
                     st.error("❌ Failed to save meal")
+    
+    with tab3:
+        st.markdown("## 📅 Batch Log Meals")
+        st.markdown("Log multiple meals for past days at once. Great for catching up!")
+        
+        # Date range selector
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            batch_start_date = st.date_input(
+                "Start Date",
+                value=date.today() - timedelta(days=3),
+                max_value=date.today(),
+                key="batch_start_date"
+            )
+        
+        with col2:
+            batch_end_date = st.date_input(
+                "End Date",
+                value=date.today(),
+                max_value=date.today(),
+                key="batch_end_date"
+            )
+        
+        st.markdown("---")
+        
+        # Generate calendar-like interface
+        current_date = batch_start_date
+        day_meals = {}
+        
+        while current_date <= batch_end_date:
+            date_str = current_date.strftime("%Y-%m-%d")
+            st.markdown(f"### 📅 {current_date.strftime('%A, %B %d, %Y')}")
+            
+            # Create columns for meal types
+            meal_col1, meal_col2, meal_col3 = st.columns(3)
+            
+            with meal_col1:
+                breakfast = st.text_input(
+                    f"Breakfast",
+                    placeholder="e.g., Oatmeal with berries",
+                    key=f"batch_breakfast_{date_str}"
+                )
+            
+            with meal_col2:
+                lunch = st.text_input(
+                    f"Lunch",
+                    placeholder="e.g., Grilled chicken with vegetables",
+                    key=f"batch_lunch_{date_str}"
+                )
+            
+            with meal_col3:
+                dinner = st.text_input(
+                    f"Dinner",
+                    placeholder="e.g., Salmon with rice",
+                    key=f"batch_dinner_{date_str}"
+                )
+            
+            day_meals[date_str] = {
+                "breakfast": breakfast,
+                "lunch": lunch,
+                "dinner": dinner
+            }
+            
+            current_date += timedelta(days=1)
+        
+        st.divider()
+        
+        if st.button("📥 Analyze & Save All Meals", use_container_width=True, key="batch_save_btn"):
+            total_saved = 0
+            total_failed = 0
+            
+            with st.spinner("🤖 Analyzing and saving meals..."):
+                for date_str, meals_dict in day_meals.items():
+                    for meal_type, description in meals_dict.items():
+                        if description and description.strip():
+                            # Analyze the meal
+                            analysis = nutrition_analyzer.analyze_text_meal(description, meal_type)
+                            
+                            if analysis:
+                                meal_data = {
+                                    "user_id": st.session_state.user_id,
+                                    "meal_name": analysis.get('meal_name', description[:50]),
+                                    "description": analysis.get('description', description),
+                                    "meal_type": meal_type,
+                                    "nutrition": analysis['nutrition'],
+                                    "healthiness_score": analysis.get('healthiness_score', 0),
+                                    "health_notes": analysis.get('health_notes', ''),
+                                    "logged_at": datetime.combine(
+                                        datetime.fromisoformat(date_str).date(),
+                                        time(12, 0, 0)
+                                    ).isoformat(),
+                                }
+                                
+                                if db_manager.log_meal(meal_data):
+                                    total_saved += 1
+                                else:
+                                    total_failed += 1
+            
+            st.success(f"✅ Saved {total_saved} meals successfully!")
+            if total_failed > 0:
+                st.warning(f"⚠️ Failed to save {total_failed} meals")
+            st.rerun()
 
 
 def analytics_page():
@@ -1230,6 +1546,63 @@ def insights_page():
                         # Show formatted text for sharing
                         with st.expander("📧 Shareable Format", expanded=True):
                             st.text_area("Copy and share this:", value=insights_text, height=250, disabled=True, key="share_insights")
+    
+    # ===== Export Data =====
+    st.divider()
+    st.markdown("## 📥 Export Your Data")
+    
+    export_col1, export_col2, export_col3 = st.columns(3)
+    
+    with export_col1:
+        if st.button("📄 Export as CSV", use_container_width=True):
+            csv_data = generate_csv_export(meals)
+            st.download_button(
+                label="📥 Download CSV",
+                data=csv_data,
+                file_name=f"eatwise_meals_{date.today()}.csv",
+                mime="text/csv",
+                use_container_width=True,
+                key="csv_download"
+            )
+    
+    with export_col2:
+        if st.button("📋 Export Report", use_container_width=True):
+            report = generate_nutrition_report(meals, today_nutrition, targets, "recent")
+            st.download_button(
+                label="📥 Download Report",
+                data=report,
+                file_name=f"eatwise_report_{date.today()}.txt",
+                mime="text/plain",
+                use_container_width=True,
+                key="report_download"
+            )
+    
+    with export_col3:
+        if st.button("📊 Share Weekly Summary", use_container_width=True):
+            end_date = date.today()
+            start_date = end_date - timedelta(days=7)
+            weekly_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
+            
+            if weekly_meals:
+                weekly_nutrition = {
+                    "calories": sum(m.get('nutrition', {}).get('calories', 0) for m in weekly_meals) / 7,
+                    "protein": sum(m.get('nutrition', {}).get('protein', 0) for m in weekly_meals) / 7,
+                    "carbs": sum(m.get('nutrition', {}).get('carbs', 0) for m in weekly_meals) / 7,
+                    "fat": sum(m.get('nutrition', {}).get('fat', 0) for m in weekly_meals) / 7,
+                }
+                
+                summary = generate_nutrition_report(weekly_meals, weekly_nutrition, targets, "weekly")
+                with st.expander("📊 Weekly Summary Preview", expanded=True):
+                    st.text_area("Copy your weekly summary:", value=summary, height=250, disabled=True, key="weekly_summary_share")
+                
+                st.download_button(
+                    label="📥 Download Weekly Summary",
+                    data=summary,
+                    file_name=f"eatwise_weekly_summary_{date.today()}.txt",
+                    mime="text/plain",
+                    use_container_width=True,
+                    key="summary_download"
+                )
 
 
 def meal_history_page():
