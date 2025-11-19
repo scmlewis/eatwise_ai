@@ -1,9 +1,12 @@
+-- Drop existing table and policies if they exist
+DROP TABLE IF EXISTS public.water_intake CASCADE;
+
 -- Create water_intake table for tracking daily water consumption
 CREATE TABLE IF NOT EXISTS public.water_intake (
     id BIGSERIAL PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     glasses INTEGER NOT NULL DEFAULT 1,
-    logged_date DATE NOT NULL,
+    logged_date DATE NOT NULL DEFAULT CURRENT_DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, logged_date)
@@ -34,4 +37,4 @@ CREATE POLICY "Users can delete their own water intake"
     USING (auth.uid() = user_id);
 
 -- Create index for faster queries
-CREATE INDEX IF NOT EXISTS idx_water_intake_user_date ON public.water_intake(user_id, logged_date);
+CREATE INDEX IF NOT EXISTS idx_water_intake_user_logged_date ON public.water_intake(user_id, logged_date);

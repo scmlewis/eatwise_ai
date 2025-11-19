@@ -256,7 +256,7 @@ class DatabaseManager:
             water_entry = {
                 "user_id": user_id,
                 "glasses": glasses,
-                "logged_at": datetime.combine(logged_date, datetime.min.time()).isoformat(),
+                "logged_date": logged_date.isoformat(),
             }
             self.supabase.table("water_intake").insert(water_entry).execute()
             return True
@@ -268,7 +268,7 @@ class DatabaseManager:
         """Get total water intake for a specific date"""
         try:
             date_str = water_date.isoformat()
-            response = self.supabase.table("water_intake").select("glasses").eq("user_id", user_id).gte("logged_at", f"{date_str}T00:00:00").lte("logged_at", f"{date_str}T23:59:59").execute()
+            response = self.supabase.table("water_intake").select("glasses").eq("user_id", user_id).eq("logged_date", date_str).execute()
             
             total_glasses = 0
             if response.data:
