@@ -743,11 +743,12 @@ def dashboard_page():
             
             # Show meal details in expander
             with st.expander(f"📋 View Details - {meal.get('meal_name', 'Meal')}", expanded=False):
-                col1, col2 = st.columns([2, 1])
+                st.write(f"**Description:** {meal.get('description', 'N/A')}")
+                nutrition = meal.get("nutrition", {})
+                
+                col1, col2 = st.columns([3, 1])
                 with col1:
-                    st.write(f"**Description:** {meal.get('description', 'N/A')}")
-                    nutrition = meal.get("nutrition", {})
-                    st.text(nutrition_analyzer.get_nutrition_facts(nutrition))
+                    st.markdown(nutrition_analyzer.get_nutrition_facts_html(nutrition), unsafe_allow_html=True)
                 with col2:
                     healthiness = meal.get('healthiness_score', 'N/A')
                     st.metric("Score", healthiness)
@@ -816,10 +817,10 @@ def meal_logging_page():
             st.markdown(f"### {analysis.get('meal_name', 'Meal')}")
             st.write(analysis.get('description', ''))
             
-            col1, col2 = st.columns([2, 1])
+            col1, col2 = st.columns([3, 1])
             
             with col1:
-                st.text(nutrition_analyzer.get_nutrition_facts(analysis['nutrition']))
+                st.markdown(nutrition_analyzer.get_nutrition_facts_html(analysis['nutrition']), unsafe_allow_html=True)
             
             with col2:
                 healthiness = analysis.get('healthiness_score', 0)
@@ -901,7 +902,7 @@ def meal_logging_page():
                 st.write(f"- {food['name']} ({food['quantity']})")
             
             # Display nutrition
-            st.text(nutrition_analyzer.get_nutrition_facts(analysis['total_nutrition']))
+            st.markdown(nutrition_analyzer.get_nutrition_facts_html(analysis['total_nutrition']), unsafe_allow_html=True)
             
             st.info(f"**Confidence:** {analysis.get('confidence', 0)}%")
             st.info(f"**Notes:** {analysis.get('notes', 'N/A')}")
@@ -1119,10 +1120,10 @@ def insights_page():
                         st.write(f"**Description:** {rec.get('description', '')}")
                         st.write(f"⏱️ **Prep Time:** {rec.get('preparation_time', 'N/A')}")
                         
-                        col1, col2 = st.columns([2, 1])
+                        col1, col2 = st.columns([3, 1])
                         
                         with col1:
-                            st.text(nutrition_analyzer.get_nutrition_facts(rec.get('estimated_nutrition', {})))
+                            st.markdown(nutrition_analyzer.get_nutrition_facts_html(rec.get('estimated_nutrition', {})), unsafe_allow_html=True)
                         
                         with col2:
                             st.info(f"**Why:** {rec.get('why_recommended', '')}")
@@ -1297,7 +1298,7 @@ def meal_history_page():
             with st.expander("View Details", expanded=False):
                 st.write(f"**Description:** {meal.get('description', 'N/A')}")
                 nutrition = meal.get("nutrition", {})
-                st.text(nutrition_analyzer.get_nutrition_facts(nutrition))
+                st.markdown(nutrition_analyzer.get_nutrition_facts_html(nutrition), unsafe_allow_html=True)
             
             # Edit form
             if st.session_state.get(f"edit_meal_id_{meal['id']}", False):
