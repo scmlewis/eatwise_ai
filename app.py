@@ -680,8 +680,6 @@ def dashboard_page():
     df = df.sort_values("Date")
     
     # Display Statistics with Modern Card Layout
-    st.markdown("## 📊 Statistics (Last 7 Days)")
-    
     # Add responsive CSS for mobile view - 2 cards per row on mobile
     st.markdown(
         """
@@ -716,9 +714,10 @@ def dashboard_page():
     <div style="
         background: linear-gradient(135deg, rgba(16, 161, 157, 0.05) 0%, rgba(255, 107, 22, 0.03) 100%);
         border-radius: 16px;
-        padding: 24px 20px 20px 20px;
+        padding: 20px;
         margin-bottom: 24px;
     ">
+        <h2 style="margin: 0 0 20px 0; font-size: 24px; font-weight: 700; color: #e0f2f1;">📊 Statistics (Last 7 Days)</h2>
     """, unsafe_allow_html=True)
     
     stats_cols = st.columns(4, gap="medium")
@@ -823,8 +822,6 @@ def dashboard_page():
     st.markdown("</div>", unsafe_allow_html=True)  # Close statistics section background
     
     # Display Achievements with Modern Card Layout
-    st.markdown("## 🏆 Achievements")
-    
     # Section background container
     st.markdown("""
     <div style="
@@ -833,6 +830,7 @@ def dashboard_page():
         padding: 20px;
         margin-bottom: 24px;
     ">
+        <h2 style="margin: 0 0 20px 0; font-size: 24px; font-weight: 700; color: #e0f2f1;">🏆 Achievements</h2>
     """, unsafe_allow_html=True)
     
     meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
