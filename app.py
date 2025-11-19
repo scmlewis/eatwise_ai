@@ -600,56 +600,6 @@ def dashboard_page():
     df["Date"] = pd.to_datetime(df["Date"])
     df = df.sort_values("Date")
     
-    # ===== DAILY GOAL PROGRESS - SIMPLIFIED CARD LAYOUT =====
-    st.markdown("## 🎯 Today's Calorie Goal")
-    
-    cal_percentage = min((daily_nutrition['calories'] / targets['calories']) * 100, 100) if targets['calories'] > 0 else 0
-    cal_color = "#51CF66" if 80 <= cal_percentage <= 120 else ("#FFD43B" if cal_percentage < 80 else "#FF6B6B")
-    
-    # Determine status and remaining calories
-    if daily_nutrition['calories'] < targets['calories']:
-        remaining = targets['calories'] - daily_nutrition['calories']
-        status_text = f"Need {remaining:.0f} cal ↑"
-        status_color = "#FFD43B"
-    elif daily_nutrition['calories'] == targets['calories']:
-        status_text = "✅ Perfect!"
-        status_color = "#51CF66"
-    else:
-        over = daily_nutrition['calories'] - targets['calories']
-        status_text = f"Over by {over:.0f} cal ↓"
-        status_color = "#FF6B6B"
-    
-    # Single responsive card layout
-    card_html = f"""
-    <div style="background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%); border: 1px solid rgba(16, 161, 157, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 20px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center;">
-            <div>
-                <div style="font-size: 14px; color: #888; margin-bottom: 8px;">Current Intake</div>
-                <div style="font-size: 36px; color: #fff; font-weight: bold; margin-bottom: 12px;">
-                    {daily_nutrition['calories']:.0f}
-                </div>
-                <div style="font-size: 12px; color: #888;">
-                    of {targets['calories']:.0f} cal target
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: 32px; color: {cal_color}; font-weight: bold; margin-bottom: 8px;">
-                    {cal_percentage:.0f}%
-                </div>
-                <div style="font-size: 12px; color: {status_color}; font-weight: 500;">
-                    {status_text}
-                </div>
-            </div>
-        </div>
-        <div style="margin-top: 16px;">
-            <div style="background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 4px; overflow: hidden;">
-                <div style="background: {cal_color}; height: 100%; width: {min(cal_percentage, 100)}%; border-radius: 4px; transition: width 0.3s ease;"></div>
-            </div>
-        </div>
-    </div>
-    """
-    st.markdown(card_html, unsafe_allow_html=True)
-    
     # Display Statistics with Modern Card Layout
     st.markdown("## 📊 Statistics (Last 7 Days)")
     
