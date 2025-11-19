@@ -56,16 +56,23 @@ st.markdown("""
         --accent-blue: #3B82F6;
     }
     
-    /* Force sidebar to be expanded on desktop */
-    @media (min-width: 992px) {
+    /* Force sidebar to be expanded on desktop only */
+    @media (min-width: 768px) {
         section[data-testid="stSidebar"] {
             display: block !important;
-            min-width: 250px !important;
-        }
-        
-        section[data-testid="stSidebar"][aria-hidden="true"] {
-            display: block !important;
+            width: 250px !important;
             visibility: visible !important;
+        }
+    }
+    
+    /* Allow sidebar to collapse on mobile */
+    @media (max-width: 767px) {
+        section[data-testid="stSidebar"] {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 999999;
         }
     }
     
@@ -171,11 +178,6 @@ st.markdown("""
     /* Ensure sidebar expansion on all screen sizes after login */
     section[data-testid="stSidebar"] > div {
         width: 250px !important;
-    }
-    
-    /* Force sidebar button to not collapse */
-    button[kind="header"] svg {
-        display: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
