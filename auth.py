@@ -144,106 +144,6 @@ class AuthManager:
             else:
                 return False, f"Error changing password: {error_str}"
     
-    def reset_password(self, email: str) -> Tuple[bool, str]:
-        """
-        Send password reset email to user
-        
-        Args:
-            email: User email address
-            
-        Returns:
-            Tuple of (success, message)
-        """
-        try:
-            # Attempt to send password recovery link
-            self.supabase.auth.send_reset_password_email(email)
-            return True, "Password reset link sent! Check your email for instructions."
-        except AttributeError:
-            # If send_reset_password_email doesn't exist, try alternative
-            try:
-                self.supabase.auth.reset_password_email(email)
-                return True, "Password reset link sent! Check your email for instructions."
-            except Exception:
-                # Fallback: inform user to contact support
-                return False, "Password reset is temporarily unavailable. Please contact support."
-        except Exception as e:
-            error_str = str(e).lower()
-            if "user" in error_str or "not found" in error_str:
-                return False, "Email not found in our system."
-            else:
-                return False, "Unable to process reset. Please try again later."
-    
-    def verify_otp_and_reset_password(self, email: str, otp: str, new_password: str) -> Tuple[bool, str]:
-        """
-        Verify OTP and reset password
-        
-        Args:
-            email: User email address
-            otp: One-time password from email
-            new_password: New password to set
-            
-        Returns:
-            Tuple of (success, message)
-        """
-        try:
-            # Verify the OTP
-            response = self.supabase.auth.verify_otp({
-                "email": email,
-                "token": otp,
-                "type": "recovery"
-            })
-            
-            if response.user:
-                # Update the password
-                self.supabase.auth.update_user({
-                    "password": new_password
-                })
-                return True, "Password reset successfully!"
-            else:
-                return False, "Invalid or expired reset link."
-                
-        except Exception as e:
-            error_str = str(e).lower()
-            if "invalid" in error_str or "expired" in error_str:
-                return False, "The reset link is invalid or has expired. Please request a new one."
-            else:
-                return False, f"Error resetting password: {str(e)}"
-    
-    def get_session_user(self) -> Optional[Dict]:
-        """
-        Get the current session user (used after password reset redirect)
-        
-        Returns:
-            User data if session exists, None otherwise
-        """
-        try:
-            session = self.supabase.auth.get_session()
-            if session and session.user:
-                return {
-                    "user_id": session.user.id,
-                    "email": session.user.email,
-                }
-            return None
-        except Exception:
-            return None
-    
-    def is_fresh_password_reset_session(self) -> bool:
-        """
-        Check if this is a fresh password reset session from email link
-        (user hasn't logged in via password, only via reset link)
-        
-        Returns:
-            True if this appears to be a reset session, False otherwise
-        """
-        try:
-            session = self.supabase.auth.get_session()
-            if session and session.user:
-                # Check if user has a valid auth session
-                # Reset links create temporary sessions that need password confirmation
-                return True
-            return False
-        except Exception:
-            return False
 
 
 def init_auth_session():
@@ -264,3 +164,4 @@ def init_auth_session():
 def is_authenticated() -> bool:
     """Check if user is authenticated"""
     return st.session_state.get("user_id") is not None
+

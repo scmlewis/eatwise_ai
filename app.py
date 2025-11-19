@@ -167,83 +167,6 @@ recommender = RecommendationEngine()
 
 # ==================== AUTHENTICATION PAGES ====================
 
-def reset_password_page():
-    """Password reset page when user is redirected from email link"""
-    # Debug: Show that we got here
-    st.write("DEBUG: reset_mode is True, showing reset password page")
-    st.markdown("""
-    <style>
-        .reset-container {
-            background: linear-gradient(135deg, #0D7A7620 0%, #10A19D10 100%);
-            padding: 50px;
-            border-radius: 20px;
-            border: 2px solid #10A19D;
-            max-width: 500px;
-            margin: 50px auto;
-            box-shadow: 0 10px 40px rgba(16, 161, 157, 0.15);
-        }
-        
-        .reset-container h2 {
-            color: #52C4B8;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('<div class="reset-container">', unsafe_allow_html=True)
-    st.markdown("## 🔐 Reset Your Password")
-    
-    # Display reset form
-    st.markdown("Enter your new password below:")
-    
-    new_password = st.text_input(
-        "New Password",
-        type="password",
-        placeholder="••••••••",
-        key="reset_new_password"
-    )
-    
-    confirm_password = st.text_input(
-        "Confirm Password",
-        type="password",
-        placeholder="••••••••",
-        key="reset_confirm_password"
-    )
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        if st.button("Reset Password", key="reset_submit_btn", use_container_width=True):
-            if not new_password:
-                st.warning("⚠️ Please enter a new password")
-            elif new_password != confirm_password:
-                st.error("❌ Passwords do not match")
-            elif len(new_password) < 6:
-                st.error("❌ Password must be at least 6 characters")
-            else:
-                try:
-                    auth_manager = st.session_state.auth_manager
-                    auth_manager.supabase.auth.update_user({
-                        "password": new_password
-                    })
-                    st.success("✅ Password reset successfully!")
-                    st.info("You can now login with your new password. Redirecting to login...")
-                    import time
-                    time.sleep(2)
-                    st.session_state.reset_mode = False
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"❌ Error resetting password: {str(e)}")
-    
-    with col2:
-        if st.button("Back to Login", key="reset_cancel_btn", use_container_width=True):
-            st.session_state.reset_mode = False
-            st.rerun()
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
 def login_page():
     """Login and signup page"""
     auth_manager = st.session_state.auth_manager
@@ -429,16 +352,11 @@ def login_page():
                     st.warning("⚠️ Please enter email and password")
             
             # Forgot password button - same width as login button
-            if st.button("Forgot password?", key="forgot_pwd_btn", use_container_width=True):
-                st.session_state.show_forgot_password = True
-            
             st.markdown("""
             <p style="text-align: center; color: #a0a0a0; margin-top: 20px; font-size: 0.9em;">
                 Don't have an account? Create one in the Sign Up tab ↗️
             </p>
             """, unsafe_allow_html=True)
-            
-            st.markdown("---")
         
         with tab2:
             st.markdown("#### Create new account")
@@ -467,39 +385,6 @@ def login_page():
                 Already have an account? Login in the Login tab ↖️
             </p>
             """, unsafe_allow_html=True)
-        
-        # Forgot Password Modal
-        if st.session_state.get("show_forgot_password", False):
-            st.divider()
-            st.markdown("### 🔐 Reset Your Password")
-            
-            reset_email = st.text_input(
-                "Enter your email address",
-                placeholder="your@email.com",
-                key="reset_email_input_field"
-            )
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("Send Reset Link", key="send_reset_btn", use_container_width=True):
-                    if reset_email:
-                        try:
-                            success, message = auth_manager.reset_password(reset_email)
-                            if success:
-                                st.success("✅ " + message)
-                                st.info("📧 Check your email inbox for a password reset link and follow the instructions to set a new password.")
-                                st.info("⚠️ **Note**: The reset link may direct you to a configuration page. Your app URL needs to be configured in Supabase settings.")
-                            else:
-                                st.error("❌ " + message)
-                        except Exception as e:
-                            st.error(f"❌ Error: {str(e)}")
-                    else:
-                        st.warning("⚠️ Please enter your email address")
-            
-            with col2:
-                if st.button("Back to Login", key="back_to_login_btn", use_container_width=True):
-                    st.session_state.show_forgot_password = False
-                    st.rerun()
 
 def dashboard_page():
     """Dashboard/Home page"""
@@ -1898,44 +1783,6 @@ def help_page():
 
 def main():
     """Main app logic"""
-    
-    # Check for password reset in URL parameters from Supabase reset email
-    # Supabase adds ?type=recovery&token=... to the redirect URL
-    query_params = st.query_params
-    
-    # Debug: Log the query params to understand what we're receiving
-    if query_params:
-        st.write("DEBUG - Query params detected:", dict(query_params))
-    
-    # Check if this is a password recovery URL from Supabase
-    type_param = query_params.get("type")
-    if type_param == "recovery" or type_param == ["recovery"]:
-        st.session_state.reset_mode = True
-    elif type_param and "recovery" in str(type_param):
-        st.session_state.reset_mode = True
-    
-    # Also check for Supabase recovery session (session created by recovery email)
-    # This handles the case where Supabase doesn't pass URL params in the redirect
-    if not st.session_state.get("reset_mode", False) and not st.session_state.get("user_id"):
-        try:
-            auth_manager = st.session_state.auth_manager
-            session = auth_manager.supabase.auth.get_session()
-            if session and session.user:
-                # Check if this is a recovery session by looking at the session metadata
-                # Recovery sessions have specific characteristics
-                if session.user.app_metadata and session.user.app_metadata.get("provider") == "email":
-                    # Additional check: if user has a session but hasn't logged in via the app
-                    # This might be from a recovery email
-                    if not st.session_state.get("_recovery_check_done", False):
-                        st.session_state.reset_mode = True
-                        st.session_state._recovery_check_done = True
-        except:
-            pass
-    
-    # Check if user is in reset password mode (after clicking reset link from email)
-    if st.session_state.get("reset_mode", False):
-        reset_password_page()
-        return
     
     if not is_authenticated():
         login_page()
