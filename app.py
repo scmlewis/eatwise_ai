@@ -392,6 +392,7 @@ def login_page():
 
 def dashboard_page():
     """Dashboard/Home page"""
+    st.write("")  # Scroll anchor
     user_profile = st.session_state.user_profile
     if not user_profile:
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
@@ -736,6 +737,7 @@ def dashboard_page():
 
 def meal_logging_page():
     """Meal logging page"""
+    st.write("")  # Scroll anchor
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
@@ -917,6 +919,7 @@ def meal_logging_page():
 
 def analytics_page():
     """Analytics and insights page"""
+    st.write("")  # Scroll anchor
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
@@ -1045,6 +1048,7 @@ def analytics_page():
 
 def insights_page():
     """Health insights and recommendations page"""
+    st.write("")  # Scroll anchor
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
@@ -1199,6 +1203,7 @@ def insights_page():
 
 def meal_history_page():
     """View and manage all logged meals"""
+    st.write("")  # Scroll anchor
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
@@ -1342,6 +1347,7 @@ def meal_history_page():
 
 def profile_page():
     """User profile and health settings page"""
+    st.write("")  # Scroll anchor
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #FF6B16 0%, #FF8A4D 100%);
@@ -1532,6 +1538,7 @@ def profile_page():
 
 def help_page():
     """Help and About page"""
+    st.write("")  # Scroll anchor
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
