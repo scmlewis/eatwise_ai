@@ -440,18 +440,9 @@ def login_page():
             
             st.markdown("---")
             
-            # Check if user has a reset session from email
-            auth_manager = st.session_state.auth_manager
-            try:
-                session = auth_manager.supabase.auth.get_session()
-                if session and session.user and not st.session_state.get("user_id"):
-                    # User has a session from reset email link
-                    st.info("🔐 We detected you clicked a password reset link. Click below to reset your password.")
-                    if st.button("Go to Password Reset", key="auto_reset_btn", use_container_width=True):
-                        st.session_state.reset_mode = True
-                        st.rerun()
-            except:
-                pass
+            # Manual password reset trigger - user enters email to request reset link
+            # Automatic detection removed because Supabase sessions persist across private tabs
+            # URL parameter detection (type=recovery) is now the primary mechanism
         
         with tab2:
             st.markdown("#### Create new account")
@@ -1911,6 +1902,16 @@ def help_page():
 
 def main():
     """Main app logic"""
+    
+    # Check for password reset in URL (Streamlit query params: ?type=recovery)
+    # This detects when user clicks the reset link from email
+    try:
+        from urllib.parse import urlparse, parse_qs
+        current_url = st.query_params
+        if current_url.get("type") == "recovery":
+            st.session_state.reset_mode = True
+    except:
+        pass
     
     # Check if user is in reset password mode (after clicking reset link from email)
     if st.session_state.get("reset_mode", False):
