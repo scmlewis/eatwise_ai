@@ -2685,7 +2685,7 @@ def main():
             
             st.sidebar.markdown("---")
             
-            # ===== QUICK STATS IN SIDEBAR - COMPACT GRID =====
+            # ===== QUICK STATS IN SIDEBAR - SINGLE ROW COMPACT =====
             st.sidebar.markdown("### 📊 Quick Stats")
             
             # Get today's data for sidebar stats
@@ -2711,25 +2711,36 @@ def main():
                 age_group = user_profile.get("age_group", "26-35")
                 targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
                 cal_pct = (today_nutrition['calories'] / targets['calories'] * 100) if targets['calories'] > 0 else 0
-                cal_display = f"{int(today_nutrition['calories'])}/{targets['calories']}"
-                cal_delta = f"{int(cal_pct)}%"
+                cal_display = int(today_nutrition['calories'])
             else:
-                cal_display = f"{int(today_nutrition['calories'])}"
-                cal_delta = "cal"
+                cal_display = int(today_nutrition['calories'])
             
-            # Create compact 2x2 grid stats
-            stat_col1, stat_col2 = st.sidebar.columns(2, gap="small")
+            # Create single row compact stats
+            stat_cols = st.sidebar.columns(4, gap="small")
             
-            with stat_col1:
-                st.metric("🔥 Streak", f"{current_streak}", "days")
-            with stat_col2:
-                st.metric("🔥 Calories", cal_display, cal_delta)
+            with stat_cols[0]:
+                st.markdown(f"""
+                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">🔥 Streak</div>
+                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #FFB84D;">{current_streak}</div>
+                """, unsafe_allow_html=True)
             
-            stat_col3, stat_col4 = st.sidebar.columns(2, gap="small")
-            with stat_col3:
-                st.metric("🍽️ Meals", len(today_meals), "logged")
-            with stat_col4:
-                st.metric("💧 Water", f"{water_today}/{water_goal}", "glasses")
+            with stat_cols[1]:
+                st.markdown(f"""
+                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">🔥 Cal</div>
+                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #FFB84D;">{cal_display}</div>
+                """, unsafe_allow_html=True)
+            
+            with stat_cols[2]:
+                st.markdown(f"""
+                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">🍽️ Meals</div>
+                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #10A19D;">{len(today_meals)}</div>
+                """, unsafe_allow_html=True)
+            
+            with stat_cols[3]:
+                st.markdown(f"""
+                <div style="text-align: center; font-size: 12px; color: #a0a0a0;">💧 Water</div>
+                <div style="text-align: center; font-size: 20px; font-weight: bold; color: #3B82F6;">{water_today}/{water_goal}</div>
+                """, unsafe_allow_html=True)
             
             st.sidebar.markdown("---")
             
