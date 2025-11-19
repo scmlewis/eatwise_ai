@@ -188,13 +188,7 @@ The app will open at `http://localhost:8501`
 
 ## 🔐 Authentication & Security
 
-### Password Management
 - **Secure Authentication**: Supabase Auth with email/password
-- **Password Reset**: 
-  - Click "Forgot password?" on login page
-  - Enter your email to receive a reset link
-  - Click the link in the email and set a new password
-  - Login with your new password
 - **Session Management**: Secure session handling with automatic logout
 - **Supabase Auth**: Secure user authentication
 - **Row Level Security (RLS)**: Database-level data isolation
@@ -316,13 +310,6 @@ Provides:
 - [ ] Real-time nutrition API (USDA FoodData Central)
 
 ## 📝 Changelog
-
-### v1.1.0 (November 19, 2025)
-- ✨ Added password reset functionality with secure email links
-- 🎨 Enhanced nutrition facts display with modern gradient cards
-- 📊 Improved analytics with customizable time period buttons (7/14/30 days)
-- 🔒 Improved authentication and session management
-- 📚 Updated documentation and help pages
 
 ### v1.0.0 (Initial Release)
 - 🌟 Core meal logging features (text and photo)

@@ -1594,13 +1594,7 @@ def help_page():
         - **Deployment**: Streamlit Cloud
         
         ### Version
-        **v1.1.0** - November 2025
-        
-        ### What's New
-        - ✨ Password reset functionality
-        - 🎨 Enhanced nutrition facts display with modern cards
-        - 📊 Analytics with customizable time period buttons
-        - 🔒 Improved security features
+        **v1.0.0** - Initial Release
         """)
     
     with tab2:
@@ -1687,22 +1681,6 @@ def help_page():
     with tab4:
         st.markdown("## Frequently Asked Questions")
         
-        with st.expander("❓ How do I reset my password?"):
-            st.markdown("""
-            If you forget your password:
-            1. Go to the **Login** page
-            2. Click **"Forgot password?"** button
-            3. Enter your email address
-            4. Click **"Send Reset Link"**
-            5. Check your email inbox for a password reset link
-            6. Click the link in the email
-            7. You'll see a password reset form
-            8. Enter your new password and click **"Reset Password"**
-            9. Login with your new password
-            
-            **Note**: Reset links expire after a certain time. If your link expires, request a new one.
-            """)
-        
         with st.expander("❓ How accurate is the nutrition analysis?"):
             st.markdown("""
             Our AI-powered analysis provides realistic estimates based on:
@@ -1775,7 +1753,7 @@ def help_page():
     - **Report Issues**: Create an issue on GitHub
     
     ---
-    **Last Updated**: November 19, 2025 (v1.1.0)
+    **Last Updated**: November 19, 2025 (v1.0.0)
     """)
 
 
