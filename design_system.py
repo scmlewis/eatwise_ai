@@ -231,6 +231,50 @@ def get_spacing_style(margin_top: str = None, margin_bottom: str = None,
     return style
 
 
+def get_button_hover_css() -> str:
+    """
+    Get CSS for button hover effects across all buttons.
+    Add to <style> tag in st.markdown() for interactive feedback.
+    
+    Returns:
+        CSS string with hover states
+    """
+    return """
+    <style>
+        /* Button hover effects */
+        button {
+            transition: all 0.2s ease !important;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        /* Card hover effects */
+        [data-testid="stContainer"] {
+            transition: all 0.2s ease;
+        }
+        
+        /* Input focus states */
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #10A19D !important;
+            box-shadow: 0 0 0 2px rgba(16, 161, 157, 0.1) !important;
+        }
+        
+        select:focus {
+            border-color: #10A19D !important;
+            outline: none;
+        }
+    </style>
+    """
+
+
 # ============================================================================
 # DESIGN SYSTEM REFERENCE (for documentation)
 # ============================================================================

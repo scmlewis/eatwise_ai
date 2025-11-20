@@ -329,6 +329,29 @@ st.markdown("""
     section[data-testid="stSidebar"] > div {
         width: 250px !important;
     }
+    
+    /* Input focus states for better interactivity */
+    input:focus {
+        outline: none;
+        border-color: #10A19D !important;
+        box-shadow: 0 0 0 2px rgba(16, 161, 157, 0.1) !important;
+    }
+    
+    textarea:focus {
+        outline: none;
+        border-color: #10A19D !important;
+        box-shadow: 0 0 0 2px rgba(16, 161, 157, 0.1) !important;
+    }
+    
+    select:focus {
+        border-color: #10A19D !important;
+        outline: none;
+    }
+    
+    /* Selectbox hover effect */
+    [data-testid="stSelectbox"] {
+        transition: all 0.2s ease;
+    }
 </style>
 """, unsafe_allow_html=True)
 
