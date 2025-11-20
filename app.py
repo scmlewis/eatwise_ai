@@ -992,7 +992,9 @@ def login_page():
                     if success:
                         st.session_state.user_id = user_data["user_id"]
                         st.session_state.user_email = user_data["email"]
-                        st.session_state.user_profile = user_data
+                        # Normalize the profile data immediately
+                        normalized_profile = normalize_profile(user_data)
+                        st.session_state.user_profile = normalized_profile
                         show_notification("Login successful! Redirecting...", "success", use_toast=False)
                         st.rerun()
                     else:
@@ -3487,6 +3489,19 @@ def main():
                 if user_profile:
                     user_profile = normalize_profile(user_profile)
                     st.session_state.user_profile = user_profile
+            
+            # Ensure we have a profile with defaults for sidebar stats
+            if not user_profile:
+                user_profile = {
+                    "user_id": st.session_state.user_id,
+                    "age_group": "26-35",
+                    "health_goal": "general_health",
+                    "timezone": "UTC",
+                    "health_conditions": [],
+                    "dietary_preferences": [],
+                    "water_goal_glasses": 8
+                }
+                st.session_state.user_profile = user_profile
             
             # Streak info
             if len(today_meals) > 0:
