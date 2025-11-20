@@ -6,9 +6,6 @@ secondaryBackgroundColor = "#1a3a35"
 textColor = "#e0f2f1"
 font = "sans serif"
 
-[layout]
-sidebar.width = 500
-
 [client]
 showErrorDetails = true
 toolbarMode = "developer"
@@ -30,7 +27,3 @@ serverAddress = "localhost"
 [runner]
 magicEnabled = true
 fastReruns = true
-
-[cache]
-maxMegabytes = 1000
-minMegabytes = 10

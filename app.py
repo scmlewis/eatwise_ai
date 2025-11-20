@@ -486,7 +486,7 @@ def login_page():
             email = st.text_input("Email", key="login_email", placeholder="your@email.com")
             password = st.text_input("Password", type="password", key="login_password", placeholder="••••••••")
             
-            if st.button("Login", key="login_btn", use_container_width=True):
+            if st.button("Login", key="login_btn", width="stretch"):
                 if email and password:
                     success, message, user_data = auth_manager.login(email, password)
                     if success:
@@ -516,7 +516,7 @@ def login_page():
             
             st.caption("Password must be at least 6 characters")
             
-            if st.button("Sign Up", key="signup_btn", use_container_width=True):
+            if st.button("Sign Up", key="signup_btn", width="stretch"):
                 if new_email and new_password and full_name:
                     if len(new_password) < 6:
                         show_notification("Password must be at least 6 characters", "error", use_toast=False)
@@ -785,7 +785,7 @@ def dashboard_page():
     water_btn_col1, water_btn_col2, water_btn_col3 = st.columns(3)
     
     with water_btn_col1:
-        if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
+        if st.button("➕ Add Glass", width="stretch", key="add_water_btn"):
             if db_manager.log_water(st.session_state.user_id, 1, today):
                 st.toast("✅ Glass added!", icon="💧")
                 st.rerun()
@@ -793,7 +793,7 @@ def dashboard_page():
                 st.toast("❌ Failed to log water", icon="⚠️")
     
     with water_btn_col2:
-        if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
+        if st.button("➖ Remove", width="stretch", key="remove_water_btn"):
             if current_water > 0:
                 if db_manager.log_water(st.session_state.user_id, -1, today):
                     st.toast("✅ Removed 1 glass", icon="💧")
@@ -804,7 +804,7 @@ def dashboard_page():
                 st.toast("⚠️ No water logged yet", icon="💧")
     
     with water_btn_col3:
-        if st.button("🏁 Mark Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
+        if st.button("🏁 Mark Complete", width="stretch", key="fill_water_btn", disabled=(current_water >= water_goal)):
             remaining = max(0, water_goal - current_water)
             if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
                 st.toast(f"✅ Added {remaining} glasses to complete goal!", icon="🎉")
@@ -984,7 +984,7 @@ def dashboard_page():
                 plot_bgcolor='rgba(0,0,0,0)',
                 font_color='#e0f2f1'
             )
-            st.plotly_chart(fig_macro, use_container_width=True, config={'displayModeBar': False})
+            st.plotly_chart(fig_macro, width='stretch', config={'displayModeBar': False})
         else:
             st.info("📊 Log some meals to see your macro balance!")
         
@@ -1130,7 +1130,7 @@ def meal_logging_page():
             )
         
         with col2:
-            if st.button("➕ Quick Add", use_container_width=True, key="quick_add_btn"):
+            if st.button("➕ Quick Add", width="stretch", key="quick_add_btn"):
                 meal = meal_options[selected_quick_meal]
                 meal_data = {
                     "user_id": st.session_state.user_id,
@@ -1181,7 +1181,7 @@ def meal_logging_page():
             format_func=lambda x: MEAL_TYPES.get(x, x)
         )
         
-        if st.button("Analyze Meal", use_container_width=True):
+        if st.button("Analyze Meal", width="stretch"):
             if meal_description:
                 with st.spinner("🤖 Analyzing your meal..."):
                     analysis = nutrition_analyzer.analyze_text_meal(meal_description, meal_type)
@@ -1226,7 +1226,7 @@ def meal_logging_page():
             )
             
             # Save meal
-            if st.button("Save This Meal", use_container_width=True, key="text_save_btn"):
+            if st.button("Save This Meal", width="stretch", key="text_save_btn"):
                 meal_data = {
                     "user_id": st.session_state.user_id,
                     "meal_name": analysis.get('meal_name', 'Unknown'),
@@ -1272,7 +1272,7 @@ def meal_logging_page():
         if uploaded_file:
             st.image(uploaded_file, caption="Your meal", use_column_width=True)
             
-            if st.button("Analyze Photo", use_container_width=True):
+            if st.button("Analyze Photo", width="stretch"):
                 with st.spinner("🤖 Analyzing your photo..."):
                     image_data = uploaded_file.getvalue()
                     analysis = nutrition_analyzer.analyze_food_image(image_data)
@@ -1311,7 +1311,7 @@ def meal_logging_page():
             )
             
             # Save meal
-            if st.button("Save This Meal", use_container_width=True, key="save_photo_meal"):
+            if st.button("Save This Meal", width="stretch", key="save_photo_meal"):
                 meal_data = {
                     "user_id": st.session_state.user_id,
                     "meal_name": f"Meal from photo",
@@ -1399,7 +1399,7 @@ def meal_logging_page():
         
         st.divider()
         
-        if st.button("📥 Analyze & Save All Meals", use_container_width=True, key="batch_save_btn"):
+        if st.button("📥 Analyze & Save All Meals", width="stretch", key="batch_save_btn"):
             total_saved = 0
             total_failed = 0
             
@@ -1484,17 +1484,17 @@ def analytics_page():
     col1, col2, col3 = st.columns(3, gap="small")
     
     with col1:
-        if st.button("Last 7 days", use_container_width=True):
+        if st.button("Last 7 days", width="stretch"):
             st.session_state.analytics_days = 7
             st.rerun()
     
     with col2:
-        if st.button("Last 2 weeks", use_container_width=True):
+        if st.button("Last 2 weeks", width="stretch"):
             st.session_state.analytics_days = 14
             st.rerun()
     
     with col3:
-        if st.button("Last 30 days", use_container_width=True):
+        if st.button("Last 30 days", width="stretch"):
             st.session_state.analytics_days = 30
             st.rerun()
     
@@ -1655,7 +1655,7 @@ def analytics_page():
         markers=True
     )
     fig_cal.add_hline(y=targets["calories"], line_dash="dash", line_color="red", annotation_text="Target")
-    st.plotly_chart(fig_cal, use_container_width=True)
+    st.plotly_chart(fig_cal, width='stretch')
     
     # Macronutrients chart
     fig_macro = px.bar(
@@ -1666,7 +1666,7 @@ def analytics_page():
         labels={"value": "Grams", "variable": "Nutrient"},
         barmode="group"
     )
-    st.plotly_chart(fig_macro, use_container_width=True)
+    st.plotly_chart(fig_macro, width='stretch')
     
     # ===== Meal Type Distribution =====
     st.markdown("## 🍽️ Meal Type Distribution")
@@ -1682,7 +1682,7 @@ def analytics_page():
             names=[MEAL_TYPES.get(k, k) for k in meal_types_count.keys()],
             title="Meals by Type"
         )
-        st.plotly_chart(fig_pie, use_container_width=True)
+        st.plotly_chart(fig_pie, width='stretch')
 
 
 def insights_page():
@@ -1723,7 +1723,7 @@ def insights_page():
     st.markdown("## 🎯 Today's Meal Recommendations")
     st.caption("💡 Click the button below to generate personalized meal recommendations (this uses API calls)")
     
-    if st.button("🤖 Generate Meal Recommendations", use_container_width=True):
+    if st.button("🤖 Generate Meal Recommendations", width='stretch'):
         with st.spinner("🤖 Generating personalized recommendations..."):
             recommendations = recommender.get_personalized_recommendations(
                 user_profile,
@@ -1752,7 +1752,7 @@ def insights_page():
     # ===== Weekly Meal Plan =====
     st.markdown("## 📅 Weekly Meal Plan")
     
-    if st.button("Generate 7-Day Meal Plan", use_container_width=True):
+    if st.button("Generate 7-Day Meal Plan", width='stretch'):
         with st.spinner("🤖 Creating your personalized meal plan..."):
             meal_plan = recommender.get_weekly_meal_plan(
                 user_profile,
@@ -1795,7 +1795,7 @@ def insights_page():
     st.markdown("## 📊 Health Insights")
     st.caption("💡 Click the button below to analyze your eating patterns (this uses API calls)")
     
-    if st.button("🤖 Analyze Health Insights", use_container_width=True):
+    if st.button("🤖 Analyze Health Insights", width='stretch'):
         with st.spinner("🤖 Analyzing your eating patterns..."):
             nutrition_history = db_manager.get_weekly_nutrition_summary(st.session_state.user_id, date.today())
             
@@ -1851,13 +1851,13 @@ def insights_page():
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    if st.button("📋 Copy to Clipboard", use_container_width=True):
+                    if st.button("📋 Copy to Clipboard", width='stretch'):
                         # Show copyable text area
                         st.info("📝 Select all text below and copy (Ctrl+C):")
                         st.text_area("Insights:", value=insights_text, height=250, disabled=True, key="copy_insights")
                 
                 with col2:
-                    if st.button("🔗 Share as Text", use_container_width=True):
+                    if st.button("🔗 Share as Text", width='stretch'):
                         # Show formatted text for sharing
                         with st.expander("📧 Shareable Format", expanded=True):
                             st.text_area("Copy and share this:", value=insights_text, height=250, disabled=True, key="share_insights")
@@ -1919,7 +1919,7 @@ def insights_page():
             with dist_col1:
                 meal_type_df = pd.DataFrame(list(meal_type_counts.items()), columns=["Type", "Count"])
                 fig_dist = px.bar(meal_type_df, x="Type", y="Count", title="Meals by Type", color="Count")
-                st.plotly_chart(fig_dist, use_container_width=True)
+                st.plotly_chart(fig_dist, width='stretch')
             
             with dist_col2:
                 st.markdown("### Your eating patterns:")
@@ -2173,31 +2173,31 @@ def insights_page():
     export_col1, export_col2, export_col3 = st.columns(3)
     
     with export_col1:
-        if st.button("📄 Export as CSV", use_container_width=True):
+        if st.button("📄 Export as CSV", width='stretch'):
             csv_data = generate_csv_export(meals)
             st.download_button(
                 label="📥 Download CSV",
                 data=csv_data,
                 file_name=f"eatwise_meals_{date.today()}.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width='stretch',
                 key="csv_download"
             )
     
     with export_col2:
-        if st.button("📋 Export Report", use_container_width=True):
+        if st.button("📋 Export Report", width='stretch'):
             report = generate_nutrition_report(meals, today_nutrition, targets, "recent")
             st.download_button(
                 label="📥 Download Report",
                 data=report,
                 file_name=f"eatwise_report_{date.today()}.txt",
                 mime="text/plain",
-                use_container_width=True,
+                width='stretch',
                 key="report_download"
             )
     
     with export_col3:
-        if st.button("📊 Share Weekly Summary", use_container_width=True):
+        if st.button("📊 Share Weekly Summary", width='stretch'):
             end_date = date.today()
             start_date = end_date - timedelta(days=7)
             weekly_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
@@ -2219,7 +2219,7 @@ def insights_page():
                     data=summary,
                     file_name=f"eatwise_weekly_summary_{date.today()}.txt",
                     mime="text/plain",
-                    use_container_width=True,
+                    width='stretch',
                     key="summary_download"
                 )
 
@@ -2260,7 +2260,7 @@ def meal_history_page():
     
     with col3:
         st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        if st.button("🔍 Search", use_container_width=True, key="search_meals_btn"):
+        if st.button("🔍 Search", width='stretch', key="search_meals_btn"):
             st.session_state.search_triggered = True
     
     # Get meals in range
@@ -2290,15 +2290,15 @@ def meal_history_page():
                 st.caption(f"📅 {meal.get('logged_at', 'N/A')}")
             
             with col2:
-                if st.button("Edit", key=f"edit_hist_{meal['id']}", use_container_width=True):
+                if st.button("Edit", key=f"edit_hist_{meal['id']}", width='stretch'):
                     st.session_state[f"edit_meal_id_{meal['id']}"] = True
             
             with col3:
-                if st.button("Duplicate", key=f"dup_hist_{meal['id']}", use_container_width=True):
+                if st.button("Duplicate", key=f"dup_hist_{meal['id']}", width='stretch'):
                     st.session_state[f"dup_meal_id_{meal['id']}"] = True
             
             with col4:
-                if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
+                if st.button("Delete", key=f"delete_hist_{meal['id']}", width='stretch'):
                     if db_manager.delete_meal(meal['id']):
                         st.toast("Meal deleted!", icon="✅")
                     else:
@@ -2319,7 +2319,7 @@ def meal_history_page():
                 dup_col1, dup_col2 = st.columns(2)
                 
                 with dup_col1:
-                    if st.button("✅ Duplicate Meal", use_container_width=True, key=f"confirm_dup_{meal['id']}"):
+                    if st.button("✅ Duplicate Meal", width='stretch', key=f"confirm_dup_{meal['id']}"):
                         meal_data = {
                             "user_id": st.session_state.user_id,
                             "meal_name": meal.get('meal_name', 'Unknown'),
@@ -2338,7 +2338,7 @@ def meal_history_page():
                             st.toast("Failed to duplicate meal", icon="❌")
                 
                 with dup_col2:
-                    if st.button("❌ Cancel", use_container_width=True, key=f"cancel_dup_{meal['id']}"):
+                    if st.button("❌ Cancel", width='stretch', key=f"cancel_dup_{meal['id']}"):
                         st.session_state[f"dup_meal_id_{meal['id']}"] = False
                         st.rerun()
                 
@@ -2383,7 +2383,7 @@ def meal_history_page():
                     # Button columns
                     btn_col1, btn_col2 = st.columns(2)
                     with btn_col1:
-                        if st.form_submit_button("💾 Save Changes", use_container_width=True, key=f"save_hist_{meal['id']}"):
+                        if st.form_submit_button("💾 Save Changes", width='stretch', key=f"save_hist_{meal['id']}"):
                             updated_meal = {
                                 "meal_name": meal_name,
                                 "meal_type": meal_type,
@@ -2406,7 +2406,7 @@ def meal_history_page():
                                 st.toast("Failed to update meal", icon="❌")
                     
                     with btn_col2:
-                        if st.form_submit_button("❌ Cancel", use_container_width=True, key=f"cancel_hist_{meal['id']}"):
+                        if st.form_submit_button("❌ Cancel", width='stretch', key=f"cancel_hist_{meal['id']}"):
                             st.session_state[f"edit_meal_id_{meal['id']}"] = False
                             st.rerun()
             
@@ -2419,12 +2419,12 @@ def meal_history_page():
             
             current_page = st.session_state.pagination_page + 1
             with pag_col1:
-                if st.button(f"⬅️ Previous ({current_page}/{total_pages})", key="prev_bottom", disabled=(st.session_state.pagination_page == 0), use_container_width=True):
+                if st.button(f"⬅️ Previous ({current_page}/{total_pages})", key="prev_bottom", disabled=(st.session_state.pagination_page == 0), width='stretch'):
                     st.session_state.pagination_page -= 1
                     st.rerun()
             
             with pag_col2:
-                if st.button(f"Next ({current_page}/{total_pages}) ➡️", key="next_bottom", disabled=(st.session_state.pagination_page >= total_pages - 1), use_container_width=True):
+                if st.button(f"Next ({current_page}/{total_pages}) ➡️", key="next_bottom", disabled=(st.session_state.pagination_page >= total_pages - 1), width='stretch'):
                     st.session_state.pagination_page += 1
                     st.rerun()
 
@@ -2508,7 +2508,7 @@ def profile_page():
                     help="Recommended: 8 glasses per day (2 liters)"
                 )
                 
-                if st.form_submit_button("Save Profile", use_container_width=True):
+                if st.form_submit_button("Save Profile", width='stretch'):
                     profile_data = {
                         "user_id": st.session_state.user_id,
                         "full_name": full_name,
@@ -2594,7 +2594,7 @@ def profile_page():
                     help="Recommended: 8 glasses per day (2 liters)"
                 )
                 
-                if st.form_submit_button("Update Profile", use_container_width=True):
+                if st.form_submit_button("Update Profile", width='stretch'):
                     update_data = {
                         "full_name": full_name,
                         "age_group": age_group,
@@ -2623,7 +2623,7 @@ def profile_page():
             new_password = st.text_input("New Password", type="password", help="Enter your new password (at least 6 characters)")
             confirm_password = st.text_input("Confirm New Password", type="password", help="Re-enter your new password")
             
-            if st.form_submit_button("Change Password", use_container_width=True):
+            if st.form_submit_button("Change Password", width='stretch'):
                 # Validate inputs
                 if not current_password or not new_password or not confirm_password:
                     st.error("❌ Please fill in all password fields")
@@ -2893,7 +2893,7 @@ def main():
             st.sidebar.markdown(f"👤 **{st.session_state.user_email}**")
             
             # Logout button
-            if st.sidebar.button("🚪 Logout", use_container_width=True, key="logout_btn"):
+            if st.sidebar.button("🚪 Logout", width='stretch', key="logout_btn"):
                 st.session_state.auth_manager.logout()
                 st.session_state.clear()
                 st.success("✅ Logged out!")
