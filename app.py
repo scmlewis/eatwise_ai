@@ -1661,8 +1661,8 @@ def meal_logging_page():
                 
                 if db_manager.log_meal(meal_data):
                     st.toast("Meal added!", icon="✅")
-                    st.balloons()  # 🎉 Success animation
-                    st.rerun()
+                    # Reset the selectbox for next quick add
+                    st.session_state.quick_add_selector = ""
                 else:
                     st.toast("Failed to add meal", icon="❌")
         
@@ -1760,7 +1760,6 @@ def meal_logging_page():
                     del st.session_state.meal_type
                     # Set flag to show success message on next render
                     st.session_state._text_meal_saved = True
-                    st.balloons()  # 🎉 Success animation
                     st.rerun()
                 else:
                     error_state(
@@ -1855,7 +1854,6 @@ def meal_logging_page():
                     del st.session_state.photo_analysis
                     # Set flag to show success message on next render
                     st.session_state._photo_meal_saved = True
-                    st.balloons()  # 🎉 Success animation
                     st.rerun()
                 else:
                     error_state(
@@ -1966,8 +1964,6 @@ def meal_logging_page():
             show_notification(f"Saved {total_saved} meals successfully!", "success", use_toast=False)
             if total_failed > 0:
                 show_notification(f"Failed to save {total_failed} meals", "warning", use_toast=False)
-            if total_saved > 0:
-                st.balloons()  # 🎉 Success animation
             st.rerun()
 
 
