@@ -1162,6 +1162,11 @@ def meal_logging_page():
     tab1, tab2, tab3 = st.tabs(["📝 Text", "📸 Photo", "📅 Batch Log"])
     
     with tab1:
+        # Show one-time success message if meal was just saved
+        if st.session_state.get("_text_meal_saved", False):
+            st.toast("Meal saved successfully!", icon="✅")
+            st.session_state._text_meal_saved = False
+        
         st.markdown("## Describe Your Meal")
         
         meal_description = st.text_area(
@@ -1234,14 +1239,21 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    st.toast("Meal saved successfully!", icon="✅")
                     # Clear the analysis from session state
                     del st.session_state.meal_analysis
                     del st.session_state.meal_type
+                    # Set flag to show success message on next render
+                    st.session_state._text_meal_saved = True
+                    st.rerun()
                 else:
                     st.toast("Failed to save meal", icon="❌")
     
     with tab2:
+        # Show one-time success message if meal was just saved
+        if st.session_state.get("_photo_meal_saved", False):
+            st.toast("Meal saved successfully!", icon="✅")
+            st.session_state._photo_meal_saved = False
+        
         st.markdown("## Upload Food Photo")
         
         uploaded_file = st.file_uploader(
@@ -1312,9 +1324,11 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    st.toast("Meal saved successfully!", icon="✅")
                     # Clear the analysis from session state
                     del st.session_state.photo_analysis
+                    # Set flag to show success message on next render
+                    st.session_state._photo_meal_saved = True
+                    st.rerun()
                 else:
                     st.toast("Failed to save meal", icon="❌")
     
