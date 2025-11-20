@@ -1,81 +1,56 @@
 # Scripts Directory
 
-This directory contains utility scripts for database setup, testing, and maintenance.
+This directory contains **essential** utility scripts for database setup and user maintenance.
 
-## 📁 Script Categories
+## ✅ What's in This Branch (main)
 
-### 🗄️ Database Setup & Migration
-- **`database_setup.sql`** - Initial Supabase schema setup (run this first!)
-- **`add_gender_column.py`** - Add gender column to health profiles
-- **`add_timezone_column.py`** - Add timezone column to health profiles
+### 🗄️ Database Setup
+- **`database_setup.sql`** - Initial Supabase schema (run this first!)
+- **`create_water_intake_table.sql`** - Create water tracking table
 
-### 🔧 Database Maintenance
-- **`fix_database.py`** - General database repair script
-- **`fix_rls.py`** - Fix Row Level Security policies
-- **`disable_all_rls.py`** - Temporarily disable RLS (development only)
+### 🔧 User Maintenance Tools
+- **`create_missing_profiles.py`** - Fix missing user health profiles (user-facing tool)
 
-### 🧪 Testing & Debugging
-- **`test_azure.py`** - Test Azure OpenAI connection
-- **`test_azure_connection.py`** - Verify Azure API integration
-- **`test_meals.py`** - Test meal logging functionality
-- **`test_food_history.py`** - Test food history operations
-- **`check_schema.py`** - Verify database schema
-- **`check_latest_meal.py`** - Check latest logged meal
-- **`debug_meals.py`** - Debug meal-related issues
+## 📝 Important Notes
+
+### What Happened to Other Scripts?
+**Development/Testing scripts have been moved to the `dev` branch** to keep main clean:
+- Diagnostic scripts (test_*.py, check_*.py, debug_*.py)
+- Database utilities (fix_*.py, disable_*.py)
+- Migration scripts (add_*.py)
+- Design tools (design_*.py)
+
+**To access dev tools**: `git checkout dev`
 
 ## 🚀 Quick Usage
 
-### Initial Setup
+### Initial Setup (First Time)
 ```bash
 # 1. Run SQL setup first
 # Open Supabase dashboard > SQL Editor > paste database_setup.sql > Run
 
-# 2. Run Python setup scripts if needed
-python scripts/add_gender_column.py
-python scripts/add_timezone_column.py
+# 2. Optional: Create water intake table
+# Open Supabase dashboard > SQL Editor > paste create_water_intake_table.sql > Run
 ```
 
-### Testing
+### User Maintenance
 ```bash
-# Test Azure/OpenAI connection
-python scripts/test_azure_connection.py
-
-# Test meal operations
-python scripts/test_meals.py
-
-# Verify database schema
-python scripts/check_schema.py
+# Fix missing profiles for existing users
+python scripts/create_missing_profiles.py
 ```
 
-### Maintenance
+## 🔗 Development Tools
+
+All development and testing scripts are in the `dev` branch:
 ```bash
-# Fix database issues
-python scripts/fix_database.py
-
-# Fix RLS policies
-python scripts/fix_rls.py
-
-# Check latest meal entry
-python scripts/check_latest_meal.py
+git checkout dev
+python scripts/test_azure_connection.py  # Test Azure
+python scripts/check_schema.py            # Verify schema
+python scripts/fix_rls.py                 # Fix RLS issues
+# ... and many more
 ```
 
-## ⚠️ Important Notes
-
-### Development Only Scripts
-- `disable_all_rls.py` - **Only for development!** Never run on production
-- Always enable RLS before deploying
-
-### Database Modifications
-- Always backup database before running migration scripts
-- Test scripts on development database first
-- Run `check_schema.py` after modifications to verify
-
-### Testing Scripts
-- Ensure `.env` file is configured
-- Verify Azure/OpenAI credentials before testing
-- Check database connection first
-
-## 📝 Script Dependencies
+## 📋 Script Dependencies
 
 All scripts require:
 - Python 3.8+
@@ -83,33 +58,14 @@ All scripts require:
 - Configured `.env` file with:
   - `SUPABASE_URL`
   - `SUPABASE_KEY`
-  - `OPENAI_API_KEY` (for Azure tests)
 
-## 🔍 Troubleshooting
+## 🎯 Branch Strategy
 
-### Script not finding modules
-```bash
-# Ensure virtual environment is activated
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### Database connection fails
-```bash
-# Check .env file
-# Verify SUPABASE_URL and SUPABASE_KEY
-# Ensure Supabase project is active
-```
-
-### RLS errors
-```bash
-# Run to check status
-python scripts/check_schema.py
-
-# Fix policies
-python scripts/fix_rls.py
-```
+| Branch | Purpose | Files |
+|--------|---------|-------|
+| **main** | Production | Core app, essential setup scripts |
+| **dev** | Development | Testing, diagnostics, utilities |
 
 ---
 
-**Maintenance Scripts Last Updated**: November 19, 2025
+**Main Branch Scripts Last Updated**: November 20, 2025
