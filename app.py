@@ -2956,7 +2956,7 @@ def main():
             with stat_cols[0]:
                 st.markdown(f"""
                 <div style="text-align: center;">
-                    <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{current_streak}</div>
+                    <div style="font-size: 22px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{current_streak}</div>
                     <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Streak</div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -2964,7 +2964,7 @@ def main():
             with stat_cols[1]:
                 st.markdown(f"""
                 <div style="text-align: center;">
-                    <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{cal_display}</div>
+                    <div style="font-size: 20px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{cal_display}</div>
                     <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Calories</div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -2972,7 +2972,7 @@ def main():
             with stat_cols[2]:
                 st.markdown(f"""
                 <div style="text-align: center;">
-                    <div style="font-size: 24px; font-weight: bold; color: #3B82F6; margin-bottom: 4px;">{water_today}/{water_goal}</div>
+                    <div style="font-size: 20px; font-weight: bold; color: #3B82F6; margin-bottom: 4px;">{water_today}/{water_goal}</div>
                     <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Water</div>
                 </div>
                 """, unsafe_allow_html=True)
