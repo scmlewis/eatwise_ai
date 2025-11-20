@@ -1183,9 +1183,9 @@ def meal_logging_page():
                         # Store analysis in session state so it persists
                         st.session_state.meal_analysis = analysis
                         st.session_state.meal_type = meal_type
-                        st.session_state.pending_notification = ("Meal analyzed!", "success")
+                        st.toast("Meal analyzed!", icon="✅")
                     else:
-                        show_notification("Could not analyze meal. Please try again.", "error", use_toast=True)
+                        st.toast("Could not analyze meal. Please try again.", icon="❌")
             else:
                 show_notification("Please describe your meal", "warning", use_toast=True)
         
@@ -1220,25 +1220,24 @@ def meal_logging_page():
             
             # Save meal
             if st.button("Save This Meal", use_container_width=True, key="text_save_btn"):
-                if not st.session_state.get("_showing_notification", False):
-                    meal_data = {
-                        "user_id": st.session_state.user_id,
-                        "meal_name": analysis.get('meal_name', 'Unknown'),
-                        "description": analysis.get('description', ''),
-                        "meal_type": meal_type,
-                        "nutrition": analysis['nutrition'],
-                        "healthiness_score": analysis.get('healthiness_score', 0),
-                        "health_notes": analysis.get('health_notes', ''),
-                        "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
-                    }
-                    
-                    if db_manager.log_meal(meal_data):
-                        st.toast("Meal saved successfully!", icon="✅")
-                        # Clear the analysis from session state
-                        del st.session_state.meal_analysis
-                        del st.session_state.meal_type
-                    else:
-                        st.toast("Failed to save meal", icon="❌")
+                meal_data = {
+                    "user_id": st.session_state.user_id,
+                    "meal_name": analysis.get('meal_name', 'Unknown'),
+                    "description": analysis.get('description', ''),
+                    "meal_type": meal_type,
+                    "nutrition": analysis['nutrition'],
+                    "healthiness_score": analysis.get('healthiness_score', 0),
+                    "health_notes": analysis.get('health_notes', ''),
+                    "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
+                }
+                
+                if db_manager.log_meal(meal_data):
+                    st.toast("Meal saved successfully!", icon="✅")
+                    # Clear the analysis from session state
+                    del st.session_state.meal_analysis
+                    del st.session_state.meal_type
+                else:
+                    st.toast("Failed to save meal", icon="❌")
     
     with tab2:
         st.markdown("## Upload Food Photo")
@@ -1299,24 +1298,23 @@ def meal_logging_page():
             
             # Save meal
             if st.button("Save This Meal", use_container_width=True, key="save_photo_meal"):
-                if not st.session_state.get("_showing_notification", False):
-                    meal_data = {
-                        "user_id": st.session_state.user_id,
-                        "meal_name": f"Meal from photo",
-                        "description": ", ".join([f"{f['name']} ({f['quantity']})" for f in analysis.get('detected_foods', [])]),
-                        "meal_type": st.session_state.photo_meal_type,  # Use session state variable managed by selectbox
-                        "nutrition": analysis['total_nutrition'],
-                        "healthiness_score": 75,  # Default score
-                        "health_notes": analysis.get('notes', ''),
-                        "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
-                    }
-                    
-                    if db_manager.log_meal(meal_data):
-                        st.toast("Meal saved successfully!", icon="✅")
-                        # Clear the analysis from session state
-                        del st.session_state.photo_analysis
-                    else:
-                        st.toast("Failed to save meal", icon="❌")
+                meal_data = {
+                    "user_id": st.session_state.user_id,
+                    "meal_name": f"Meal from photo",
+                    "description": ", ".join([f"{f['name']} ({f['quantity']})" for f in analysis.get('detected_foods', [])]),
+                    "meal_type": st.session_state.photo_meal_type,  # Use session state variable managed by selectbox
+                    "nutrition": analysis['total_nutrition'],
+                    "healthiness_score": 75,  # Default score
+                    "health_notes": analysis.get('notes', ''),
+                    "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
+                }
+                
+                if db_manager.log_meal(meal_data):
+                    st.toast("Meal saved successfully!", icon="✅")
+                    # Clear the analysis from session state
+                    del st.session_state.photo_analysis
+                else:
+                    st.toast("Failed to save meal", icon="❌")
     
     with tab3:
         st.markdown("## 📅 Batch Log Meals")
@@ -2285,11 +2283,10 @@ def meal_history_page():
             
             with col4:
                 if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
-                    if not st.session_state.get("_showing_notification", False):
-                        if db_manager.delete_meal(meal['id']):
-                            st.toast("Meal deleted!", icon="✅")
-                        else:
-                            st.toast("Failed to delete meal", icon="❌")
+                    if db_manager.delete_meal(meal['id']):
+                        st.toast("Meal deleted!", icon="✅")
+                    else:
+                        st.toast("Failed to delete meal", icon="❌")
             
             # Duplicate meal section
             if st.session_state.get(f"dup_meal_id_{meal['id']}", False):
@@ -2307,23 +2304,22 @@ def meal_history_page():
                 
                 with dup_col1:
                     if st.button("✅ Duplicate Meal", use_container_width=True, key=f"confirm_dup_{meal['id']}"):
-                        if not st.session_state.get("_showing_notification", False):
-                            meal_data = {
-                                "user_id": st.session_state.user_id,
-                                "meal_name": meal.get('meal_name', 'Unknown'),
-                                "description": meal.get('description', ''),
-                                "meal_type": meal.get('meal_type'),
-                                "nutrition": meal.get('nutrition', {}),
-                                "healthiness_score": meal.get('healthiness_score', 0),
-                                "health_notes": meal.get('health_notes', ''),
-                                "logged_at": datetime.combine(dup_date, time(12, 0, 0)).isoformat(),
-                            }
-                            
-                            if db_manager.log_meal(meal_data):
-                                st.toast(f"{meal.get('meal_name')} duplicated to {dup_date}!", icon="✅")
-                                st.session_state[f"dup_meal_id_{meal['id']}"] = False
-                            else:
-                                st.toast("Failed to duplicate meal", icon="❌")
+                        meal_data = {
+                            "user_id": st.session_state.user_id,
+                            "meal_name": meal.get('meal_name', 'Unknown'),
+                            "description": meal.get('description', ''),
+                            "meal_type": meal.get('meal_type'),
+                            "nutrition": meal.get('nutrition', {}),
+                            "healthiness_score": meal.get('healthiness_score', 0),
+                            "health_notes": meal.get('health_notes', ''),
+                            "logged_at": datetime.combine(dup_date, time(12, 0, 0)).isoformat(),
+                        }
+                        
+                        if db_manager.log_meal(meal_data):
+                            st.toast(f"{meal.get('meal_name')} duplicated to {dup_date}!", icon="✅")
+                            st.session_state[f"dup_meal_id_{meal['id']}"] = False
+                        else:
+                            st.toast("Failed to duplicate meal", icon="❌")
                 
                 with dup_col2:
                     if st.button("❌ Cancel", use_container_width=True, key=f"cancel_dup_{meal['id']}"):
@@ -2388,9 +2384,8 @@ def meal_history_page():
                             }
                             
                             if db_manager.update_meal(meal['id'], updated_meal):
-                                if not st.session_state.get("_showing_notification", False):
-                                    st.toast("Meal updated!", icon="✅")
-                                    st.session_state[f"edit_meal_id_{meal['id']}"] = False
+                                st.toast("Meal updated!", icon="✅")
+                                st.session_state[f"edit_meal_id_{meal['id']}"] = False
                             else:
                                 st.toast("Failed to update meal", icon="❌")
                     
