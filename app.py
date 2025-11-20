@@ -674,7 +674,8 @@ def dashboard_page():
     elif longest_streak == 14:
         st.info("🎯 **Epic!** 14-day record! You're committed to your health!")
     
-    st.divider()
+    # Add spacing divider
+    spacing_divider(margin_top="24px", margin_bottom="24px")
     
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
@@ -816,7 +817,7 @@ def dashboard_page():
                     </div>
                     """, unsafe_allow_html=True)
     
-    st.divider()
+    spacing_divider(margin_top="24px", margin_bottom="24px")
     
     # ===== WATER INTAKE TRACKER =====
     st.markdown("## 💧 Water Intake")
@@ -900,7 +901,7 @@ def dashboard_page():
             else:
                 st.toast("❌ Failed to complete water goal", icon="⚠️")
     
-    st.divider()
+    spacing_divider(margin_top="24px", margin_bottom="24px")
     
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Nutrition Summary")
@@ -1029,7 +1030,7 @@ def dashboard_page():
             """, unsafe_allow_html=True)
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
-    st.divider()
+    spacing_divider(margin_top="24px", margin_bottom="24px")
     st.markdown("## 📊 Nutrition Breakdown & Patterns")
     
     # Create a responsive grid layout
