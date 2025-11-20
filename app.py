@@ -3,6 +3,9 @@ EatWise - AI-Powered Nutrition Hub
 Main Streamlit Application
 """
 
+# Cache buster - increment this to force page reload
+APP_VERSION = "2.5.1"
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
