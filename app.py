@@ -4,7 +4,6 @@ Main Streamlit Application
 """
 
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -726,67 +725,7 @@ def dashboard_page():
         water_bg = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
         water_border = "#3B82F6"
     
-    # Display water notification if exists
-    if "water_notification" not in st.session_state:
-        st.session_state.water_notification = None
-    
-    if st.session_state.water_notification:
-        notification_type, notification_msg = st.session_state.water_notification
-        notification_colors = {
-            "success": ("#51CF66", "#0d3d0d", "#69DB7C"),
-            "warning": ("#FFD43B", "#3d3d0d", "#FCC419"),
-            "error": ("#FF6B6B", "#3d0d0d", "#FF8A80"),
-        }
-        color, bg_color, border_color = notification_colors.get(notification_type, notification_colors["success"])
-        # Use components.html so we can run client-side JS to auto-hide the notification after 2s
-        notif_html = f"""
-        <div id="eatwise-water-notif" style="
-            position: fixed;
-            top: 80px;
-            left: 40px;
-            right: 40px;
-            z-index: 9999;
-            background: {bg_color};
-            border: 2px solid {color};
-            border-radius: 8px;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-        ">
-            <div style="color: {color}; font-weight: 600; font-size: 14px;">
-                {notification_msg}
-            </div>
-        </div>
-        <style>
-            @keyframes slideIn {{
-                from {{ opacity: 0; transform: translateY(-10px); }}
-                to {{ opacity: 1; transform: translateY(0); }}
-            }}
-            #eatwise-water-notif {{ animation: slideIn 0.3s ease; }}
-        </style>
-        <script>
-            // Hide and remove the notification after 2 seconds
-            setTimeout(function() {{
-                const el = document.getElementById('eatwise-water-notif');
-                if (el) {{
-                    el.style.transition = 'opacity 0.4s, transform 0.4s';
-                    el.style.opacity = '0';
-                    el.style.transform = 'translateY(-8px)';
-                    setTimeout(function() {{ el.remove(); }}, 450);
-                }}
-            }}, 2000);
-        </script>
-        """
-        try:
-            # Use a minimal iframe height so the Streamlit layout doesn't keep large empty space
-            components.html(notif_html, height=1)
-        except Exception:
-            # Fallback to markdown (will reserve space) only if components fails
-            st.markdown(notif_html, unsafe_allow_html=True)
-        # Clear server-side state so the notification won't reappear on subsequent reruns
-        st.session_state.water_notification = None
+    # Water notifications are handled via st.toast() in button callbacks below
     
     # Water intake card
     st.markdown(f"""
@@ -818,31 +757,30 @@ def dashboard_page():
     with water_btn_col1:
         if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
             if db_manager.log_water(st.session_state.user_id, 1, today):
-                st.session_state.water_notification = ("success", "✅ Glass added!")
+                st.toast("✅ Glass added!", icon="💧")
                 st.rerun()
             else:
-                st.session_state.water_notification = ("error", "❌ Failed to log water")
-                st.rerun()
+                st.toast("❌ Failed to log water", icon="⚠️")
     
     with water_btn_col2:
         if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
             if current_water > 0:
                 if db_manager.log_water(st.session_state.user_id, -1, today):
-                    st.session_state.water_notification = ("success", "✅ Removed 1 glass")
+                    st.toast("✅ Removed 1 glass", icon="💧")
                     st.rerun()
                 else:
-                    st.session_state.water_notification = ("error", "❌ Failed to remove water")
-                    st.rerun()
+                    st.toast("❌ Failed to remove water", icon="⚠️")
             else:
-                st.session_state.water_notification = ("warning", "⚠️ No water logged yet")
-                st.rerun()
+                st.toast("⚠️ No water logged yet", icon="💧")
     
     with water_btn_col3:
         if st.button("🏁 Mark Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
             remaining = max(0, water_goal - current_water)
             if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
-                st.session_state.water_notification = ("success", f"✅ Added {remaining} glasses to complete goal!")
+                st.toast(f"✅ Added {remaining} glasses to complete goal!", icon="🎉")
                 st.rerun()
+            else:
+                st.toast("❌ Failed to complete water goal", icon="⚠️")
     
     st.divider()
     
