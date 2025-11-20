@@ -30,11 +30,11 @@ st.markdown("""
     
     .main {
         padding-top: 2rem;
-        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+        background: linear-gradient(135deg, #0a3a3a 0%, #1a4d4d 100%);
     }
     
     body {
-        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+        background: linear-gradient(135deg, #0a3a3a 0%, #1a4d4d 100%);
         color: #e0f2f1;
     }
     

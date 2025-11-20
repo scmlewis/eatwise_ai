@@ -519,9 +519,22 @@ st.markdown("""
         --accent-blue: #3B82F6;
     }
     
+    html, body {
+        background: linear-gradient(135deg, #0a3a3a 0%, #1a4d4d 100%);
+        color: #e0f2f1;
+    }
+    
     .main {
         padding-top: 2rem;
-        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+        background: linear-gradient(135deg, #0a3a3a 0%, #1a4d4d 100%);
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(135deg, #0a3a3a 0%, #1a4d4d 100%);
+    }
+    
+    [data-testid="stSidebar"] {
+        background: linear-gradient(135deg, #0a3a3a 0%, #1a4d4d 100%);
     }
     
     /* Modern gradient cards */
@@ -1044,20 +1057,6 @@ def login_page():
 
 def dashboard_page():
     """Dashboard/Home page"""
-    # Add gradient background for dashboard
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #0a5f4a 0%, #10A19D 50%, #52C4B8 100%);
-        padding: 30px 20px;
-        border-radius: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 32px rgba(16, 161, 157, 0.2);
-    ">
-        <h1 style="color: white; margin: 0; font-size: 2.2em; font-weight: 900; margin-bottom: 10px;">📊 Dashboard</h1>
-        <p style="color: rgba(255,255,255,0.85); margin: 0; font-size: 1.1em;">Track your nutrition journey in real-time</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
     user_profile = st.session_state.user_profile
     if not user_profile:
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
@@ -1080,7 +1079,7 @@ def dashboard_page():
     
     # Get user's timezone for greeting
     user_timezone = user_profile.get("timezone", "UTC")
-    st.markdown(f"### {get_greeting(user_timezone)} 👋")
+    st.markdown(f"# {get_greeting(user_timezone)} 👋")
     
     # Get today's meals and nutrition
     today = date.today()
@@ -1985,14 +1984,12 @@ def analytics_page():
     """Analytics and insights page"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #4c1d95 0%, #845EF7 50%, #BE80FF 100%);
-        padding: 30px 20px;
-        border-radius: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 32px rgba(132, 94, 247, 0.2);
+        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
+        padding: 15px 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2.2em; font-weight: 900; margin-bottom: 10px;">📈 Analytics & Insights</h1>
-        <p style="color: rgba(255,255,255,0.85); margin: 0; font-size: 1.1em;">Detailed nutrition trends and progress tracking</p>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📈 Analytics & Insights</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -2238,14 +2235,12 @@ def insights_page():
     """Health insights and recommendations page"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #2d5016 0%, #51CF66 50%, #80C342 100%);
-        padding: 30px 20px;
-        border-radius: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 32px rgba(81, 207, 102, 0.2);
+        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
+        padding: 15px 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 2.2em; font-weight: 900; margin-bottom: 10px;">💡 Health Insights & Recommendations</h1>
-        <p style="color: rgba(255,255,255,0.85); margin: 0; font-size: 1.1em;">Personalized nutrition analysis and meal suggestions</p>
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">💡 Health Insights & Recommendations</h1>
     </div>
     """, unsafe_allow_html=True)
     
