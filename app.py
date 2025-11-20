@@ -741,14 +741,19 @@ def dashboard_page():
         # Use components.html so we can run client-side JS to auto-hide the notification after 2s
         notif_html = f"""
         <div id="eatwise-water-notif" style="
+            position: fixed;
+            top: 80px;
+            left: 40px;
+            right: 40px;
+            z-index: 9999;
             background: {bg_color};
             border: 2px solid {color};
             border-radius: 8px;
             padding: 14px 16px;
-            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
         ">
             <div style="color: {color}; font-weight: 600; font-size: 14px;">
                 {notification_msg}
@@ -775,9 +780,10 @@ def dashboard_page():
         </script>
         """
         try:
-            components.html(notif_html, height=80)
+            # Use a minimal iframe height so the Streamlit layout doesn't keep large empty space
+            components.html(notif_html, height=1)
         except Exception:
-            # Fallback to markdown if components isn't available for any reason
+            # Fallback to markdown (will reserve space) only if components fails
             st.markdown(notif_html, unsafe_allow_html=True)
         # Clear server-side state so the notification won't reappear on subsequent reruns
         st.session_state.water_notification = None
