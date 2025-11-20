@@ -200,6 +200,61 @@ def display_card(content_html: str, bg_gradient: str = None, border_color: str =
     """, unsafe_allow_html=True)
 
 
+# ==================== EMPTY STATE HELPERS ====================
+# Production-grade empty state design for better UX
+
+def empty_state_illustration(emoji: str, title: str, description: str, cta_text: str = None, cta_action: str = None):
+    """
+    Display a beautiful empty state with icon, title, description, and optional CTA.
+    
+    Args:
+        emoji: Large emoji/icon for the empty state
+        title: Bold title text
+        description: Supportive description text
+        cta_text: Optional call-to-action button text
+        cta_action: Optional action instruction
+    """
+    html_content = f"""
+    <div style="
+        text-align: center;
+        padding: 48px 24px;
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.08) 0%, rgba(82, 196, 184, 0.04) 100%);
+        border: 1px dashed rgba(16, 161, 157, 0.3);
+        border-radius: 16px;
+        margin: 24px 0;
+    ">
+        <div style="font-size: 64px; margin-bottom: 16px;">{emoji}</div>
+        <div style="
+            font-size: 20px;
+            font-weight: bold;
+            color: #e0f2f1;
+            margin-bottom: 8px;
+        ">{title}</div>
+        <div style="
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 24px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        ">{description}</div>
+    """
+    
+    if cta_text:
+        html_content += f"""
+        <div style="
+            font-size: 13px;
+            color: #10A19D;
+            font-weight: 600;
+            margin-top: 16px;
+        ">💡 {cta_text}</div>
+        """
+    
+    html_content += "</div>"
+    st.markdown(html_content, unsafe_allow_html=True)
+
+
 # ==================== PAGE CONFIG ====================
 
 st.set_page_config(
