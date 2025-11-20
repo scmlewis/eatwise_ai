@@ -1661,9 +1661,9 @@ def meal_logging_page():
                 
                 if db_manager.log_meal(meal_data):
                     st.toast("Meal added!", icon="✅")
-                    st.balloons()  # 🎉 Success animation
                     # Reset the selectbox for next quick add
                     st.session_state.quick_add_selector = ""
+                    st.balloons()  # 🎉 Success animation
                 else:
                     st.toast("Failed to add meal", icon="❌")
         
