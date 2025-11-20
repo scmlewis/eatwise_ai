@@ -598,7 +598,7 @@ def login_page():
     <style>
         /* Apply gradient to entire page when on login */
         [data-testid="stAppViewContainer"] {
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #0D7A76 75%, #10A19D 100%) !important;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #0D7A76 75%, #063d3a 100%) !important;
             background-attachment: fixed !important;
         }
         
@@ -671,23 +671,30 @@ def login_page():
             border: 2px solid #10A19D;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             box-shadow: 0 10px 40px rgba(16, 161, 157, 0.15);
         }
         
         .login-header {
-            margin-bottom: 15px;
+            margin-bottom: 2px;
             text-align: center;
+            padding: 8px 0;
         }
         
         .login-header h3 {
             color: #52C4B8;
-            font-size: 1.4em;
+            font-size: 1.3em;
             margin: 0;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
+        }
+        
+        .login-header p {
+            margin: 0 !important;
+            padding: 0 !important;
         }
         
         .login-tabs {
+            margin-top: 20px;
             margin-bottom: 15px;
         }
         
