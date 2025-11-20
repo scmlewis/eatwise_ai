@@ -731,18 +731,50 @@ def login_page():
             font-size: 0.85em;
         }
         
+        .stTextInput {
+            margin-bottom: 18px !important;
+        }
+        
         .stTextInput input {
             background: #0a0e27 !important;
             color: #e0f2f1 !important;
-            border: 2px solid #10A19D40 !important;
+            border: 2px solid #10A19D60 !important;
             border-radius: 10px !important;
-            padding: 10px 12px !important;
+            padding: 12px 14px !important;
             font-size: 0.9em !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .stTextInput input::placeholder {
+            color: #6a8a88 !important;
+        }
+        
+        .stTextInput input:hover {
+            border: 2px solid #10A19D80 !important;
+            box-shadow: 0 0 8px rgba(16, 161, 157, 0.1) !important;
         }
         
         .stTextInput input:focus {
-            border: 2px solid #10A19D !important;
-            box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.2) !important;
+            border: 2px solid #52C4B8 !important;
+            box-shadow: 0 0 12px rgba(82, 196, 184, 0.3) !important;
+            outline: none !important;
+        }
+        
+        /* Login and Signup buttons with hover effect */
+        [data-testid="stForm"] button[kind="primary"] {
+            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%) !important;
+            border: none !important;
+            transition: all 0.3s ease !important;
+            font-weight: 600 !important;
+        }
+        
+        [data-testid="stForm"] button[kind="primary"]:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 20px rgba(16, 161, 157, 0.4) !important;
+        }
+        
+        [data-testid="stForm"] button[kind="primary"]:active {
+            transform: translateY(0) !important;
         }
         
         /* Forgot Password Button - Subtle Gray Style */
@@ -754,43 +786,7 @@ def login_page():
     </style>
     """, unsafe_allow_html=True)
     
-    # Add login page background
-    st.markdown("""
-    <style>
-        .form-input-group {
-            margin-bottom: 12px;
-        }
-        
-        .form-input-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #e0f2f1;
-            font-weight: 600;
-            font-size: 0.85em;
-        }
-        
-        .stTextInput input {
-            background: #0a0e27 !important;
-            color: #e0f2f1 !important;
-            border: 2px solid #10A19D40 !important;
-            border-radius: 10px !important;
-            padding: 10px 12px !important;
-            font-size: 0.9em !important;
-        }
-        
-        .stTextInput input:focus {
-            border: 2px solid #10A19D !important;
-            box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.2) !important;
-        }
-        
-        /* Forgot Password Button - Subtle Gray Style */
-        button[kind="secondary"]:has-text("Forgot password?") {
-            background: #4a5f5e !important;
-            color: #a0a0a0 !important;
-            border: 1px solid #5a6f6e !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+
     
     col1, col2 = st.columns([1.1, 1], gap="medium")
     
