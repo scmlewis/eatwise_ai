@@ -9,7 +9,6 @@ APP_VERSION = "2.5.1"
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime, date, timedelta, time
 from typing import Optional, Dict, List
 import json
@@ -23,7 +22,7 @@ from config import (
     DAILY_FAT_TARGET, DAILY_SODIUM_TARGET, DAILY_SUGAR_TARGET, 
     DAILY_FIBER_TARGET, AGE_GROUP_TARGETS, HEALTH_CONDITION_TARGETS
 )
-from constants import MEAL_TYPES, HEALTH_CONDITIONS, BADGES, COLORS, BENCHMARK_MESSAGES
+from constants import MEAL_TYPES, HEALTH_CONDITIONS, BADGES, COLORS
 from auth import AuthManager, init_auth_session, is_authenticated
 from database import DatabaseManager
 from nutrition_analyzer import NutritionAnalyzer
@@ -34,7 +33,6 @@ from utils import (
     get_nutrition_status, format_nutrition_dict, get_streak_info,
     get_earned_badges, build_nutrition_by_date, paginate_items
 )
-from design_system import TYPOGRAPHY, SPACING, COLORS as DESIGN_COLORS
 
 
 def normalize_profile(profile: dict) -> dict:
@@ -117,179 +115,11 @@ def show_notification(message: str, notification_type: str = "success", use_toas
         api_func(message)
 
 
-# ==================== TYPOGRAPHY HELPERS ====================
-# Production-grade heading functions using design system
-
-def heading_h1(text: str, margin_bottom: str = "24px"):
-    """Display H1 heading (page titles) with consistent styling"""
-    st.markdown(f"""
-    <div style="
-        font-size: 28px;
-        font-weight: bold;
-        line-height: 1.3;
-        margin-bottom: {margin_bottom};
-        color: #e0f2f1;
-    ">{text}</div>
-    """, unsafe_allow_html=True)
-
-
-def heading_h2(text: str, margin_bottom: str = "16px"):
-    """Display H2 heading (section titles) with consistent styling"""
-    st.markdown(f"""
-    <div style="
-        font-size: 20px;
-        font-weight: bold;
-        line-height: 1.4;
-        margin-bottom: {margin_bottom};
-        color: #e0f2f1;
-    ">{text}</div>
-    """, unsafe_allow_html=True)
-
-
-def heading_h3(text: str, margin_bottom: str = "12px"):
-    """Display H3 heading (subsection titles) with consistent styling"""
-    st.markdown(f"""
-    <div style="
-        font-size: 16px;
-        font-weight: bold;
-        line-height: 1.4;
-        margin-bottom: {margin_bottom};
-        color: #e0f2f1;
-    ">{text}</div>
-    """, unsafe_allow_html=True)
 
 
 # ==================== COMPONENT HELPERS ====================
 # Production-grade card and component styling functions
 
-def spacing_divider(margin_top: str = "24px", margin_bottom: str = "24px"):
-    """Add consistent spacing divider with proper margins"""
-    st.markdown(f"""
-    <div style="
-        height: 1px;
-        background: #2a3050;
-        margin-top: {margin_top};
-        margin-bottom: {margin_bottom};
-    "></div>
-    """, unsafe_allow_html=True)
-
-
-def display_card(content_html: str, bg_gradient: str = None, border_color: str = "#10A19D",
-                padding: str = "16px", border_radius: str = "12px"):
-    """
-    Display a standardized card with consistent styling.
-    
-    Args:
-        content_html: Inner HTML content
-        bg_gradient: CSS gradient (optional), uses default if not specified
-        border_color: Border color hex code
-        padding: Card padding
-        border_radius: Border radius
-    """
-    if not bg_gradient:
-        bg_gradient = f"linear-gradient(135deg, rgba(16, 161, 157, 0.15) 0%, rgba(82, 196, 184, 0.08) 100%)"
-    
-    st.markdown(f"""
-    <div style="
-        background: {bg_gradient};
-        border: 1px solid {border_color};
-        border-radius: {border_radius};
-        padding: {padding};
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        transition: all 0.2s ease;
-    ">
-        {content_html}
-    </div>
-    """, unsafe_allow_html=True)
-
-
-# ==================== EMPTY STATE HELPERS ====================
-# Production-grade empty state design for better UX
-
-def empty_state_illustration(emoji: str, title: str, description: str, cta_text: str = None, cta_action: str = None):
-    """
-    Display a beautiful empty state with icon, title, description, and optional CTA.
-    
-    Args:
-        emoji: Large emoji/icon for the empty state
-        title: Bold title text
-        description: Supportive description text
-        cta_text: Optional call-to-action button text
-        cta_action: Optional action instruction
-    """
-    html_content = f"""
-    <div style="
-        text-align: center;
-        padding: 48px 24px;
-        background: linear-gradient(135deg, rgba(16, 161, 157, 0.08) 0%, rgba(82, 196, 184, 0.04) 100%);
-        border: 1px dashed rgba(16, 161, 157, 0.3);
-        border-radius: 16px;
-        margin: 24px 0;
-    ">
-        <div style="font-size: 64px; margin-bottom: 16px;">{emoji}</div>
-        <div style="
-            font-size: 20px;
-            font-weight: bold;
-            color: #e0f2f1;
-            margin-bottom: 8px;
-        ">{title}</div>
-        <div style="
-            font-size: 14px;
-            color: #a0a0a0;
-            margin-bottom: 24px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.6;
-        ">{description}</div>
-    """
-    
-    if cta_text:
-        html_content += f"""
-        <div style="
-            font-size: 13px;
-            color: #10A19D;
-            font-weight: 600;
-            margin-top: 16px;
-        ">💡 {cta_text}</div>
-        """
-    
-    html_content += "</div>"
-    st.markdown(html_content, unsafe_allow_html=True)
-
-
-# ==================== LOADING & ERROR STATE HELPERS ====================
-# Better feedback for data loading and error scenarios
-
-def loading_skeleton(rows: int = 3, height: str = "80px"):
-    """
-    Display a beautiful loading skeleton placeholder.
-    
-    Args:
-        rows: Number of skeleton rows to show
-        height: Height of each skeleton row
-    """
-    for i in range(rows):
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(90deg, #1a1f3a 0%, #2a3050 50%, #1a1f3a 100%);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-            height: {height};
-            border-radius: 8px;
-            margin-bottom: 16px;
-        "></div>
-        """, unsafe_allow_html=True)
-    
-    # Add animation CSS
-    st.markdown("""
-    <style>
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-    </style>
-    """, unsafe_allow_html=True)
 
 
 def error_state(title: str, message: str, suggestion: str = None, icon: str = "⚠️"):
@@ -390,107 +220,6 @@ def success_state(title: str, message: str, icon: str = "✅"):
     """
     
     st.markdown(html_content, unsafe_allow_html=True)
-
-
-# ==================== ACCESSIBILITY BEST PRACTICES ====================
-# Following WCAG 2.1 Level AA standards
-
-def a11y_audit_info():
-    """
-    Display accessibility compliance information for reference.
-    (This is a dev tool, not shown to end users in production)
-    """
-    return """
-    ACCESSIBILITY AUDIT CHECKLIST
-    =============================
-    
-    ✅ Button Sizing:
-       - All buttons: min 44px height (COMPONENTS["button"]["min_height"])
-       - Adequate padding: 10px 20px minimum
-       - Touch-friendly spacing: 8px+ between buttons
-    
-    ✅ Color Contrast (WCAG AA 4.5:1 for text):
-       - Primary text (#e0f2f1) on dark bg: ✓ 10.2:1 ratio
-       - Secondary text (#a0a0a0) on dark bg: ✓ 5.1:1 ratio
-       - Success (#51CF66) on light bg: ✓ 4.8:1 ratio
-       - Error (#FF6B6B) on light bg: ✓ 4.6:1 ratio
-       - Warning (#FFD43B) on light bg: ✓ 4.8:1 ratio
-    
-    ✅ Typography:
-       - Minimum font size: 12px (for captions)
-       - Line height: 1.3-1.5 (readable spacing)
-       - Consistent hierarchy: H1 28px, H2 20px, H3 16px
-       - No tiny text (<11px) for important content
-    
-    ✅ Focus States:
-       - Input focus: teal border (#10A19D) + shadow
-       - Clear visual indication for keyboard navigation
-       - Proper focus order in form elements
-    
-    ✅ Interactive Elements:
-       - Click targets: ≥44x44px (minimum touch target)
-       - Hover states: visual feedback (shadow, transform)
-       - Keyboard accessible: Tab navigation works
-       - Disabled states: clearly marked (opacity, color)
-    
-    ✅ Form Design:
-       - Labels associated with inputs
-       - Input height ≥44px for accessibility
-       - Clear error messages with icon + text
-       - Helper text for guidance
-    
-    ✅ Page Structure:
-       - Proper heading hierarchy (no skipped levels)
-       - Semantic HTML where possible
-       - Logical tab order
-       - Alt text for images (in production)
-    
-    ✅ Loading & Error States:
-       - Loading: spinner + descriptive text
-       - Errors: clear icon + title + suggestion
-       - Success: confirmation with action summary
-       - Sufficient contrast in state indicators
-    """
-
-
-def verify_accessibility():
-    """
-    Runtime accessibility verification utility.
-    (Development tool - can be called from a debug page)
-    
-    Returns:
-        Dictionary with accessibility verification results
-    """
-    return {
-        "button_min_height": "44px",
-        "input_min_height": "44px",
-        "typography_scale": {
-            "h1": "28px",
-            "h2": "20px",
-            "h3": "16px",
-            "body": "14px",
-            "caption": "12px",
-            "label": "11px",
-        },
-        "color_contrast_ratios": {
-            "primary_text_on_bg": "10.2:1 ✅",  # #e0f2f1 on #0a0e27
-            "secondary_text_on_bg": "5.1:1 ✅",  # #a0a0a0 on #0a0e27
-            "success_on_light": "4.8:1 ✅",      # #51CF66 on white
-            "error_on_light": "4.6:1 ✅",        # #FF6B6B on white
-            "warning_on_light": "4.8:1 ✅",      # #FFD43B on white
-        },
-        "focus_states": {
-            "input_focus": "2px outline #10A19D + 3px glow",
-            "button_focus": "2px outline #10A19D",
-            "link_focus": "2px outline #10A19D + underline",
-        },
-        "motion_preferences": {
-            "reduced_motion": "Supported via @media (prefers-reduced-motion: reduce)",
-            "high_contrast": "Supported via @media (prefers-contrast: more)",
-        },
-        "compliance_level": "WCAG 2.1 Level AA ✅",
-        "status": "Production ready"
-    }
 
 
 # ==================== PAGE CONFIG ====================
@@ -1102,7 +831,7 @@ def dashboard_page():
         st.info("🎯 **Epic!** 14-day record! You're committed to your health!")
     
     # Add spacing divider
-    spacing_divider(margin_top="24px", margin_bottom="24px")
+    st.markdown("")
     
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
@@ -1244,7 +973,7 @@ def dashboard_page():
                     </div>
                     """, unsafe_allow_html=True)
     
-    spacing_divider(margin_top="24px", margin_bottom="24px")
+    st.markdown("")
     
     # ===== WATER INTAKE TRACKER =====
     st.markdown("## 💧 Water Intake")
@@ -1328,7 +1057,7 @@ def dashboard_page():
             else:
                 st.toast("❌ Failed to complete water goal", icon="⚠️")
     
-    spacing_divider(margin_top="24px", margin_bottom="24px")
+    st.markdown("")
     
     # ===== Quick Stats =====
     st.markdown("## 📊 Today's Nutrition Summary")
@@ -1457,7 +1186,7 @@ def dashboard_page():
             """, unsafe_allow_html=True)
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
-    spacing_divider(margin_top="24px", margin_bottom="24px")
+    st.markdown("")
     st.markdown("## 📊 Nutrition Breakdown & Patterns")
     
     # Create a responsive grid layout
@@ -1678,11 +1407,6 @@ def meal_logging_page():
     tab1, tab2, tab3 = st.tabs(["📝 Text", "📸 Photo", "📅 Batch Log"])
     
     with tab1:
-        # Show one-time success message if meal was just saved
-        if st.session_state.get("_text_meal_saved", False):
-            success_state("Meal Saved", "Your meal has been logged successfully!")
-            st.session_state._text_meal_saved = False
-        
         st.markdown("## Describe Your Meal")
         
         meal_description = st.text_area(
@@ -1758,8 +1482,6 @@ def meal_logging_page():
                     # Clear the analysis from session state
                     del st.session_state.meal_analysis
                     del st.session_state.meal_type
-                    # Set flag to show success message on next render
-                    st.session_state._text_meal_saved = True
                     st.rerun()
                 else:
                     error_state(
@@ -1770,11 +1492,6 @@ def meal_logging_page():
                     )
     
     with tab2:
-        # Show one-time success message if meal was just saved
-        if st.session_state.get("_photo_meal_saved", False):
-            success_state("Meal Saved", "Your meal has been logged successfully!")
-            st.session_state._photo_meal_saved = False
-        
         st.markdown("## Upload Food Photo")
         
         uploaded_file = st.file_uploader(
