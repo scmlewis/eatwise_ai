@@ -688,6 +688,27 @@ def login_page():
             border: 2px solid #10A19D;
         }
         
+        /* Login page background styling */
+        .login-page-bg {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #0D7A76 75%, #10A19D 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .login-page-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(16, 161, 157, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(82, 196, 184, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
         .form-input-group {
             margin-bottom: 12px;
         }
@@ -721,6 +742,19 @@ def login_page():
             border: 1px solid #5a6f6e !important;
         }
     </style>
+    """, unsafe_allow_html=True)
+    
+    # Add login page background
+    st.markdown("""
+    <style>
+        .login-page-wrapper {
+            margin: -1rem -1rem -1rem -1rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #0D7A76 75%, #10A19D 100%);
+            border-radius: 0;
+        }
+    </style>
+    <div class="login-page-wrapper">
     """, unsafe_allow_html=True)
     
     col1, col2 = st.columns([1.1, 1], gap="medium")
@@ -811,6 +845,9 @@ def login_page():
                 Already have an account? Login in the Login tab ↖️
             </p>
             """, unsafe_allow_html=True)
+    
+    # Close login page wrapper
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 
