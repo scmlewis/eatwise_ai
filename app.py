@@ -4,6 +4,7 @@ Main Streamlit Application
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -737,8 +738,9 @@ def dashboard_page():
             "error": ("#FF6B6B", "#3d0d0d", "#FF8A80"),
         }
         color, bg_color, border_color = notification_colors.get(notification_type, notification_colors["success"])
-        st.markdown(f"""
-        <div style="
+        # Use components.html so we can run client-side JS to auto-hide the notification after 2s
+        notif_html = f"""
+        <div id="eatwise-water-notif" style="
             background: {bg_color};
             border: 2px solid {color};
             border-radius: 8px;
@@ -747,7 +749,6 @@ def dashboard_page():
             display: flex;
             align-items: center;
             gap: 12px;
-            animation: slideIn 0.3s ease;
         ">
             <div style="color: {color}; font-weight: 600; font-size: 14px;">
                 {notification_msg}
@@ -755,17 +756,30 @@ def dashboard_page():
         </div>
         <style>
             @keyframes slideIn {{
-                from {{
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }}
-                to {{
-                    opacity: 1;
-                    transform: translateY(0);
-                }}
+                from {{ opacity: 0; transform: translateY(-10px); }}
+                to {{ opacity: 1; transform: translateY(0); }}
             }}
+            #eatwise-water-notif {{ animation: slideIn 0.3s ease; }}
         </style>
-        """, unsafe_allow_html=True)
+        <script>
+            // Hide and remove the notification after 2 seconds
+            setTimeout(function() {{
+                const el = document.getElementById('eatwise-water-notif');
+                if (el) {{
+                    el.style.transition = 'opacity 0.4s, transform 0.4s';
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(-8px)';
+                    setTimeout(function() {{ el.remove(); }}, 450);
+                }}
+            }}, 2000);
+        </script>
+        """
+        try:
+            components.html(notif_html, height=80)
+        except Exception:
+            # Fallback to markdown if components isn't available for any reason
+            st.markdown(notif_html, unsafe_allow_html=True)
+        # Clear server-side state so the notification won't reappear on subsequent reruns
         st.session_state.water_notification = None
     
     # Water intake card
