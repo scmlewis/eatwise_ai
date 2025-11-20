@@ -6,6 +6,9 @@ secondaryBackgroundColor = "#1a3a35"
 textColor = "#e0f2f1"
 font = "sans serif"
 
+[layout]
+sidebar.width = 500
+
 [client]
 showErrorDetails = true
 toolbarMode = "developer"

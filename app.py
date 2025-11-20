@@ -2962,13 +2962,13 @@ def main():
                 cal_display = int(today_nutrition['calories'])
             
             # Create three-column compact stats (Streak, Calories, Water)
-            stat_cols = st.sidebar.columns(3, gap="small")
+            stat_cols = st.sidebar.columns(3, gap="medium")
             
             with stat_cols[0]:
                 st.markdown(f"""
                 <div style="text-align: center;">
-                    <div style="font-size: 20px; font-weight: bold; color: #FFB84D; margin-bottom: 2px;">{current_streak}</div>
-                    <div style="font-size: 10px; color: #e0f2f1; font-weight: 500;">Streak</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{current_streak}</div>
+                    <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Streak</div>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -2977,16 +2977,16 @@ def main():
                 cal_text = str(cal_display) if cal_display < 1000 else f"{cal_display/1000:.1f}K"
                 st.markdown(f"""
                 <div style="text-align: center;">
-                    <div style="font-size: 20px; font-weight: bold; color: #FFB84D; margin-bottom: 2px;">{cal_text}</div>
-                    <div style="font-size: 10px; color: #e0f2f1; font-weight: 500;">Calories</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #FFB84D; margin-bottom: 4px;">{cal_text}</div>
+                    <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Calories</div>
                 </div>
                 """, unsafe_allow_html=True)
             
             with stat_cols[2]:
                 st.markdown(f"""
                 <div style="text-align: center;">
-                    <div style="font-size: 20px; font-weight: bold; color: #3B82F6; margin-bottom: 2px;">{water_today}/{water_goal}</div>
-                    <div style="font-size: 10px; color: #e0f2f1; font-weight: 500;">Water</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #3B82F6; margin-bottom: 4px;">{water_today}/{water_goal}</div>
+                    <div style="font-size: 11px; color: #e0f2f1; font-weight: 500;">Water</div>
                 </div>
                 """, unsafe_allow_html=True)
             
