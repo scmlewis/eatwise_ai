@@ -1044,6 +1044,8 @@ def dashboard_page():
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
         # normalize after fetch
         user_profile = normalize_profile(user_profile) if user_profile else user_profile
+        # Update session state so other pages can access it
+        st.session_state.user_profile = user_profile
         if not user_profile:
             st.info("Please complete your profile first!")
             profile_page()
@@ -1968,17 +1970,21 @@ def analytics_page():
     user_profile = st.session_state.user_profile
     if not user_profile:
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
+        # normalize after fetch
+        user_profile = normalize_profile(user_profile) if user_profile else user_profile
+        # Update session state so other pages can access it
+        st.session_state.user_profile = user_profile
         if not user_profile:
             st.info("Please complete your profile first!")
             return
-
-    # Normalize profile structure to avoid mapping issues (strings vs lists etc.)
-    try:
-        user_profile = normalize_profile(user_profile)
-        st.session_state.user_profile = user_profile
-    except Exception:
-        # non-fatal - fall back to raw profile
-        pass
+    else:
+        # Normalize profile structure to avoid mapping issues (strings vs lists etc.)
+        try:
+            user_profile = normalize_profile(user_profile)
+            st.session_state.user_profile = user_profile
+        except Exception:
+            # non-fatal - fall back to raw profile
+            pass
 
     # Initialize days from session state or use default
     if "analytics_days" not in st.session_state:
@@ -2206,6 +2212,10 @@ def insights_page():
     user_profile = st.session_state.user_profile
     if not user_profile:
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
+        # normalize after fetch
+        user_profile = normalize_profile(user_profile) if user_profile else user_profile
+        # Update session state so other pages can access it
+        st.session_state.user_profile = user_profile
         if not user_profile:
             st.info("Please complete your profile first!")
             return
@@ -3444,6 +3454,13 @@ def main():
             today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
             today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
             user_profile = st.session_state.user_profile
+            
+            # Auto-load profile if not in session state (first visit after login)
+            if not user_profile:
+                user_profile = db_manager.get_health_profile(st.session_state.user_id)
+                if user_profile:
+                    user_profile = normalize_profile(user_profile)
+                    st.session_state.user_profile = user_profile
             
             # Streak info
             if len(today_meals) > 0:
