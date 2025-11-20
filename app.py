@@ -539,6 +539,12 @@ def login_page():
 
 def dashboard_page():
     """Dashboard/Home page"""
+    # Display pending notification from previous rerun if exists
+    if "pending_notification" in st.session_state:
+        msg, notif_type = st.session_state.pending_notification
+        show_notification(msg, notif_type, use_toast=True)
+        del st.session_state.pending_notification
+    
     user_profile = st.session_state.user_profile
     if not user_profile:
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
@@ -1080,6 +1086,12 @@ def dashboard_page():
 
 def meal_logging_page():
     """Meal logging page"""
+    # Display pending notification from previous rerun if exists
+    if "pending_notification" in st.session_state:
+        msg, notif_type = st.session_state.pending_notification
+        show_notification(msg, notif_type, use_toast=True)
+        del st.session_state.pending_notification
+    
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
@@ -1144,7 +1156,7 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    show_notification(f"{meal.get('meal_name')} added!", "success", use_toast=True)
+                    st.session_state.pending_notification = ("Meal added!", "success")
                     st.rerun()
                 else:
                     show_notification("Failed to add meal", "error", use_toast=True)
@@ -1184,7 +1196,7 @@ def meal_logging_page():
                         # Store analysis in session state so it persists
                         st.session_state.meal_analysis = analysis
                         st.session_state.meal_type = meal_type
-                        show_notification("Meal analyzed!", "success", use_toast=True)
+                        st.session_state.pending_notification = ("Meal analyzed!", "success")
                     else:
                         show_notification("Could not analyze meal. Please try again.", "error", use_toast=True)
             else:
@@ -1233,7 +1245,7 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    show_notification("Meal saved successfully!", "success", use_toast=True)
+                    st.session_state.pending_notification = ("Meal saved successfully!", "success")
                     # Clear the analysis from session state
                     del st.session_state.meal_analysis
                     del st.session_state.meal_type
@@ -1312,7 +1324,7 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    show_notification("Meal saved successfully!", "success", use_toast=True)
+                    st.session_state.pending_notification = ("Meal saved successfully!", "success")
                     # Clear the analysis from session state
                     del st.session_state.photo_analysis
                     st.rerun()
@@ -2287,7 +2299,7 @@ def meal_history_page():
             with col4:
                 if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
                     if db_manager.delete_meal(meal['id']):
-                        show_notification("Meal deleted!", "success", use_toast=True)
+                        st.session_state.pending_notification = ("Meal deleted!", "success")
                         st.rerun()
                     else:
                         show_notification("Failed to delete meal", "error", use_toast=True)
@@ -2320,7 +2332,7 @@ def meal_history_page():
                         }
                         
                         if db_manager.log_meal(meal_data):
-                            show_notification(f"{meal.get('meal_name')} duplicated to {dup_date}!", "success", use_toast=True)
+                            st.session_state.pending_notification = (f"{meal.get('meal_name')} duplicated to {dup_date}!", "success")
                             st.session_state[f"dup_meal_id_{meal['id']}"] = False
                             st.rerun()
                         else:
@@ -2389,7 +2401,7 @@ def meal_history_page():
                             }
                             
                             if db_manager.update_meal(meal['id'], updated_meal):
-                                show_notification("Meal updated!", "success", use_toast=True)
+                                st.session_state.pending_notification = ("Meal updated!", "success")
                                 st.session_state[f"edit_meal_id_{meal['id']}"] = False
                                 st.rerun()
                             else:
