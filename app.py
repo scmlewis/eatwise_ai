@@ -1046,10 +1046,18 @@ def dashboard_page():
         user_profile = normalize_profile(user_profile) if user_profile else user_profile
         # Update session state so other pages can access it
         st.session_state.user_profile = user_profile
-        if not user_profile:
-            st.info("Please complete your profile first!")
-            profile_page()
-            return
+    
+    # Use default profile if still missing or empty
+    if not user_profile:
+        user_profile = {
+            "user_id": st.session_state.user_id,
+            "age_group": "26-35",
+            "health_goal": "general_health",
+            "timezone": "UTC",
+            "health_conditions": [],
+            "dietary_preferences": []
+        }
+        st.session_state.user_profile = user_profile
     
     # Get user's timezone for greeting
     user_timezone = user_profile.get("timezone", "UTC")
@@ -1974,9 +1982,18 @@ def analytics_page():
         user_profile = normalize_profile(user_profile) if user_profile else user_profile
         # Update session state so other pages can access it
         st.session_state.user_profile = user_profile
-        if not user_profile:
-            st.info("Please complete your profile first!")
-            return
+    
+    # Use default profile if still missing or empty
+    if not user_profile:
+        user_profile = {
+            "user_id": st.session_state.user_id,
+            "age_group": "26-35",
+            "health_goal": "general_health",
+            "timezone": "UTC",
+            "health_conditions": [],
+            "dietary_preferences": []
+        }
+        st.session_state.user_profile = user_profile
     else:
         # Normalize profile structure to avoid mapping issues (strings vs lists etc.)
         try:
@@ -2216,9 +2233,18 @@ def insights_page():
         user_profile = normalize_profile(user_profile) if user_profile else user_profile
         # Update session state so other pages can access it
         st.session_state.user_profile = user_profile
-        if not user_profile:
-            st.info("Please complete your profile first!")
-            return
+    
+    # Use default profile if still missing or empty
+    if not user_profile:
+        user_profile = {
+            "user_id": st.session_state.user_id,
+            "age_group": "26-35",
+            "health_goal": "general_health",
+            "timezone": "UTC",
+            "health_conditions": [],
+            "dietary_preferences": []
+        }
+        st.session_state.user_profile = user_profile
     
     # Get recent meals
     meals = db_manager.get_recent_meals(st.session_state.user_id, limit=20)
