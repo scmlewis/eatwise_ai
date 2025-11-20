@@ -496,6 +496,106 @@ st.markdown("""
         border-color: #10A19D;
         box-shadow: 0 8px 20px rgba(16, 161, 157, 0.25) !important;
     }
+    
+    /* ===== STAT CARD HOVER EFFECTS ===== */
+    .stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(16, 161, 157, 0.3) !important;
+    }
+    
+    /* ===== CHART CONTAINER HOVER EFFECTS ===== */
+    .chart-container {
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        border: 1px solid rgba(16, 161, 157, 0.2);
+    }
+    
+    .chart-container:hover {
+        box-shadow: 0 10px 30px rgba(16, 161, 157, 0.25) !important;
+        border-color: rgba(16, 161, 157, 0.5);
+    }
+    
+    /* ===== SUMMARY/PROGRESS CARD HOVER EFFECTS ===== */
+    .summary-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .summary-card:hover {
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 12px 32px rgba(16, 161, 157, 0.35) !important;
+    }
+    
+    /* ===== MACRO BREAKDOWN BOX HOVER EFFECTS ===== */
+    .macro-box {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(16, 161, 157, 0.3);
+    }
+    
+    .macro-box:hover {
+        border-color: #10A19D;
+        box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
+    }
+    
+    /* ===== PATTERN/TIMING CARD HOVER EFFECTS ===== */
+    .pattern-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .pattern-card:hover {
+        background: rgba(16, 161, 157, 0.15) !important;
+        box-shadow: 0 8px 20px rgba(16, 161, 157, 0.25) !important;
+    }
+    
+    /* ===== HEALTH METRIC BOX HOVER EFFECTS ===== */
+    .health-metric {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .health-metric:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(16, 161, 157, 0.3) !important;
+    }
+    
+    /* ===== STREAK BOX HOVER EFFECTS ===== */
+    .streak-box {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .streak-box:hover {
+        transform: scale(1.03) translateY(-2px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    /* ===== PROFILE SECTION HOVER EFFECTS ===== */
+    .profile-section {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(16, 161, 157, 0.2);
+    }
+    
+    .profile-section:hover {
+        border-color: rgba(16, 161, 157, 0.6);
+        box-shadow: 0 8px 24px rgba(16, 161, 157, 0.2) !important;
+    }
+    
+    /* ===== SUGGESTION/RECOMMENDATION CARD HOVER EFFECTS ===== */
+    .suggestion-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .suggestion-card:hover {
+        transform: translateX(4px) translateY(-2px);
+        box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
+    }
+    
     /* Reduce motion for users who prefer it */
     @media (prefers-reduced-motion: reduce) {
         * {
@@ -981,7 +1081,7 @@ def dashboard_page():
         current_streak = streak_info['current_streak']
         streak_emoji = "🔥" if current_streak > 0 else "⭕"
         st.markdown(f"""
-        <div style="
+        <div class="streak-box" style="
             background: linear-gradient(135deg, #FF671520 0%, #FF671540 100%);
             border: 1px solid #FF6715;
             border-left: 5px solid #FF6715;
@@ -1005,7 +1105,7 @@ def dashboard_page():
     with achieve_cols[1]:
         longest_streak = streak_info['longest_streak']
         st.markdown(f"""
-        <div style="
+        <div class="streak-box" style="
             background: linear-gradient(135deg, #FFD43B20 0%, #FFC94D40 100%);
             border: 1px solid #FFD43B;
             border-left: 5px solid #FFD43B;
@@ -1272,7 +1372,7 @@ def dashboard_page():
     # MACRO BALANCE - Left side
     with breakdown_col1:
         st.markdown("""
-        <div style="
+        <div class="macro-box" style="
             background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%);
             border: 1px solid rgba(16, 161, 157, 0.3);
             border-radius: 12px;
@@ -1347,7 +1447,7 @@ def dashboard_page():
                 count = time_pattern.get(period, 0)
                 
                 st.markdown(f"""
-                <div style="text-align: center; padding: 12px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
+                <div class="pattern-card" style="text-align: center; padding: 12px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
                     <div style="font-size: 24px; margin-bottom: 8px;">{emoji}</div>
                     <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{count}</div>
                     <div style="font-size: 12px; color: #a0a0a0;">{period}</div>
@@ -1867,7 +1967,7 @@ def analytics_page():
         cal_pct = (avg_cal / target_cal * 100) if target_cal > 0 else 0
         cal_status = "✅" if 80 <= cal_pct <= 120 else ("⚠️" if cal_pct < 80 else "⚡")
         st.markdown(f"""
-        <div style="
+        <div class="stat-card" style="
             background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
             border: 1px solid #FF6B16;
             border-left: 5px solid #FF6B16;
@@ -1891,7 +1991,7 @@ def analytics_page():
         total_meals = len(meals)
         meals_status = "🔥" if total_meals >= 14 else ("✅" if total_meals >= 7 else "⚠️")
         st.markdown(f"""
-        <div style="
+        <div class="stat-card" style="
             background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
             border: 1px solid #10A19D;
             border-left: 5px solid #10A19D;
@@ -1914,7 +2014,7 @@ def analytics_page():
         avg_meals_per_day = total_meals / days if days > 0 else 0
         meal_freq_status = "✅" if 2 <= avg_meals_per_day <= 4 else ("⚠️" if avg_meals_per_day < 2 else "⚡")
         st.markdown(f"""
-        <div style="
+        <div class="stat-card" style="
             background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
             border: 1px solid #845EF7;
             border-left: 5px solid #845EF7;
@@ -1939,7 +2039,7 @@ def analytics_page():
         protein_pct = (avg_protein / target_protein * 100) if target_protein > 0 else 0
         protein_status = "✅" if 80 <= protein_pct <= 120 else ("⚠️" if protein_pct < 80 else "⚡")
         st.markdown(f"""
-        <div style="
+        <div class="stat-card" style="
             background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
             border: 1px solid #51CF66;
             border-left: 5px solid #51CF66;
