@@ -3320,7 +3320,7 @@ def main():
     if not is_authenticated():
         login_page()
     else:
-        # Sidebar navigation
+        # Sidebar navigation with modern active indicator
         st.sidebar.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
@@ -3366,17 +3366,85 @@ def main():
             if "nav_index" not in st.session_state:
                 st.session_state.nav_index = default_index
             
-            # Navigation in sidebar - radio buttons instead of dropdown
+            # Modern Navigation with active indicator
+            st.sidebar.markdown("""
+            <style>
+                .nav-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    margin: 8px 0;
+                }
+                
+                .nav-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 12px 14px;
+                    border-radius: 10px;
+                    border-left: 4px solid transparent;
+                    background: rgba(16, 161, 157, 0.05);
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 15px;
+                    font-weight: 500;
+                    color: #a0a0a0;
+                }
+                
+                .nav-item:hover {
+                    background: rgba(16, 161, 157, 0.1);
+                    color: #52C4B8;
+                }
+                
+                .nav-item.active {
+                    background: linear-gradient(135deg, rgba(16, 161, 157, 0.25) 0%, rgba(82, 196, 184, 0.15) 100%);
+                    border-left-color: #52C4B8;
+                    color: #52C4B8;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(16, 161, 157, 0.2);
+                }
+                
+                .nav-item.active::before {
+                    content: '';
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    background: #52C4B8;
+                    border-radius: 50%;
+                    margin-left: -4px;
+                    margin-right: 2px;
+                    box-shadow: 0 0 8px rgba(82, 196, 184, 0.6);
+                }
+            </style>
+            """, unsafe_allow_html=True)
+            
             st.sidebar.markdown("**Navigation**")
-            selected_page = st.sidebar.radio(
-                "Pages",
-                options=list(pages.keys()),
-                index=st.session_state.nav_index,
-                format_func=lambda x: f"{pages[x]} {x}",
-                label_visibility="collapsed",
-                key="page_selector"
-            )
-            st.session_state.nav_index = list(pages.keys()).index(selected_page)
+            
+            # Create custom navigation buttons
+            nav_cols = st.sidebar.container()
+            
+            selected_page = None
+            for idx, page_name in enumerate(pages.keys()):
+                is_active = idx == st.session_state.nav_index
+                active_class = "active" if is_active else ""
+                icon = pages[page_name]
+                
+                # Create button with custom styling
+                if nav_cols.button(
+                    f"{icon} {page_name}",
+                    use_container_width=True,
+                    key=f"nav_btn_{page_name}",
+                    help=f"Go to {page_name}"
+                ):
+                    selected_page = page_name
+                    st.session_state.nav_index = idx
+                    st.rerun()
+            
+            # Update selected page if changed
+            if selected_page:
+                st.session_state.current_page = selected_page
+            elif "current_page" not in st.session_state:
+                st.session_state.current_page = list(pages.keys())[st.session_state.nav_index]
             
             st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
             
@@ -3472,19 +3540,19 @@ def main():
             
             
             # Route to selected page
-            if selected_page == "Dashboard":
+            if st.session_state.current_page == "Dashboard":
                 dashboard_page()
-            elif selected_page == "Log Meal":
+            elif st.session_state.current_page == "Log Meal":
                 meal_logging_page()
-            elif selected_page == "Analytics":
+            elif st.session_state.current_page == "Analytics":
                 analytics_page()
-            elif selected_page == "Meal History":
+            elif st.session_state.current_page == "Meal History":
                 meal_history_page()
-            elif selected_page == "Insights":
+            elif st.session_state.current_page == "Insights":
                 insights_page()
-            elif selected_page == "My Profile":
+            elif st.session_state.current_page == "My Profile":
                 profile_page()
-            elif selected_page == "Help":
+            elif st.session_state.current_page == "Help":
                 help_page()
 
 
