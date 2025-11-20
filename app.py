@@ -1145,6 +1145,8 @@ def meal_logging_page():
                 
                 if db_manager.log_meal(meal_data):
                     st.toast("Meal added!", icon="✅")
+                    # Reset the selectbox for next quick add
+                    st.session_state.quick_add_selector = ""
                 else:
                     st.toast("Failed to add meal", icon="❌")
         
@@ -1187,7 +1189,7 @@ def meal_logging_page():
                     else:
                         st.toast("Could not analyze meal. Please try again.", icon="❌")
             else:
-                show_notification("Please describe your meal", "warning", use_toast=True)
+                st.toast("Please describe your meal", icon="⚠️")
         
         # Display analysis if it exists in session state
         if "meal_analysis" in st.session_state:
