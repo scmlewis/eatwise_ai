@@ -1464,17 +1464,6 @@ def analytics_page():
         # non-fatal - fall back to raw profile
         pass
 
-    # Optional debug output to inspect profile objects when mapping targets
-    try:
-        if st.sidebar.checkbox("Debug: show profile objects", key="dbg_profile_objects"):
-            st.sidebar.markdown("**Debug: Profile Objects**")
-            st.sidebar.write("session_profile:", st.session_state.get("user_profile"))
-            st.sidebar.write("db_profile:", db_manager.get_health_profile(st.session_state.user_id))
-            st.sidebar.write("Available age groups:", list(AGE_GROUP_TARGETS.keys()))
-    except Exception:
-        # Keep debug optional and non-blocking if sidebar isn't available
-        pass
-    
     # Initialize days from session state or use default
     if "analytics_days" not in st.session_state:
         st.session_state.analytics_days = 7
