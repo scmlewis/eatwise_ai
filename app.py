@@ -1521,7 +1521,7 @@ def analytics_page():
     df_list = []
     for meal in meals:
         meal_date = meal.get("logged_at", "").split("T")[0]
-        nutrition = meal.get("Nutrition", {})
+        nutrition = meal.get("nutrition", {})  # Fixed: was "Nutrition" with capital N
         df_list.append({
             "Date": meal_date,
             "calories": nutrition.get("calories", 0),
