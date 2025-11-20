@@ -109,7 +109,9 @@ class AuthManager:
                         self.supabase.table("health_profiles").insert(default_profile).execute()
                         user_data.update(default_profile)
                     except Exception as e:
-                        # If auto-create fails, still return user data (they can complete profile later)
+                        # If auto-create fails, log it but continue
+                        import sys
+                        print(f"Warning: Could not auto-create health profile: {str(e)}", file=sys.stderr)
                         pass
                 
                 return True, "Login successful", user_data
