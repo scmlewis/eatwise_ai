@@ -707,7 +707,7 @@ def login_page():
             background: transparent;
             border: 2px solid #10A19D40;
             border-radius: 10px;
-            color: #a0a0a0;
+            color: #d0e0df;
             padding: 8px 16px;
             font-weight: 600;
             font-size: 0.9em;
@@ -726,7 +726,7 @@ def login_page():
         .form-input-group label {
             display: block;
             margin-bottom: 6px;
-            color: #e0f2f1;
+            color: #c8f0ed;
             font-weight: 600;
             font-size: 0.85em;
         }
@@ -744,12 +744,19 @@ def login_page():
             font-size: 0.9em !important;
         }
         
+        .stTextInput input::placeholder {
+            color: #7a9a98 !important;
+            opacity: 0.8 !important;
+        }
+        
         .stTextInput input:focus {
             border: 2px solid #10A19D !important;
             box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.2) !important;
         }
         
-        /* Forgot Password Button - Subtle Gray Style */
+        .stCaption {
+            color: #b8dbd9 !important;
+        }
         button[kind="secondary"]:has-text("Forgot password?") {
             background: #4a5f5e !important;
             color: #a0a0a0 !important;
@@ -807,7 +814,7 @@ def login_page():
             
             # Forgot password button - same width as login button
             st.markdown("""
-            <p style="text-align: center; color: #a0a0a0; margin-top: 12px; font-size: 0.8em;">
+            <p style="text-align: center; color: #c0d5d3; margin-top: 12px; font-size: 0.8em;">
                 Don't have an account? Create one in the Sign Up tab ↗️
             </p>
             """, unsafe_allow_html=True)
@@ -835,7 +842,7 @@ def login_page():
                     show_notification("Please fill all fields", "warning", use_toast=False)
             
             st.markdown("""
-            <p style="text-align: center; color: #a0a0a0; margin-top: 12px; font-size: 0.8em;">
+            <p style="text-align: center; color: #c0d5d3; margin-top: 12px; font-size: 0.8em;">
                 Already have an account? Login in the Login tab ↖️
             </p>
             """, unsafe_allow_html=True)
