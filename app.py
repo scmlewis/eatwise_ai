@@ -570,21 +570,21 @@ def dashboard_page():
     current_streak = streak_info['current_streak']
     longest_streak = streak_info['longest_streak']
     
-    # Motivational notifications
+    # Motivational notifications (as toasts, not persistent boxes)
     if current_streak >= 7 and current_streak % 7 == 0:
-        st.success(f"🎉 **Amazing!** You've achieved a {current_streak}-day streak! Keep up the great work!")
+        st.toast(f"🎉 Amazing! You've achieved a {current_streak}-day streak!", icon="🔥")
     elif current_streak >= 3:
-        st.info(f"🔥 **Nice!** You're on a {current_streak}-day streak! Log a meal today to keep it going!")
+        st.toast(f"🔥 Nice! You're on a {current_streak}-day streak! Log a meal today to keep it going!", icon="🔥")
     elif current_streak == 1:
-        st.info(f"🌟 **Great start!** You're 1 day in. Tomorrow's the test!")
+        st.toast(f"🌟 Great start! You're 1 day in. Tomorrow's the test!", icon="⭐")
     elif current_streak == 0 and len(meals) == 0:
-        st.warning(f"📝 Don't forget to log a meal today to start building your streak!")
+        st.toast(f"📝 Don't forget to log a meal today to start building your streak!", icon="📝")
     
     # Milestone notifications
     if longest_streak == 30:
-        st.success("🏆 **Congratulations!** You've hit a 30-day streak! You're a nutrition champion!")
+        st.toast("🏆 Congratulations! You've hit a 30-day streak! You're a nutrition champion!", icon="🏆")
     elif longest_streak == 14:
-        st.info("🎯 **Epic!** 14-day record! You're committed to your health!")
+        st.toast("🎯 Epic! 14-day record! You're committed to your health!", icon="🎯")
     
     st.divider()
     
