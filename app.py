@@ -31,6 +31,7 @@ from utils import (
     get_nutrition_status, format_nutrition_dict, get_streak_info,
     get_earned_badges, build_nutrition_by_date, paginate_items
 )
+from design_system import TYPOGRAPHY, SPACING, COLORS as DESIGN_COLORS
 
 
 def normalize_profile(profile: dict) -> dict:
@@ -111,6 +112,49 @@ def show_notification(message: str, notification_type: str = "success", use_toas
         }
         api_func = api_map.get(notification_type, st.info)
         api_func(message)
+
+
+# ==================== TYPOGRAPHY HELPERS ====================
+# Production-grade heading functions using design system
+
+def heading_h1(text: str, margin_bottom: str = "24px"):
+    """Display H1 heading (page titles) with consistent styling"""
+    st.markdown(f"""
+    <div style="
+        font-size: 28px;
+        font-weight: bold;
+        line-height: 1.3;
+        margin-bottom: {margin_bottom};
+        color: #e0f2f1;
+    ">{text}</div>
+    """, unsafe_allow_html=True)
+
+
+def heading_h2(text: str, margin_bottom: str = "16px"):
+    """Display H2 heading (section titles) with consistent styling"""
+    st.markdown(f"""
+    <div style="
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1.4;
+        margin-bottom: {margin_bottom};
+        color: #e0f2f1;
+    ">{text}</div>
+    """, unsafe_allow_html=True)
+
+
+def heading_h3(text: str, margin_bottom: str = "12px"):
+    """Display H3 heading (subsection titles) with consistent styling"""
+    st.markdown(f"""
+    <div style="
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 1.4;
+        margin-bottom: {margin_bottom};
+        color: #e0f2f1;
+    ">{text}</div>
+    """, unsafe_allow_html=True)
+
 
 # ==================== PAGE CONFIG ====================
 
