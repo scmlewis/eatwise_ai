@@ -3367,50 +3367,8 @@ def main():
                 st.session_state.nav_index = default_index
             
             # Modern Navigation with active indicator
-            st.sidebar.markdown("""
-            <style>
-                .stRadio > label {
-                    display: flex !important;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 12px 14px;
-                    border-radius: 10px;
-                    border-left: 4px solid transparent;
-                    background: rgba(16, 161, 157, 0.05);
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    font-size: 15px;
-                    font-weight: 500;
-                    color: #a0a0a0;
-                    margin-bottom: 6px !important;
-                }
-                
-                .stRadio > label:hover {
-                    background: rgba(16, 161, 157, 0.1) !important;
-                    color: #52C4B8 !important;
-                }
-                
-                .stRadio > div > label:has(input:checked) {
-                    background: linear-gradient(135deg, rgba(16, 161, 157, 0.25) 0%, rgba(82, 196, 184, 0.15) 100%) !important;
-                    border-left-color: #52C4B8 !important;
-                    color: #52C4B8 !important;
-                    font-weight: 600 !important;
-                    box-shadow: 0 4px 12px rgba(16, 161, 157, 0.2) !important;
-                }
-                
-                .stRadio > div > label:has(input:checked)::before {
-                    content: '●' !important;
-                    color: #52C4B8;
-                    font-size: 8px;
-                    margin-right: 6px;
-                    text-shadow: 0 0 8px rgba(82, 196, 184, 0.6);
-                }
-            </style>
-            """, unsafe_allow_html=True)
-            
+            # Navigation in sidebar - radio buttons instead of dropdown
             st.sidebar.markdown("**Navigation**")
-            
-            # Use radio buttons with modern styling
             selected_page = st.sidebar.radio(
                 "Pages",
                 options=list(pages.keys()),
@@ -3419,8 +3377,6 @@ def main():
                 label_visibility="collapsed",
                 key="page_selector"
             )
-            
-            # Update navigation index and current page
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
             st.session_state.current_page = selected_page
             
