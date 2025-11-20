@@ -93,6 +93,24 @@ class AuthManager:
                 health_profile = self.supabase.table("health_profiles").select("*").eq("user_id", user_id).execute()
                 if health_profile.data:
                     user_data.update(health_profile.data[0])
+                else:
+                    # Auto-create a default health profile with sensible defaults if it doesn't exist
+                    try:
+                        default_profile = {
+                            "user_id": user_id,
+                            "full_name": user_data.get("full_name", ""),
+                            "age_group": "26-35",  # Default age group
+                            "gender": "Prefer not to say",
+                            "timezone": "UTC",
+                            "health_conditions": [],
+                            "dietary_preferences": [],
+                            "health_goal": "general_health"
+                        }
+                        self.supabase.table("health_profiles").insert(default_profile).execute()
+                        user_data.update(default_profile)
+                    except Exception as e:
+                        # If auto-create fails, still return user data (they can complete profile later)
+                        pass
                 
                 return True, "Login successful", user_data
             else:
