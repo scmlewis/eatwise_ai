@@ -3369,15 +3369,8 @@ def main():
             # Modern Navigation with active indicator
             st.sidebar.markdown("""
             <style>
-                .nav-container {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                    margin: 8px 0;
-                }
-                
-                .nav-item {
-                    display: flex;
+                .stRadio > label {
+                    display: flex !important;
                     align-items: center;
                     gap: 10px;
                     padding: 12px 14px;
@@ -3389,62 +3382,47 @@ def main():
                     font-size: 15px;
                     font-weight: 500;
                     color: #a0a0a0;
+                    margin-bottom: 6px !important;
                 }
                 
-                .nav-item:hover {
-                    background: rgba(16, 161, 157, 0.1);
+                .stRadio > label:hover {
+                    background: rgba(16, 161, 157, 0.1) !important;
+                    color: #52C4B8 !important;
+                }
+                
+                .stRadio > div > label:has(input:checked) {
+                    background: linear-gradient(135deg, rgba(16, 161, 157, 0.25) 0%, rgba(82, 196, 184, 0.15) 100%) !important;
+                    border-left-color: #52C4B8 !important;
+                    color: #52C4B8 !important;
+                    font-weight: 600 !important;
+                    box-shadow: 0 4px 12px rgba(16, 161, 157, 0.2) !important;
+                }
+                
+                .stRadio > div > label:has(input:checked)::before {
+                    content: '●' !important;
                     color: #52C4B8;
-                }
-                
-                .nav-item.active {
-                    background: linear-gradient(135deg, rgba(16, 161, 157, 0.25) 0%, rgba(82, 196, 184, 0.15) 100%);
-                    border-left-color: #52C4B8;
-                    color: #52C4B8;
-                    font-weight: 600;
-                    box-shadow: 0 4px 12px rgba(16, 161, 157, 0.2);
-                }
-                
-                .nav-item.active::before {
-                    content: '';
-                    display: inline-block;
-                    width: 8px;
-                    height: 8px;
-                    background: #52C4B8;
-                    border-radius: 50%;
-                    margin-left: -4px;
-                    margin-right: 2px;
-                    box-shadow: 0 0 8px rgba(82, 196, 184, 0.6);
+                    font-size: 8px;
+                    margin-right: 6px;
+                    text-shadow: 0 0 8px rgba(82, 196, 184, 0.6);
                 }
             </style>
             """, unsafe_allow_html=True)
             
             st.sidebar.markdown("**Navigation**")
             
-            # Create custom navigation buttons
-            nav_cols = st.sidebar.container()
+            # Use radio buttons with modern styling
+            selected_page = st.sidebar.radio(
+                "Pages",
+                options=list(pages.keys()),
+                index=st.session_state.nav_index,
+                format_func=lambda x: f"{pages[x]} {x}",
+                label_visibility="collapsed",
+                key="page_selector"
+            )
             
-            selected_page = None
-            for idx, page_name in enumerate(pages.keys()):
-                is_active = idx == st.session_state.nav_index
-                active_class = "active" if is_active else ""
-                icon = pages[page_name]
-                
-                # Create button with custom styling
-                if nav_cols.button(
-                    f"{icon} {page_name}",
-                    use_container_width=True,
-                    key=f"nav_btn_{page_name}",
-                    help=f"Go to {page_name}"
-                ):
-                    selected_page = page_name
-                    st.session_state.nav_index = idx
-                    st.rerun()
-            
-            # Update selected page if changed
-            if selected_page:
-                st.session_state.current_page = selected_page
-            elif "current_page" not in st.session_state:
-                st.session_state.current_page = list(pages.keys())[st.session_state.nav_index]
+            # Update navigation index and current page
+            st.session_state.nav_index = list(pages.keys()).index(selected_page)
+            st.session_state.current_page = selected_page
             
             st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
             
