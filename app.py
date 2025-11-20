@@ -453,6 +453,16 @@ st.markdown("""
         font-weight: 600;
     }
     
+    /* ===== MEAL CARD HOVER EFFECTS ===== */
+    .meal-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .meal-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 32px rgba(16, 161, 157, 0.3) !important;
+    }
     /* Reduce motion for users who prefer it */
     @media (prefers-reduced-motion: reduce) {
         * {
@@ -1287,7 +1297,7 @@ def dashboard_page():
     if meals:
         for meal in meals:
             st.markdown(f"""
-            <div style="
+            <div class="meal-card" style="
                 background: linear-gradient(135deg, #10A19D15 0%, #52C4B825 100%);
                 border: 2px solid #10A19D;
                 border-radius: 12px;
