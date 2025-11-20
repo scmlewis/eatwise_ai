@@ -352,14 +352,15 @@ def error_state(title: str, message: str, suggestion: str = None, icon: str = "�
     st.markdown(html_content, unsafe_allow_html=True)
 
 
-def success_state(title: str, message: str, icon: str = "✅"):
+def success_state(title: str, message: str, icon: str = "✅", animate: bool = True):
     """
-    Display a professional success state.
+    Display a professional success state with optional celebration animation.
     
     Args:
         title: Success title
         message: Success description
         icon: Success icon emoji
+        animate: Whether to show celebration animation (balloons)
     """
     html_content = f"""
     <div style="
@@ -369,9 +370,10 @@ def success_state(title: str, message: str, icon: str = "✅"):
         border-radius: 12px;
         padding: 20px;
         margin: 16px 0;
-    ">
+        animation: slideInUp 0.5s ease-out;
+    " class="success-notification">
         <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <div style="font-size: 24px; margin-top: 2px;">{icon}</div>
+            <div style="font-size: 24px; margin-top: 2px; animation: bounce 0.6s ease-in-out;">{icon}</div>
             <div style="flex: 1;">
                 <div style="
                     font-size: 16px;
@@ -387,9 +389,33 @@ def success_state(title: str, message: str, icon: str = "✅"):
             </div>
         </div>
     </div>
+    <style>
+        @keyframes slideInUp {{
+            from {{
+                opacity: 0;
+                transform: translateY(20px);
+            }}
+            to {{
+                opacity: 1;
+                transform: translateY(0);
+            }}
+        }}
+        @keyframes bounce {{
+            0%, 100% {{
+                transform: scale(1);
+            }}
+            50% {{
+                transform: scale(1.2);
+            }}
+        }}
+    </style>
     """
     
     st.markdown(html_content, unsafe_allow_html=True)
+    
+    # Add celebration animation if enabled
+    if animate:
+        st.balloons()
 
 
 # ==================== ACCESSIBILITY BEST PRACTICES ====================
@@ -998,7 +1024,8 @@ def login_page():
                         # Normalize the profile data immediately
                         normalized_profile = normalize_profile(user_data)
                         st.session_state.user_profile = normalized_profile
-                        show_notification("Login successful! Redirecting...", "success", use_toast=False)
+                        st.balloons()
+                        show_notification("Login successful! Welcome back! 🎉", "success", use_toast=False)
                         st.rerun()
                     else:
                         show_notification(message, "error", use_toast=False)
@@ -1028,7 +1055,8 @@ def login_page():
                     else:
                         success, message = auth_manager.sign_up(new_email, new_password, full_name)
                         if success:
-                            show_notification("Account created! Please login with your credentials.", "success", use_toast=False)
+                            st.balloons()
+                            show_notification("Account created! Welcome aboard! 🎉 Please login with your credentials.", "success", use_toast=False)
                         else:
                             show_notification(message, "error", use_toast=False)
                 else:
@@ -1680,8 +1708,13 @@ def meal_logging_page():
     with tab1:
         # Show one-time success message if meal was just saved
         if st.session_state.get("_text_meal_saved", False):
-            success_state("Meal Saved", "Your meal has been logged successfully!")
+            success_state(
+                "Meal Saved", 
+                "Your meal has been logged successfully! Keep up the healthy eating! 🎉",
+                animate=st.session_state.get("_show_meal_animation", True)
+            )
             st.session_state._text_meal_saved = False
+            st.session_state._show_meal_animation = False
         
         st.markdown("## Describe Your Meal")
         
@@ -1760,6 +1793,7 @@ def meal_logging_page():
                     del st.session_state.meal_type
                     # Set flag to show success message on next render
                     st.session_state._text_meal_saved = True
+                    st.session_state._show_meal_animation = True
                     st.rerun()
                 else:
                     error_state(
@@ -1772,8 +1806,13 @@ def meal_logging_page():
     with tab2:
         # Show one-time success message if meal was just saved
         if st.session_state.get("_photo_meal_saved", False):
-            success_state("Meal Saved", "Your meal has been logged successfully!")
+            success_state(
+                "Meal Saved", 
+                "Your meal photo has been analyzed and logged! Excellent work! 🎉",
+                animate=st.session_state.get("_show_meal_animation", True)
+            )
             st.session_state._photo_meal_saved = False
+            st.session_state._show_meal_animation = False
         
         st.markdown("## Upload Food Photo")
         
@@ -1854,6 +1893,7 @@ def meal_logging_page():
                     del st.session_state.photo_analysis
                     # Set flag to show success message on next render
                     st.session_state._photo_meal_saved = True
+                    st.session_state._show_meal_animation = True
                     st.rerun()
                 else:
                     error_state(
@@ -1961,7 +2001,8 @@ def meal_logging_page():
                                 else:
                                     total_failed += 1
             
-            show_notification(f"Saved {total_saved} meals successfully!", "success", use_toast=False)
+            st.balloons()
+            show_notification(f"Saved {total_saved} meals successfully! Great job logging your meals! 🎉", "success", use_toast=False)
             if total_failed > 0:
                 show_notification(f"Failed to save {total_failed} meals", "warning", use_toast=False)
             st.rerun()
@@ -3078,7 +3119,8 @@ def profile_page():
                         # Refresh profile from DB to ensure stored representation matches
                         fetched = db_manager.get_health_profile(st.session_state.user_id) or profile_data
                         st.session_state.user_profile = normalize_profile(fetched)
-                        show_notification("Profile created!", "success", use_toast=False)
+                        st.balloons()
+                        show_notification("Profile created! Welcome aboard! 🎉", "success", use_toast=False)
                         st.rerun()
                     else:
                         show_notification("Failed to create profile", "error", use_toast=False)
@@ -3162,7 +3204,8 @@ def profile_page():
                         # Refresh the session profile so other pages reflect updated values immediately
                         fetched = db_manager.get_health_profile(st.session_state.user_id) or {**user_profile, **update_data}
                         st.session_state.user_profile = normalize_profile(fetched)
-                        show_notification("Profile updated!", "success", use_toast=False)
+                        st.balloons()
+                        show_notification("Profile updated! All set! 🎉", "success", use_toast=False)
                         st.rerun()
                     else:
                         show_notification("Failed to update profile", "error", use_toast=False)
