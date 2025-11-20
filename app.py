@@ -82,6 +82,36 @@ def normalize_profile(profile: dict) -> dict:
 
     return p
 
+
+def show_notification(message: str, notification_type: str = "success", use_toast: bool = True):
+    """
+    Unified notification helper for consistent UX across the app.
+    
+    Args:
+        message: Notification message (emoji already included if needed)
+        notification_type: 'success', 'error', 'warning', or 'info'
+        use_toast: If True, use st.toast() (auto-dismiss); if False, use persistent boxes
+    """
+    if use_toast:
+        # Auto-dismiss toasts for quick feedback (water, quick add, delete, etc.)
+        icon_map = {
+            "success": "✅",
+            "error": "❌",
+            "warning": "⚠️",
+            "info": "ℹ️"
+        }
+        st.toast(message, icon=icon_map.get(notification_type, "ℹ️"))
+    else:
+        # Persistent boxes for important context (profile changes, batch operations)
+        api_map = {
+            "success": st.success,
+            "error": st.error,
+            "warning": st.warning,
+            "info": st.info
+        }
+        api_func = api_map.get(notification_type, st.info)
+        api_func(message)
+
 # ==================== PAGE CONFIG ====================
 
 st.set_page_config(
@@ -463,12 +493,12 @@ def login_page():
                         st.session_state.user_id = user_data["user_id"]
                         st.session_state.user_email = user_data["email"]
                         st.session_state.user_profile = user_data
-                        st.success("✅ Login successful! Redirecting...")
+                        show_notification("Login successful! Redirecting...", "success", use_toast=False)
                         st.rerun()
                     else:
-                        st.error(f"❌ {message}")
+                        show_notification(message, "error", use_toast=False)
                 else:
-                    st.warning("⚠️ Please enter email and password")
+                    show_notification("Please enter email and password", "warning", use_toast=False)
             
             # Forgot password button - same width as login button
             st.markdown("""
@@ -489,15 +519,15 @@ def login_page():
             if st.button("Sign Up", key="signup_btn", use_container_width=True):
                 if new_email and new_password and full_name:
                     if len(new_password) < 6:
-                        st.error("❌ Password must be at least 6 characters")
+                        show_notification("Password must be at least 6 characters", "error", use_toast=False)
                     else:
                         success, message = auth_manager.sign_up(new_email, new_password, full_name)
                         if success:
-                            st.success("✅ Account created! Please login with your credentials.")
+                            show_notification("Account created! Please login with your credentials.", "success", use_toast=False)
                         else:
-                            st.error(f"❌ {message}")
+                            show_notification(message, "error", use_toast=False)
                 else:
-                    st.warning("⚠️ Please fill all fields")
+                    show_notification("Please fill all fields", "warning", use_toast=False)
             
             st.markdown("""
             <p style="text-align: center; color: #a0a0a0; margin-top: 12px; font-size: 0.8em;">
@@ -1114,10 +1144,10 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    st.success(f"✅ {meal.get('meal_name')} added!")
+                    show_notification(f"{meal.get('meal_name')} added!", "success", use_toast=True)
                     st.rerun()
                 else:
-                    st.error("❌ Failed to add meal")
+                    show_notification("Failed to add meal", "error", use_toast=True)
         
         st.divider()
     
@@ -1154,11 +1184,11 @@ def meal_logging_page():
                         # Store analysis in session state so it persists
                         st.session_state.meal_analysis = analysis
                         st.session_state.meal_type = meal_type
-                        st.success("✅ Meal analyzed!")
+                        show_notification("Meal analyzed!", "success", use_toast=True)
                     else:
-                        st.error("❌ Could not analyze meal. Please try again.")
+                        show_notification("Could not analyze meal. Please try again.", "error", use_toast=True)
             else:
-                st.warning("Please describe your meal")
+                show_notification("Please describe your meal", "warning", use_toast=True)
         
         # Display analysis if it exists in session state
         if "meal_analysis" in st.session_state:
@@ -1203,13 +1233,13 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    st.success("✅ Meal saved successfully!")
+                    show_notification("Meal saved successfully!", "success", use_toast=True)
                     # Clear the analysis from session state
                     del st.session_state.meal_analysis
                     del st.session_state.meal_type
                     st.rerun()
                 else:
-                    st.error("❌ Failed to save meal")
+                    show_notification("Failed to save meal", "error", use_toast=True)
     
     with tab2:
         st.markdown("## Upload Food Photo")
@@ -1238,9 +1268,9 @@ def meal_logging_page():
                     if analysis:
                         # Store analysis in session state (meal_type is already in session via selectbox key)
                         st.session_state.photo_analysis = analysis
-                        st.success("✅ Photo analyzed!")
+                        show_notification("Photo analyzed!", "success", use_toast=True)
                     else:
-                        st.error("❌ Could not analyze photo. Please try again.")
+                        show_notification("Could not analyze photo. Please try again.", "error", use_toast=True)
         
         # Display analysis if it exists in session state
         if "photo_analysis" in st.session_state:
@@ -1282,12 +1312,12 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    st.success("✅ Meal saved successfully!")
+                    show_notification("Meal saved successfully!", "success", use_toast=True)
                     # Clear the analysis from session state
                     del st.session_state.photo_analysis
                     st.rerun()
                 else:
-                    st.error("❌ Failed to save meal")
+                    show_notification("Failed to save meal", "error", use_toast=True)
     
     with tab3:
         st.markdown("## 📅 Batch Log Meals")
@@ -1387,9 +1417,9 @@ def meal_logging_page():
                                 else:
                                     total_failed += 1
             
-            st.success(f"✅ Saved {total_saved} meals successfully!")
+            show_notification(f"Saved {total_saved} meals successfully!", "success", use_toast=False)
             if total_failed > 0:
-                st.warning(f"⚠️ Failed to save {total_failed} meals")
+                show_notification(f"Failed to save {total_failed} meals", "warning", use_toast=False)
             st.rerun()
 
 
@@ -2257,10 +2287,10 @@ def meal_history_page():
             with col4:
                 if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
                     if db_manager.delete_meal(meal['id']):
-                        st.success("Meal deleted!")
+                        show_notification("Meal deleted!", "success", use_toast=True)
                         st.rerun()
                     else:
-                        st.error("Failed to delete meal")
+                        show_notification("Failed to delete meal", "error", use_toast=True)
             
             # Duplicate meal section
             if st.session_state.get(f"dup_meal_id_{meal['id']}", False):
@@ -2290,11 +2320,11 @@ def meal_history_page():
                         }
                         
                         if db_manager.log_meal(meal_data):
-                            st.success(f"✅ {meal.get('meal_name')} duplicated to {dup_date}!")
+                            show_notification(f"{meal.get('meal_name')} duplicated to {dup_date}!", "success", use_toast=True)
                             st.session_state[f"dup_meal_id_{meal['id']}"] = False
                             st.rerun()
                         else:
-                            st.error("Failed to duplicate meal")
+                            show_notification("Failed to duplicate meal", "error", use_toast=True)
                 
                 with dup_col2:
                     if st.button("❌ Cancel", use_container_width=True, key=f"cancel_dup_{meal['id']}"):
@@ -2359,11 +2389,11 @@ def meal_history_page():
                             }
                             
                             if db_manager.update_meal(meal['id'], updated_meal):
-                                st.success("✅ Meal updated!")
+                                show_notification("Meal updated!", "success", use_toast=True)
                                 st.session_state[f"edit_meal_id_{meal['id']}"] = False
                                 st.rerun()
                             else:
-                                st.error("❌ Failed to update meal")
+                                show_notification("Failed to update meal", "error", use_toast=True)
                     
                     with btn_col2:
                         if st.form_submit_button("❌ Cancel", use_container_width=True, key=f"cancel_hist_{meal['id']}"):
@@ -2486,10 +2516,10 @@ def profile_page():
                         # Refresh profile from DB to ensure stored representation matches
                         fetched = db_manager.get_health_profile(st.session_state.user_id) or profile_data
                         st.session_state.user_profile = normalize_profile(fetched)
-                        st.success("✅ Profile created!")
+                        show_notification("Profile created!", "success", use_toast=False)
                         st.rerun()
                     else:
-                        st.error("❌ Failed to create profile")
+                        show_notification("Failed to create profile", "error", use_toast=False)
         
         else:
             st.markdown("## Update Your Profile")
@@ -2570,10 +2600,10 @@ def profile_page():
                         # Refresh the session profile so other pages reflect updated values immediately
                         fetched = db_manager.get_health_profile(st.session_state.user_id) or {**user_profile, **update_data}
                         st.session_state.user_profile = normalize_profile(fetched)
-                        st.success("✅ Profile updated!")
+                        show_notification("Profile updated!", "success", use_toast=False)
                         st.rerun()
                     else:
-                        st.error("❌ Failed to update profile")
+                        show_notification("Failed to update profile", "error", use_toast=False)
     
     with tab2:
         st.markdown("## Change Password")
