@@ -81,13 +81,20 @@ class AuthManager:
                         # User might already exist (race condition), continue anyway
                         pass
                     
-                    return True, "Login successful", {
+                    user_data = {
                         "user_id": user_id,
                         "email": email,
                         "full_name": ""
                     }
                 else:
-                    return True, "Login successful", profile.data[0]
+                    user_data = profile.data[0]
+                
+                # Fetch health profile and merge with user data
+                health_profile = self.supabase.table("health_profiles").select("*").eq("user_id", user_id).execute()
+                if health_profile.data:
+                    user_data.update(health_profile.data[0])
+                
+                return True, "Login successful", user_data
             else:
                 return False, "Invalid credentials", None
                 
