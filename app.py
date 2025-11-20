@@ -156,6 +156,50 @@ def heading_h3(text: str, margin_bottom: str = "12px"):
     """, unsafe_allow_html=True)
 
 
+# ==================== COMPONENT HELPERS ====================
+# Production-grade card and component styling functions
+
+def spacing_divider(margin_top: str = "24px", margin_bottom: str = "24px"):
+    """Add consistent spacing divider with proper margins"""
+    st.markdown(f"""
+    <div style="
+        height: 1px;
+        background: #2a3050;
+        margin-top: {margin_top};
+        margin-bottom: {margin_bottom};
+    "></div>
+    """, unsafe_allow_html=True)
+
+
+def display_card(content_html: str, bg_gradient: str = None, border_color: str = "#10A19D",
+                padding: str = "16px", border_radius: str = "12px"):
+    """
+    Display a standardized card with consistent styling.
+    
+    Args:
+        content_html: Inner HTML content
+        bg_gradient: CSS gradient (optional), uses default if not specified
+        border_color: Border color hex code
+        padding: Card padding
+        border_radius: Border radius
+    """
+    if not bg_gradient:
+        bg_gradient = f"linear-gradient(135deg, rgba(16, 161, 157, 0.15) 0%, rgba(82, 196, 184, 0.08) 100%)"
+    
+    st.markdown(f"""
+    <div style="
+        background: {bg_gradient};
+        border: 1px solid {border_color};
+        border-radius: {border_radius};
+        padding: {padding};
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+    ">
+        {content_html}
+    </div>
+    """, unsafe_allow_html=True)
+
+
 # ==================== PAGE CONFIG ====================
 
 st.set_page_config(
