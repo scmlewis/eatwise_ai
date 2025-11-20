@@ -2508,13 +2508,18 @@ def insights_page():
         health_goal_val = user_profile.get('health_goal', 'N/A')
         health_conditions_list = user_profile.get('health_conditions', []) or []
 
+        # Show personalization if profile has been customized from defaults
+        # or if any meaningful data exists
         has_personalization = (
-            (age_group and age_group != 'N/A') or
-            (health_goal_val and health_goal_val != 'N/A') or
-            (isinstance(health_conditions_list, list) and len(health_conditions_list) > 0)
+            user_profile and
+            (
+                (age_group and age_group != 'N/A') or
+                (health_goal_val and health_goal_val != 'N/A') or
+                (isinstance(health_conditions_list, list) and len(health_conditions_list) > 0)
+            )
         )
 
-        if has_personalization:
+        if has_personalization and age_group != 'N/A':
             st.markdown("**Your targets are personalized based on:**")
             context_cols = st.columns(3, gap="small")
 
@@ -2564,8 +2569,9 @@ def insights_page():
 
             st.markdown("")  # Spacing
         else:
-            # If no personalization data available, hide the decorative boxes and prompt to complete profile.
-            st.info("Complete your profile under 'My Profile' to see personalized targets.")
+            # If no personalization data available, just show the targets with defaults
+            # Don't prompt to complete profile since we have defaults now
+            pass
         
         # ===== NUTRITION TARGETS WITH PROGRESS =====
         st.markdown("**Daily Nutrition Targets:**")
