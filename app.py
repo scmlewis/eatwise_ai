@@ -3320,12 +3320,16 @@ def coaching_assistant_page():
         # Input area (fixed at bottom with two-column layout)
         col1, col2 = st.columns([5, 1], gap="small")
         
+        # Initialize input state if not exists
+        if "coaching_user_input" not in st.session_state:
+            st.session_state.coaching_user_input = ""
+        
         with col1:
             user_input = st.text_input(
                 "Message",
+                value=st.session_state.coaching_user_input,
                 placeholder="Ask me about nutrition, meal planning, eating patterns, health goals, or anything related to your diet...",
-                label_visibility="collapsed",
-                key="coaching_input"
+                label_visibility="collapsed"
             )
         
         with col2:
@@ -3355,14 +3359,17 @@ def coaching_assistant_page():
                 "content": response
             })
             
-            # Clear the input by using session state
-            st.session_state.coaching_input = ""
+            # Clear the input by resetting session state
+            st.session_state.coaching_user_input = ""
             st.rerun()
+        
+        # Update session state when user types
+        st.session_state.coaching_user_input = user_input
         
         # Clear Chat button
         if st.button("🔄 Clear Chat", key="clear_coaching", use_container_width=True):
             st.session_state.coaching_conversation = []
-            st.session_state.coaching_input = ""
+            st.session_state.coaching_user_input = ""
             st.rerun()
 
 
