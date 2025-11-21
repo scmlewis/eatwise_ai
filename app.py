@@ -3324,7 +3324,7 @@ def coaching_assistant_page():
         
         # Use a form for proper input handling
         with st.form(key="chat_form", clear_on_submit=True):
-            form_col1, form_col2 = st.columns([4, 1], gap="small")
+            form_col1, form_col2, form_col3 = st.columns([4, 1, 1], gap="small")
             
             with form_col1:
                 user_input = st.text_input(
@@ -3335,13 +3335,12 @@ def coaching_assistant_page():
             
             with form_col2:
                 send_button = st.form_submit_button("📤 Send", use_container_width=True)
-        
-        # Clear Chat button on same level as form, balanced
-        clear_col1, clear_col2 = st.columns([4, 1], gap="small")
-        with clear_col2:
-            if st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn"):
-                st.session_state.coaching_conversation = []
-                st.rerun()
+            
+            with form_col3:
+                clear_button = st.form_submit_button("🔄 Clear", use_container_width=True, key="clear_coaching_btn")
+                if clear_button:
+                    st.session_state.coaching_conversation = []
+                    st.rerun()
         
         # Handle message sending
         if send_button and user_input.strip():
