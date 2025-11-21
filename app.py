@@ -3109,54 +3109,61 @@ def coaching_assistant_page():
             border: 1px solid #3B82F6;
             border-radius: 12px;
             padding: 16px;
-            height: 550px;
+            height: min(550px, 70vh);
             overflow-y: auto;
             margin-bottom: 12px;
         }
         
         @media (max-width: 1024px) {
             .chat-box {
-                height: 480px;
+                height: min(480px, 65vh);
                 padding: 14px;
             }
         }
         
         @media (max-width: 768px) {
             .chat-box {
-                height: 400px;
+                height: min(400px, 60vh);
                 padding: 12px;
             }
         }
         
-        @media (max-width: 600px) {
+        @media (max-width: 640px) {
             .chat-box {
-                height: 320px;
-                padding: 10px;
+                height: min(360px, 55vh);
+                padding: 12px;
             }
             
             .message-user {
-                margin-left: 15px !important;
+                margin-left: 20px !important;
             }
             
             .message-coach {
-                margin-right: 15px !important;
+                margin-right: 20px !important;
             }
         }
         
         @media (max-width: 480px) {
             .chat-box {
-                height: 280px;
-                padding: 8px;
+                height: min(300px, 50vh);
+                padding: 10px;
             }
             
             .message-user {
-                margin-left: 10px !important;
+                margin-left: 12px !important;
                 padding: 10px 12px !important;
             }
             
             .message-coach {
-                margin-right: 10px !important;
+                margin-right: 12px !important;
                 padding: 10px 12px !important;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .chat-box {
+                height: min(250px, 45vh) !important;
+                padding: 8px !important;
             }
         }
         
