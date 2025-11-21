@@ -37,10 +37,19 @@ AGE_GROUP_TARGETS = {
     "65+": {"calories": 1600, "protein": 50, "carbs": 220, "fat": 53, "sodium": 2300, "sugar": 50},
 }
 
-# Health Condition Targets
+# Health Condition Targets (Adjustments for specific medical conditions)
 HEALTH_CONDITION_TARGETS = {
     "diabetes": {"calories": 1800, "carbs": 200, "sugar": 25, "fiber": 35},
     "hypertension": {"sodium": 1500},
+    "heart_disease": {"sodium": 1500, "fat": 50},
+    "lactose_intolerance": {},  # Handled via dietary restrictions
+    "celiac_disease": {},  # Handled via dietary restrictions
+}
+
+# Health Goal Targets (Adjustments for specific health goals)
+HEALTH_GOAL_TARGETS = {
     "weight_loss": {"calories": 1500, "protein": 80},
     "weight_gain": {"calories": 3000, "protein": 100},
+    "muscle_gain": {"calories": 2800, "protein": 120},
+    "performance": {"calories": 2600, "protein": 100, "carbs": 400},
 }

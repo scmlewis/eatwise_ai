@@ -20,9 +20,9 @@ from config import (
     APP_NAME, APP_DESCRIPTION, SUPABASE_URL, SUPABASE_KEY,
     DAILY_CALORIE_TARGET, DAILY_PROTEIN_TARGET, DAILY_CARBS_TARGET,
     DAILY_FAT_TARGET, DAILY_SODIUM_TARGET, DAILY_SUGAR_TARGET, 
-    DAILY_FIBER_TARGET, AGE_GROUP_TARGETS, HEALTH_CONDITION_TARGETS
+    DAILY_FIBER_TARGET, AGE_GROUP_TARGETS, HEALTH_CONDITION_TARGETS, HEALTH_GOAL_TARGETS
 )
-from constants import MEAL_TYPES, HEALTH_CONDITIONS, BADGES, COLORS
+from constants import MEAL_TYPES, HEALTH_CONDITIONS, DIETARY_PREFERENCES, BADGES, COLORS
 from auth import AuthManager, init_auth_session, is_authenticated
 from database import DatabaseManager
 from nutrition_analyzer import NutritionAnalyzer
@@ -1042,6 +1042,11 @@ def dashboard_page():
     for condition in health_conditions:
         if condition in HEALTH_CONDITION_TARGETS:
             targets.update(HEALTH_CONDITION_TARGETS[condition])
+    
+    # Apply health goal adjustments
+    health_goal = user_profile.get("health_goal", "general_health")
+    if health_goal in HEALTH_GOAL_TARGETS:
+        targets.update(HEALTH_GOAL_TARGETS[health_goal])
     
     # ===== Statistics & Achievements (Top Section) =====
     # Get data for the last 7 days for statistics
@@ -3022,7 +3027,8 @@ def profile_page():
                 
                 goal = st.selectbox(
                     "Health Goal",
-                    options=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"],
+                    options=list(HEALTH_GOAL_TARGETS.keys()),
+                    format_func=lambda x: HEALTH_GOAL_TARGETS.get(x, x),
                     help="What's your primary health goal?"
                 )
                 
@@ -3143,10 +3149,10 @@ def profile_page():
                 
                 goal = st.selectbox(
                     "Health Goal",
-                    options=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"],
-                    index=["maintain", "weight_loss", "weight_gain", "muscle_gain", "general_health"].index(
-                        user_profile.get("health_goal", "maintain")
-                    )
+                    options=list(HEALTH_GOAL_TARGETS.keys()),
+                    index=list(HEALTH_GOAL_TARGETS.keys()).index(user_profile.get("health_goal", "general_health")),
+                    format_func=lambda x: HEALTH_GOAL_TARGETS.get(x, x),
+                    help="What's your primary health goal?"
                 )
                 
                 water_goal = st.number_input(
@@ -3397,6 +3403,11 @@ def coaching_assistant_page():
         for condition in health_conditions:
             if condition in HEALTH_CONDITION_TARGETS:
                 targets.update(HEALTH_CONDITION_TARGETS[condition])
+        
+        # Apply health goal adjustments
+        health_goal = user_profile.get("health_goal", "general_health")
+        if health_goal in HEALTH_GOAL_TARGETS:
+            targets.update(HEALTH_GOAL_TARGETS[health_goal])
         
         # Initialize conversation history in session state
         if "coaching_conversation" not in st.session_state:

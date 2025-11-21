@@ -9,16 +9,14 @@ MEAL_TYPES = {
     "beverage": "🥤 Beverage",
 }
 
-# Health Conditions
+# Health Conditions (Medical/Dietary Restrictions)
 HEALTH_CONDITIONS = {
     "diabetes": "Diabetes Management",
     "hypertension": "High Blood Pressure",
-    "weight_loss": "Weight Loss Goal",
-    "weight_gain": "Weight Gain Goal",
-    "vegetarian": "Vegetarian",
-    "vegan": "Vegan",
-    "gluten_free": "Gluten Free",
+    "heart_disease": "Heart Disease",
     "nut_allergy": "Nut Allergy",
+    "lactose_intolerance": "Lactose Intolerance",
+    "celiac_disease": "Celiac Disease",
 }
 
 # Gamification
