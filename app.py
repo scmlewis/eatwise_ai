@@ -258,8 +258,20 @@ st.markdown("""
     }
     
     .main {
-        padding-top: 2rem;
+        padding-top: 2.5rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
         background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+    }
+    
+    /* Improved section spacing */
+    [data-testid="stMarkdownContainer"] {
+        margin-bottom: 2rem !important;
+    }
+    
+    h1, h2, h3 {
+        margin-top: 1.5rem !important;
+        margin-bottom: 1rem !important;
     }
     
     /* Modern gradient cards */
@@ -288,26 +300,61 @@ st.markdown("""
     }
     
     .metric-card {
-        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        background: rgba(16, 161, 157, 0.08);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(82, 196, 184, 0.3);
         padding: 20px;
-        border-radius: 12px;
+        border-radius: 16px;
         color: white;
-        margin: 10px 0;
-        box-shadow: 0 8px 20px rgba(16, 161, 157, 0.3);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin: 12px 0;
+        box-shadow: 
+            0 1px 3px rgba(0, 0, 0, 0.12),
+            0 4px 12px rgba(16, 161, 157, 0.15),
+            0 8px 24px rgba(16, 161, 157, 0.1);
+        transition: all 0.3s ease;
     }
     
     .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(16, 161, 157, 0.4);
+        transform: translateY(-4px);
+        background: rgba(16, 161, 157, 0.12);
+        border-color: rgba(82, 196, 184, 0.5);
+        box-shadow: 
+            0 2px 4px rgba(0, 0, 0, 0.15),
+            0 8px 16px rgba(16, 161, 157, 0.25),
+            0 16px 32px rgba(16, 161, 157, 0.15);
+    }
+    
+    /* Glass morphism for all cards */
+    [data-testid="stColumn"] {
+        backdrop-filter: blur(5px);
+    }
+    
+    .card-glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 
+            0 1px 3px rgba(0, 0, 0, 0.1),
+            0 4px 12px rgba(0, 0, 0, 0.08);
     }
     
     .nutrition-bar {
-        height: 8px;
-        background: #e0e0e0;
-        border-radius: 4px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
         overflow: hidden;
-        margin: 5px 0;
+        margin: 8px 0;
+        box-shadow: 
+            inset 0 2px 4px rgba(0, 0, 0, 0.2),
+            0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nutrition-bar > div {
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(82, 196, 184, 0.3);
     }
     
     .success {
@@ -322,38 +369,61 @@ st.markdown("""
         color: #FF0000;
     }
     
-    /* Modern buttons */
+    /* Modern buttons with enhanced shadows */
     .stButton > button {
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
+        border-radius: 12px;
+        padding: 12px 24px;
         font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(16, 161, 157, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 
+            0 2px 4px rgba(0, 0, 0, 0.1),
+            0 4px 12px rgba(16, 161, 157, 0.25),
+            0 8px 24px rgba(16, 161, 157, 0.15);
     }
     
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 161, 157, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 
+            0 4px 8px rgba(0, 0, 0, 0.12),
+            0 8px 20px rgba(16, 161, 157, 0.35),
+            0 12px 32px rgba(16, 161, 157, 0.2);
     }
     
-    /* Tabs styling */
+    .stButton > button:active {
+        transform: translateY(-1px);
+    }
+    
+    /* Tabs styling with glass morphism */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 12px;
+        margin-bottom: 1.5rem;
     }
     
     .stTabs [data-baseweb="tab"] {
-        background: linear-gradient(135deg, #10A19D10 0%, #52C4B810 100%);
-        border-radius: 8px;
-        padding: 10px 16px;
-        border: 1px solid #10A19D;
+        background: rgba(16, 161, 157, 0.08);
+        backdrop-filter: blur(8px);
+        border-radius: 12px;
+        padding: 12px 20px;
+        border: 1px solid rgba(82, 196, 184, 0.2);
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background: rgba(16, 161, 157, 0.12);
+        border-color: rgba(82, 196, 184, 0.4);
     }
     
     .stTabs [data-baseweb="tab"][aria-selected="true"] {
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        border-color: rgba(82, 196, 184, 0.8);
         color: white;
+        box-shadow: 
+            0 2px 4px rgba(0, 0, 0, 0.15),
+            0 4px 12px rgba(16, 161, 157, 0.3);
     }
     
     /* Ensure sidebar expansion on all screen sizes after login */
