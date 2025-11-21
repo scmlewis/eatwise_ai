@@ -542,6 +542,28 @@ st.markdown("""
         box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
     }
     
+    /* ===== DASHBOARD INFO BOXES WITH FADE-IN ANIMATION ===== */
+    @keyframes dashboardFadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(10px);
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0);
+        }
+    }
+    
+    .dashboard-info-box {
+        animation: dashboardFadeIn 0.4s ease-out;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-info-box:hover {
+        border-color: rgba(16, 161, 157, 0.8) !important;
+        box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
+    }
+    
     /* ===== PATTERN/TIMING CARD HOVER EFFECTS ===== */
     .pattern-card {
         transition: all 0.3s ease;
@@ -1373,7 +1395,7 @@ def dashboard_page():
     # MACRO BALANCE - Left side
     with breakdown_col1:
         st.markdown("""
-        <div class="macro-box" style="
+        <div class="macro-box dashboard-info-box" style="
             background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%);
             border: 1px solid rgba(16, 161, 157, 0.3);
             border-radius: 12px;
@@ -1416,7 +1438,7 @@ def dashboard_page():
     # EATING PATTERNS - Right side (replaced "Most Frequent Foods")
     with breakdown_col2:
         st.markdown("""
-        <div style="
+        <div class="dashboard-info-box" style="
             background: linear-gradient(135deg, rgba(255, 107, 22, 0.1) 0%, rgba(16, 161, 157, 0.05) 100%);
             border: 1px solid rgba(255, 107, 22, 0.3);
             border-radius: 12px;
