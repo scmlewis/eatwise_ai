@@ -3291,23 +3291,22 @@ def coaching_assistant_page():
         messages_html += '</div>'
         st.markdown(messages_html, unsafe_allow_html=True)
         
-        # Input area layout with better button balance
-        input_col1, input_col2, input_col3 = st.columns([3, 1, 1], gap="small")
-        
-        with input_col1:
-            # Use a simple text input with a key - let Streamlit manage it
-            user_input = st.text_input(
-                "Message",
-                placeholder="Ask your coach...",
-                label_visibility="collapsed",
-                key="coaching_msg_input"
-            )
-        
-        with input_col2:
-            send_button = st.button("📤 Send", use_container_width=True, key="send_coaching_btn")
-        
-        with input_col3:
-            clear_button = st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn")
+        # Use a form for proper input handling
+        with st.form(key="chat_form", clear_on_submit=True):
+            input_col1, input_col2, input_col3 = st.columns([3, 1, 1], gap="small")
+            
+            with input_col1:
+                user_input = st.text_input(
+                    "Message",
+                    placeholder="Ask your coach...",
+                    label_visibility="collapsed"
+                )
+            
+            with input_col2:
+                send_button = st.form_submit_button("📤 Send", use_container_width=True)
+            
+            with input_col3:
+                st.write("")  # Placeholder for alignment
         
         # Handle message sending
         if send_button and user_input.strip():
@@ -3333,14 +3332,11 @@ def coaching_assistant_page():
                 "content": response
             })
             
-            # Clear the input using the key
-            st.session_state.coaching_msg_input = ""
             st.rerun()
         
-        # Handle clear chat
-        if clear_button:
+        # Clear Chat button outside form
+        if st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn"):
             st.session_state.coaching_conversation = []
-            st.session_state.coaching_msg_input = ""
             st.rerun()
 
 
