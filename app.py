@@ -1092,7 +1092,7 @@ def dashboard_page():
         unsafe_allow_html=True
     )
     
-    st.markdown("## 🏆 Achievements")
+    st.markdown("## 🏆 Achievements & Quick Stats")
     
     meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
     streak_info = get_streak_info(meal_dates)
@@ -1109,18 +1109,18 @@ def dashboard_page():
             border: 1px solid #FF6715;
             border-left: 5px solid #FF6715;
             border-radius: 12px;
-            padding: 16px 16px;
+            padding: 20px 16px;
             text-align: center;
-            min-height: 140px;
+            min-height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             box-shadow: 0 4px 12px rgba(255, 103, 21, 0.2);
         ">
-            <div style="font-size: 32px; margin-bottom: 8px;">{streak_emoji}</div>
-            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">Current Streak</div>
-            <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 4px;">{current_streak}</div>
-            <div style="font-size: 9px; color: #FF6715; font-weight: 700;">days in a row</div>
+            <div style="font-size: 40px; margin-bottom: 10px;">{streak_emoji}</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;">Current Streak</div>
+            <div style="font-size: 36px; font-weight: 900; color: #FFB84D; margin-bottom: 6px;">{current_streak}</div>
+            <div style="font-size: 11px; color: #FF6715; font-weight: 700;">days in a row</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1133,18 +1133,18 @@ def dashboard_page():
             border: 1px solid #FFD43B;
             border-left: 5px solid #FFD43B;
             border-radius: 12px;
-            padding: 16px 16px;
+            padding: 20px 16px;
             text-align: center;
-            min-height: 140px;
+            min-height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             box-shadow: 0 4px 12px rgba(255, 212, 59, 0.2);
         ">
-            <div style="font-size: 32px; margin-bottom: 8px;">🏅</div>
-            <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">Longest Streak</div>
-            <div style="font-size: 28px; font-weight: 900; color: #FFD43B; margin-bottom: 4px;">{longest_streak}</div>
-            <div style="font-size: 9px; color: #FFD43B; font-weight: 700;">personal record</div>
+            <div style="font-size: 40px; margin-bottom: 10px;">🏅</div>
+            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;">Longest Streak</div>
+            <div style="font-size: 36px; font-weight: 900; color: #FFD43B; margin-bottom: 6px;">{longest_streak}</div>
+            <div style="font-size: 11px; color: #FFD43B; font-weight: 700;">personal record</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1175,87 +1175,132 @@ def dashboard_page():
     
     st.markdown("")
     
-    # ===== WATER INTAKE TRACKER =====
-    st.markdown("## 💧 Water Intake")
+    # ===== WATER INTAKE TRACKER + QUICK STATS (2-COLUMN) =====
+    st.markdown("## 💧 Hydration & Energy Status")
     
-    # Get water intake data
-    water_goal = user_profile.get("water_goal_glasses", 8)
-    current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
-    water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
+    quick_stats_col1, quick_stats_col2 = st.columns(2, gap="medium")
     
-    # Determine water status
-    if current_water >= water_goal:
-        water_status = "🎉 Daily goal achieved!"
-        water_status_color = "#51CF66"
-        water_bg = "linear-gradient(135deg, #51CF6620 0%, #69DB7C40 100%)"
-        water_border = "#51CF66"
-    elif current_water >= water_goal * 0.75:
-        water_status = "💪 Almost there! Keep going!"
-        water_status_color = "#FFD43B"
-        water_bg = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
-        water_border = "#FFD43B"
-    else:
-        water_status = "💧 Stay hydrated! Keep drinking"
-        water_status_color = "#3B82F6"
-        water_bg = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
-        water_border = "#3B82F6"
-    
-    # Water notifications are handled via st.toast() in button callbacks below
-    
-    # Water intake card
-    st.markdown(f"""
-    <div style="
-        background: {water_bg};
-        border: 2px solid {water_border};
-        border-radius: 12px;
-        padding: 18px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        margin-bottom: 12px;
-    ">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <span style="color: #e0f2f1; font-weight: 600; font-size: 15px;">💧 Water Intake</span>
-            <span style="color: {water_status_color}; font-weight: bold; font-size: 13px;">{current_water}/{water_goal} glasses</span>
+    # Water Intake Card (Left)
+    with quick_stats_col1:
+        # Get water intake data
+        water_goal = user_profile.get("water_goal_glasses", 8)
+        current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
+        water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
+        
+        # Determine water status
+        if current_water >= water_goal:
+            water_status = "🎉 Daily goal achieved!"
+            water_status_color = "#51CF66"
+            water_bg = "linear-gradient(135deg, #51CF6620 0%, #69DB7C40 100%)"
+            water_border = "#51CF66"
+        elif current_water >= water_goal * 0.75:
+            water_status = "💪 Almost there! Keep going!"
+            water_status_color = "#FFD43B"
+            water_bg = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
+            water_border = "#FFD43B"
+        else:
+            water_status = "💧 Stay hydrated! Keep drinking"
+            water_status_color = "#3B82F6"
+            water_bg = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
+            water_border = "#3B82F6"
+        
+        # Water intake card
+        st.markdown(f"""
+        <div style="
+            background: {water_bg};
+            border: 2px solid {water_border};
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            margin-bottom: 12px;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <span style="color: #e0f2f1; font-weight: 700; font-size: 16px;">💧 Water Intake</span>
+                <span style="color: {water_status_color}; font-weight: bold; font-size: 15px;">{current_water}/{water_goal}</span>
+            </div>
+            <div style="background: #0a0e27; border-radius: 8px; height: 14px; overflow: hidden; margin-bottom: 12px;">
+                <div style="background: linear-gradient(90deg, {water_border} 0%, {water_status_color} 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="color: {water_status_color}; font-weight: 600; font-size: 14px;">{water_status}</span>
+                <span style="color: #a0a0a0; font-size: 13px;">{water_percentage:.0f}%</span>
+            </div>
         </div>
-        <div style="background: #0a0e27; border-radius: 8px; height: 12px; overflow: hidden; margin-bottom: 10px;">
-            <div style="background: linear-gradient(90deg, {water_border} 0%, {water_status_color} 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="color: {water_status_color}; font-weight: 600; font-size: 13px;">{water_status}</span>
-            <span style="color: #a0a0a0; font-size: 12px;">{water_percentage:.0f}% Complete</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Water action buttons
-    water_btn_col1, water_btn_col2, water_btn_col3 = st.columns(3)
-    
-    with water_btn_col1:
-        if st.button("➕ Add Glass", use_container_width=True, key="add_water_btn"):
-            if db_manager.log_water(st.session_state.user_id, 1, today):
-                st.toast("✅ Glass added!", icon="💧")
-                st.rerun()
-            else:
-                st.toast("❌ Failed to log water", icon="⚠️")
-    
-    with water_btn_col2:
-        if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
-            if current_water > 0:
-                if db_manager.log_water(st.session_state.user_id, -1, today):
-                    st.toast("✅ Removed 1 glass", icon="💧")
+        """, unsafe_allow_html=True)
+        
+        # Water action buttons
+        water_btn_col1, water_btn_col2, water_btn_col3 = st.columns(3, gap="small")
+        
+        with water_btn_col1:
+            if st.button("➕ Add", use_container_width=True, key="add_water_btn"):
+                if db_manager.log_water(st.session_state.user_id, 1, today):
+                    st.toast("✅ Glass added!", icon="💧")
                     st.rerun()
                 else:
-                    st.toast("❌ Failed to remove water", icon="⚠️")
-            else:
-                st.toast("⚠️ No water logged yet", icon="💧")
+                    st.toast("❌ Failed to log water", icon="⚠️")
+        
+        with water_btn_col2:
+            if st.button("➖ Remove", use_container_width=True, key="remove_water_btn"):
+                if current_water > 0:
+                    if db_manager.log_water(st.session_state.user_id, -1, today):
+                        st.toast("✅ Removed 1 glass", icon="💧")
+                        st.rerun()
+                    else:
+                        st.toast("❌ Failed to remove water", icon="⚠️")
+                else:
+                    st.toast("⚠️ No water logged yet", icon="💧")
+        
+        with water_btn_col3:
+            if st.button("🏁 Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
+                remaining = max(0, water_goal - current_water)
+                if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
+                    st.toast(f"✅ Added {remaining} glasses!", icon="🎉")
+                    st.rerun()
+                else:
+                    st.toast("❌ Failed to complete water goal", icon="⚠️")
     
-    with water_btn_col3:
-        if st.button("🏁 Mark Complete", use_container_width=True, key="fill_water_btn", disabled=(current_water >= water_goal)):
-            remaining = max(0, water_goal - current_water)
-            if remaining > 0 and db_manager.log_water(st.session_state.user_id, remaining, today):
-                st.toast(f"✅ Added {remaining} glasses to complete goal!", icon="🎉")
-                st.rerun()
-            else:
-                st.toast("❌ Failed to complete water goal", icon="⚠️")
+    # Quick Calories Card (Right)
+    with quick_stats_col2:
+        cal_value = int(daily_nutrition['calories'])
+        cal_target = targets.get("calories", 2000)
+        cal_percentage = calculate_nutrition_percentage(cal_value, cal_target)
+        
+        # Determine calorie status
+        if cal_percentage > 100:
+            cal_status = "⚡ Above target"
+            cal_color = "#51CF66"
+        elif cal_percentage >= 80:
+            cal_color = "#51CF66"
+            cal_status = "✅ On track"
+        elif cal_percentage >= 50:
+            cal_color = "#FFD43B"
+            cal_status = "⚠️ Below target"
+        else:
+            cal_color = "#FF6B6B"
+            cal_status = "📉 Well below"
+        
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, {cal_color}20 0%, {cal_color}40 100%);
+            border: 2px solid {cal_color};
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            margin-bottom: 12px;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <span style="color: #e0f2f1; font-weight: 700; font-size: 16px;">🔥 Daily Calories</span>
+                <span style="color: {cal_color}; font-weight: bold; font-size: 15px;">{cal_value}/{cal_target}</span>
+            </div>
+            <div style="background: #0a0e27; border-radius: 8px; height: 14px; overflow: hidden; margin-bottom: 12px;">
+                <div style="background: linear-gradient(90deg, {cal_color} 0%, {cal_color} 100%); height: 100%; width: {min(cal_percentage, 100)}%; transition: width 0.3s ease;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="color: {cal_color}; font-weight: 600; font-size: 14px;">{cal_status}</span>
+                <span style="color: #a0a0a0; font-size: 13px;">{cal_percentage:.0f}%</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("")
     
@@ -1363,9 +1408,9 @@ def dashboard_page():
                 border: 1px solid {color};
                 border-left: 5px solid {color};
                 border-radius: 14px;
-                padding: 14px;
+                padding: 16px;
                 text-align: center;
-                min-height: 160px;
+                min-height: 180px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -1373,15 +1418,15 @@ def dashboard_page():
                 transition: all 0.3s ease;
             ">
                 <div>
-                    <div style="font-size: 28px; margin-bottom: 6px;">{card['icon']}</div>
-                    <div style="font-size: 9px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div>
+                    <div style="font-size: 32px; margin-bottom: 8px;">{card['icon']}</div>
+                    <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;">{card['label']}</div>
                 </div>
                 <div>
-                    <div style="font-size: 24px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{card['value']}{card['unit']}</div>
-                    <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 6px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
-                    <div style="font-size: 8px; color: #a0a0a0; margin-bottom: 4px;">of {card['target']}{card['unit']}</div>
+                    <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 10px;">{card['value']}{card['unit']}</div>
+                    <div style="background: #0a0e27; border-radius: 4px; height: 5px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
+                    <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 6px;">of {card['target']}{card['unit']}</div>
                 </div>
-                <div style="font-size: 8px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
+                <div style="font-size: 10px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
     
@@ -1399,9 +1444,9 @@ def dashboard_page():
             background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%);
             border: 1px solid rgba(16, 161, 157, 0.3);
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px;
         ">
-            <h3 style="color: #e0f2f1; margin-top: 0;">🔥 Today's Macro Balance</h3>
+            <h3 style="color: #e0f2f1; margin-top: 0; font-size: 18px;">🔥 Today's Macro Balance</h3>
         """, unsafe_allow_html=True)
         
         if daily_nutrition['protein'] > 0 or daily_nutrition['carbs'] > 0 or daily_nutrition['fat'] > 0:
@@ -1442,10 +1487,10 @@ def dashboard_page():
             background: linear-gradient(135deg, rgba(255, 107, 22, 0.1) 0%, rgba(16, 161, 157, 0.05) 100%);
             border: 1px solid rgba(255, 107, 22, 0.3);
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px;
             margin-bottom: 16px;
         ">
-            <h3 style="color: #e0f2f1; margin-top: 0;">🍽️ Today's Eating Patterns</h3>
+            <h3 style="color: #e0f2f1; margin-top: 0; font-size: 18px;">🍽️ Today's Eating Patterns</h3>
         """, unsafe_allow_html=True)
         
         # Calculate meal type distribution
@@ -1470,10 +1515,10 @@ def dashboard_page():
                 count = time_pattern.get(period, 0)
                 
                 st.markdown(f"""
-                <div class="pattern-card" style="text-align: center; padding: 12px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
-                    <div style="font-size: 24px; margin-bottom: 8px;">{emoji}</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #e0f2f1;">{count}</div>
-                    <div style="font-size: 12px; color: #a0a0a0;">{period}</div>
+                <div class="pattern-card" style="text-align: center; padding: 14px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
+                    <div style="font-size: 28px; margin-bottom: 10px;">{emoji}</div>
+                    <div style="font-size: 22px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{count}</div>
+                    <div style="font-size: 13px; color: #a0a0a0; font-weight: 600;">{period}</div>
                 </div>
                 """, unsafe_allow_html=True)
         
