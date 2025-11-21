@@ -237,7 +237,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
     
     :root {
         --primary-color: #10A19D;
@@ -249,10 +249,10 @@ st.markdown("""
         --danger-color: #FF0000;
         --accent-purple: #845EF7;
         --accent-blue: #3B82F6;
-        --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
     
-    /* Apply Inter font globally */
+    /* Apply Outfit font globally */
     html, body, [class*="css"] {
         font-family: var(--font-family) !important;
     }
