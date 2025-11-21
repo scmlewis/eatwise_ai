@@ -25,7 +25,7 @@ def create_profile_for_user(user_id, email, full_name=""):
         profile_data = {
             "user_id": user_id,
             "full_name": full_name,
-            "age_group": "26-35 (Adult)",
+            "age_group": "26-35",
             "gender": "Prefer not to say",
             "timezone": "UTC",
             "health_conditions": [],
