@@ -35,7 +35,16 @@ A Streamlit-based personalized nutrition assistant that helps busy professionals
 - Strength and improvement area identification
 - Motivational coaching
 
-### 6. **Gamification**
+### 6. **AI Nutrition Coaching** 🎯
+- **Multi-turn conversational coaching** with your AI nutrition coach
+- **Real-time meal guidance** - Get feedback on meals as you log them
+- **Pattern analysis** - 7-day eating pattern insights with strengths and improvement areas
+- **Personalized Q&A** - Ask nutrition questions tailored to your health profile
+- **Daily coaching tips** - Motivational, actionable nutrition advice
+- **Meal alternatives** - Discover healthier swaps for your favorite foods
+- All coaching is personalized based on your health conditions, goals, and dietary preferences
+
+### 7. **Gamification**
 - Logging streaks (🔥 Current & Longest)
 - Achievement badges
 - Progress tracking
@@ -169,7 +178,7 @@ The app will open at `http://localhost:8501`
   - Current & longest streaks
   - Earned badges
 
-#### 4. **Insights** 💡
+#### 5. **Insights** 💡
 - Personalized meal recommendations
 - 7-day meal plan generation
 - Health pattern analysis:
@@ -178,7 +187,23 @@ The app will open at `http://localhost:8501`
   - Specific recommendations
   - Red flags & motivational messages
 
-#### 5. **My Profile** 👤
+#### 6. **Coaching** 🎯
+- **Chat with Coach**: Multi-turn conversational interface with your AI nutrition coach
+  - Ask questions about nutrition, meals, and health goals
+  - Get personalized guidance based on your profile
+  - Maintain conversation history during the session
+- **Pattern Analysis**: Automatic 7-day eating habit analysis
+  - Key eating pattern identification
+  - Strengths recognition
+  - Areas for improvement
+  - Top recommendations
+  - Motivational messages
+- **Ask Questions**: Direct Q&A with daily tips
+  - Get personalized nutrition answers
+  - Receive daily coaching tips
+  - Tips are tailored to your current nutrition status and goals
+
+#### 7. **My Profile** 👤
 - User information
 - Health profile setup/update:
   - Age group
