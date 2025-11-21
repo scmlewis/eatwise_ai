@@ -1843,11 +1843,11 @@ def meal_logging_page():
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        padding: 10px 20px;
+        border-radius: 12px;
+        margin-bottom: 16px;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📸 Log Your Meal</h1>
+        <h1 style="color: white; margin: 0; font-size: 1.5em; line-height: 1.2;">📸 Log Your Meal</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -3242,75 +3242,92 @@ def profile_page():
             st.markdown("## Complete Your Profile")
             
             with st.form("health_profile_form"):
-                full_name = st.text_input("Full Name")
-                age_group = st.selectbox(
-                    "Age Group",
-                    options=list(AGE_GROUP_TARGETS.keys()),
-                    help="This helps us set appropriate nutrition targets"
-                )
+                # Row 1: Full Name and Age Group
+                col1, col2 = st.columns(2)
+                with col1:
+                    full_name = st.text_input("Full Name")
                 
-                gender = st.selectbox(
-                    "Gender",
-                    options=["Male", "Female", "Other", "Prefer not to say"],
-                    help="This helps us provide personalized nutrition recommendations"
-                )
+                with col2:
+                    age_group = st.selectbox(
+                        "Age Group",
+                        options=list(AGE_GROUP_TARGETS.keys()),
+                        help="This helps us set appropriate nutrition targets"
+                    )
                 
-                # Timezone mapping with descriptive labels showing UTC offset and example cities
-                timezone_dict = {
-                    "UTC ±0 (London, Dublin)": "UTC",
-                    "UTC-10 (Hawaii)": "US/Hawaii",
-                    "UTC-9 (Alaska)": "US/Alaska",
-                    "UTC-8 (Pacific: Los Angeles, Vancouver)": "US/Pacific",
-                    "UTC-7 (Mountain: Denver, Phoenix)": "US/Mountain",
-                    "UTC-6 (Central: Chicago, Mexico City)": "US/Central",
-                    "UTC-5 (Eastern: New York, Toronto)": "US/Eastern",
-                    "UTC+0 (London, UK)": "Europe/London",
-                    "UTC+1 (Paris, Berlin, Rome)": "Europe/Paris",
-                    "UTC+3 (Moscow, Istanbul)": "Europe/Moscow",
-                    "UTC+4 (Dubai, Abu Dhabi)": "Asia/Dubai",
-                    "UTC+5:30 (India: Delhi, Mumbai, Bangalore)": "Asia/Kolkata",
-                    "UTC+7 (Bangkok, Hanoi, Ho Chi Minh)": "Asia/Bangkok",
-                    "UTC+8 (Shanghai, Singapore, Hong Kong)": "Asia/Shanghai",
-                    "UTC+9 (Tokyo, Seoul)": "Asia/Tokyo",
-                    "UTC+10 (Sydney, Melbourne)": "Australia/Sydney",
-                    "UTC+12 (Auckland, Fiji)": "Pacific/Auckland"
-                }
-                timezone_options = list(timezone_dict.keys())
-                timezone = st.selectbox(
-                    "Timezone",
-                    options=timezone_options,
-                    index=0,
-                    help="Select your timezone. The UTC offset and major cities help you find yours quickly."
-                )
-                timezone = timezone_dict[timezone]
+                # Row 2: Gender and Timezone
+                col3, col4 = st.columns(2)
+                with col3:
+                    gender = st.selectbox(
+                        "Gender",
+                        options=["Male", "Female", "Other", "Prefer not to say"],
+                        help="This helps us provide personalized nutrition recommendations"
+                    )
                 
-                health_conditions = st.multiselect(
-                    "Health Conditions",
-                    options=list(HEALTH_CONDITIONS.keys()),
-                    format_func=lambda x: HEALTH_CONDITIONS.get(x, x),
-                    help="Select any health conditions that apply"
-                )
+                with col4:
+                    # Timezone mapping with descriptive labels showing UTC offset and example cities
+                    timezone_dict = {
+                        "UTC ±0 (London, Dublin)": "UTC",
+                        "UTC-10 (Hawaii)": "US/Hawaii",
+                        "UTC-9 (Alaska)": "US/Alaska",
+                        "UTC-8 (Pacific: Los Angeles, Vancouver)": "US/Pacific",
+                        "UTC-7 (Mountain: Denver, Phoenix)": "US/Mountain",
+                        "UTC-6 (Central: Chicago, Mexico City)": "US/Central",
+                        "UTC-5 (Eastern: New York, Toronto)": "US/Eastern",
+                        "UTC+0 (London, UK)": "Europe/London",
+                        "UTC+1 (Paris, Berlin, Rome)": "Europe/Paris",
+                        "UTC+3 (Moscow, Istanbul)": "Europe/Moscow",
+                        "UTC+4 (Dubai, Abu Dhabi)": "Asia/Dubai",
+                        "UTC+5:30 (India: Delhi, Mumbai, Bangalore)": "Asia/Kolkata",
+                        "UTC+7 (Bangkok, Hanoi, Ho Chi Minh)": "Asia/Bangkok",
+                        "UTC+8 (Shanghai, Singapore, Hong Kong)": "Asia/Shanghai",
+                        "UTC+9 (Tokyo, Seoul)": "Asia/Tokyo",
+                        "UTC+10 (Sydney, Melbourne)": "Australia/Sydney",
+                        "UTC+12 (Auckland, Fiji)": "Pacific/Auckland"
+                    }
+                    timezone_options = list(timezone_dict.keys())
+                    timezone = st.selectbox(
+                        "Timezone",
+                        options=timezone_options,
+                        index=0,
+                        help="Select your timezone. The UTC offset and major cities help you find yours quickly."
+                    )
+                    timezone = timezone_dict[timezone]
                 
-                dietary_preferences = st.multiselect(
-                    "Dietary Preferences",
-                    options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
-                    help="Select any dietary restrictions"
-                )
+                # Row 3: Health Conditions and Dietary Preferences
+                col5, col6 = st.columns(2)
+                with col5:
+                    health_conditions = st.multiselect(
+                        "Health Conditions",
+                        options=list(HEALTH_CONDITIONS.keys()),
+                        format_func=lambda x: HEALTH_CONDITIONS.get(x, x),
+                        help="Select any health conditions that apply"
+                    )
                 
-                goal = st.selectbox(
-                    "Health Goal",
-                    options=list(HEALTH_GOAL_TARGETS.keys()),
-                    format_func=lambda x: HEALTH_GOAL_TARGETS.get(x, x),
-                    help="What's your primary health goal?"
-                )
+                with col6:
+                    dietary_preferences = st.multiselect(
+                        "Dietary Preferences",
+                        options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
+                        help="Select any dietary restrictions"
+                    )
                 
-                water_goal = st.number_input(
-                    "Daily Water Goal (glasses)",
-                    min_value=1,
-                    max_value=20,
-                    value=8,
-                    help="Recommended: 8 glasses per day (2 liters)"
-                )
+                # Row 4: Health Goal and Water Goal
+                col7, col8 = st.columns(2)
+                with col7:
+                    goal = st.selectbox(
+                        "Health Goal",
+                        options=list(HEALTH_GOAL_TARGETS.keys()),
+                        format_func=lambda x: HEALTH_GOAL_TARGETS.get(x, x),
+                        help="What's your primary health goal?"
+                    )
+                
+                with col8:
+                    water_goal = st.number_input(
+                        "Daily Water Goal (glasses)",
+                        min_value=1,
+                        max_value=20,
+                        value=8,
+                        help="Recommended: 8 glasses per day (2 liters)"
+                    )
                 
                 if st.form_submit_button("Save Profile", use_container_width=True):
                     profile_data = {
@@ -3339,115 +3356,131 @@ def profile_page():
             st.markdown("## Update Your Profile")
             
             with st.form("update_profile_form"):
-                full_name = st.text_input("Full Name", value=user_profile.get("full_name", ""))
+                # Row 1: Full Name and Age Group
+                col1, col2 = st.columns(2)
+                with col1:
+                    full_name = st.text_input("Full Name", value=user_profile.get("full_name", ""))
                 
-                # Handle age group with migration for old format (26-35 (Adult) -> 26-35)
-                current_age_group = user_profile.get("age_group", "26-35")
-                # If user has old format with label, try to find matching new format
-                if current_age_group not in AGE_GROUP_TARGETS.keys():
-                    # Try to find a matching age group key
-                    matching_key = None
-                    for key in AGE_GROUP_TARGETS.keys():
-                        if key.split(" (")[0] == current_age_group or key in current_age_group:  # Match by age range part
-                            matching_key = key
+                with col2:
+                    # Handle age group with migration for old format (26-35 (Adult) -> 26-35)
+                    current_age_group = user_profile.get("age_group", "26-35")
+                    # If user has old format with label, try to find matching new format
+                    if current_age_group not in AGE_GROUP_TARGETS.keys():
+                        # Try to find a matching age group key
+                        matching_key = None
+                        for key in AGE_GROUP_TARGETS.keys():
+                            if key.split(" (")[0] == current_age_group or key in current_age_group:  # Match by age range part
+                                matching_key = key
+                                break
+                        current_age_group = matching_key or "26-35"  # Default fallback
+                    
+                    age_group_index = list(AGE_GROUP_TARGETS.keys()).index(current_age_group)
+                    age_group = st.selectbox(
+                        "Age Group",
+                        options=list(AGE_GROUP_TARGETS.keys()),
+                        index=age_group_index
+                    )
+                
+                # Row 2: Gender and Timezone
+                col3, col4 = st.columns(2)
+                with col3:
+                    gender_options = ["Male", "Female", "Other", "Prefer not to say"]
+                    gender_value = user_profile.get("gender", "Prefer not to say")
+                    gender_index = gender_options.index(gender_value) if gender_value in gender_options else 3
+                    gender = st.selectbox(
+                        "Gender",
+                        options=gender_options,
+                        index=gender_index,
+                        help="This helps us provide personalized nutrition recommendations"
+                    )
+                
+                with col4:
+                    # Timezone mapping with descriptive labels showing UTC offset and example cities
+                    timezone_dict = {
+                        "UTC ±0 (London, Dublin)": "UTC",
+                        "UTC-10 (Hawaii)": "US/Hawaii",
+                        "UTC-9 (Alaska)": "US/Alaska",
+                        "UTC-8 (Pacific: Los Angeles, Vancouver)": "US/Pacific",
+                        "UTC-7 (Mountain: Denver, Phoenix)": "US/Mountain",
+                        "UTC-6 (Central: Chicago, Mexico City)": "US/Central",
+                        "UTC-5 (Eastern: New York, Toronto)": "US/Eastern",
+                        "UTC+0 (London, UK)": "Europe/London",
+                        "UTC+1 (Paris, Berlin, Rome)": "Europe/Paris",
+                        "UTC+3 (Moscow, Istanbul)": "Europe/Moscow",
+                        "UTC+4 (Dubai, Abu Dhabi)": "Asia/Dubai",
+                        "UTC+5:30 (India: Delhi, Mumbai, Bangalore)": "Asia/Kolkata",
+                        "UTC+7 (Bangkok, Hanoi, Ho Chi Minh)": "Asia/Bangkok",
+                        "UTC+8 (Shanghai, Singapore, Hong Kong)": "Asia/Shanghai",
+                        "UTC+9 (Tokyo, Seoul)": "Asia/Tokyo",
+                        "UTC+10 (Sydney, Melbourne)": "Australia/Sydney",
+                        "UTC+12 (Auckland, Fiji)": "Pacific/Auckland"
+                    }
+                    timezone_options = list(timezone_dict.keys())
+                    timezone_value = user_profile.get("timezone", "UTC")
+                    # Find the matching display key for the saved timezone value
+                    timezone_index = 0
+                    for key, value in timezone_dict.items():
+                        if value == timezone_value:
+                            timezone_index = timezone_options.index(key)
                             break
-                    current_age_group = matching_key or "26-35"  # Default fallback
+                    timezone = st.selectbox(
+                        "Timezone",
+                        options=timezone_options,
+                        index=timezone_index,
+                        help="Select your timezone. The UTC offset and major cities help you find yours quickly."
+                    )
+                    timezone = timezone_dict[timezone]
                 
-                age_group_index = list(AGE_GROUP_TARGETS.keys()).index(current_age_group)
-                age_group = st.selectbox(
-                    "Age Group",
-                    options=list(AGE_GROUP_TARGETS.keys()),
-                    index=age_group_index
-                )
+                # Row 3: Health Conditions and Dietary Preferences
+                col5, col6 = st.columns(2)
+                with col5:
+                    health_conditions = st.multiselect(
+                        "Health Conditions",
+                        options=list(HEALTH_CONDITIONS.keys()),
+                        default=user_profile.get("health_conditions", []),
+                        format_func=lambda x: HEALTH_CONDITIONS.get(x, x)
+                    )
                 
-                gender_options = ["Male", "Female", "Other", "Prefer not to say"]
-                gender_value = user_profile.get("gender", "Prefer not to say")
-                gender_index = gender_options.index(gender_value) if gender_value in gender_options else 3
-                gender = st.selectbox(
-                    "Gender",
-                    options=gender_options,
-                    index=gender_index,
-                    help="This helps us provide personalized nutrition recommendations"
-                )
+                with col6:
+                    dietary_preferences = st.multiselect(
+                        "Dietary Preferences",
+                        options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
+                        default=user_profile.get("dietary_preferences", [])
+                    )
                 
-                # Timezone mapping with descriptive labels showing UTC offset and example cities
-                timezone_dict = {
-                    "UTC ±0 (London, Dublin)": "UTC",
-                    "UTC-10 (Hawaii)": "US/Hawaii",
-                    "UTC-9 (Alaska)": "US/Alaska",
-                    "UTC-8 (Pacific: Los Angeles, Vancouver)": "US/Pacific",
-                    "UTC-7 (Mountain: Denver, Phoenix)": "US/Mountain",
-                    "UTC-6 (Central: Chicago, Mexico City)": "US/Central",
-                    "UTC-5 (Eastern: New York, Toronto)": "US/Eastern",
-                    "UTC+0 (London, UK)": "Europe/London",
-                    "UTC+1 (Paris, Berlin, Rome)": "Europe/Paris",
-                    "UTC+3 (Moscow, Istanbul)": "Europe/Moscow",
-                    "UTC+4 (Dubai, Abu Dhabi)": "Asia/Dubai",
-                    "UTC+5:30 (India: Delhi, Mumbai, Bangalore)": "Asia/Kolkata",
-                    "UTC+7 (Bangkok, Hanoi, Ho Chi Minh)": "Asia/Bangkok",
-                    "UTC+8 (Shanghai, Singapore, Hong Kong)": "Asia/Shanghai",
-                    "UTC+9 (Tokyo, Seoul)": "Asia/Tokyo",
-                    "UTC+10 (Sydney, Melbourne)": "Australia/Sydney",
-                    "UTC+12 (Auckland, Fiji)": "Pacific/Auckland"
-                }
-                timezone_options = list(timezone_dict.keys())
-                timezone_value = user_profile.get("timezone", "UTC")
-                # Find the matching display key for the saved timezone value
-                timezone_index = 0
-                for key, value in timezone_dict.items():
-                    if value == timezone_value:
-                        timezone_index = timezone_options.index(key)
-                        break
-                timezone = st.selectbox(
-                    "Timezone",
-                    options=timezone_options,
-                    index=timezone_index,
-                    help="Select your timezone. The UTC offset and major cities help you find yours quickly."
-                )
-                timezone = timezone_dict[timezone]
+                # Row 4: Health Goal and Water Goal
+                col7, col8 = st.columns(2)
+                with col7:
+                    # Handle health goal with safe index lookup
+                    current_health_goal = user_profile.get("health_goal", "general_health")
+                    goal_keys = list(HEALTH_GOAL_TARGETS.keys())
+                    goal_index = goal_keys.index(current_health_goal) if current_health_goal in goal_keys else 0
+                    
+                    # Create display names for health goals
+                    goal_display_names = {
+                        "general_health": "General Health",
+                        "weight_loss": "Weight Loss",
+                        "weight_gain": "Weight Gain",
+                        "muscle_gain": "Muscle Building",
+                        "performance": "Athletic Performance",
+                    }
+                    
+                    goal = st.selectbox(
+                        "Health Goal",
+                        options=goal_keys,
+                        index=goal_index,
+                        format_func=lambda x: goal_display_names.get(x, x),
+                        help="What's your primary health goal?"
+                    )
                 
-                health_conditions = st.multiselect(
-                    "Health Conditions",
-                    options=list(HEALTH_CONDITIONS.keys()),
-                    default=user_profile.get("health_conditions", []),
-                    format_func=lambda x: HEALTH_CONDITIONS.get(x, x)
-                )
-                
-                dietary_preferences = st.multiselect(
-                    "Dietary Preferences",
-                    options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
-                    default=user_profile.get("dietary_preferences", [])
-                )
-                
-                # Handle health goal with safe index lookup
-                current_health_goal = user_profile.get("health_goal", "general_health")
-                goal_keys = list(HEALTH_GOAL_TARGETS.keys())
-                goal_index = goal_keys.index(current_health_goal) if current_health_goal in goal_keys else 0
-                
-                # Create display names for health goals
-                goal_display_names = {
-                    "general_health": "General Health",
-                    "weight_loss": "Weight Loss",
-                    "weight_gain": "Weight Gain",
-                    "muscle_gain": "Muscle Building",
-                    "performance": "Athletic Performance",
-                }
-                
-                goal = st.selectbox(
-                    "Health Goal",
-                    options=goal_keys,
-                    index=goal_index,
-                    format_func=lambda x: goal_display_names.get(x, x),
-                    help="What's your primary health goal?"
-                )
-                
-                water_goal = st.number_input(
-                    "Daily Water Goal (glasses)",
-                    min_value=1,
-                    max_value=20,
-                    value=user_profile.get("water_goal_glasses", 8),
-                    help="Recommended: 8 glasses per day (2 liters)"
-                )
+                with col8:
+                    water_goal = st.number_input(
+                        "Daily Water Goal (glasses)",
+                        min_value=1,
+                        max_value=20,
+                        value=user_profile.get("water_goal_glasses", 8),
+                        help="Recommended: 8 glasses per day (2 liters)"
+                    )
                 
                 if st.form_submit_button("Update Profile", use_container_width=True):
                     update_data = {
