@@ -3294,16 +3294,13 @@ def coaching_assistant_page():
         # Input area layout with better button balance
         input_col1, input_col2, input_col3 = st.columns([3, 1, 1], gap="small")
         
-        # Initialize input state if not exists
-        if "coaching_user_input" not in st.session_state:
-            st.session_state.coaching_user_input = ""
-        
         with input_col1:
+            # Use a simple text input with a key - let Streamlit manage it
             user_input = st.text_input(
                 "Message",
-                value=st.session_state.coaching_user_input,
                 placeholder="Ask your coach...",
-                label_visibility="collapsed"
+                label_visibility="collapsed",
+                key="coaching_msg_input"
             )
         
         with input_col2:
@@ -3312,7 +3309,7 @@ def coaching_assistant_page():
         with input_col3:
             clear_button = st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn")
         
-        # Handle message sending BEFORE updating session state
+        # Handle message sending
         if send_button and user_input.strip():
             # Add user message to conversation
             st.session_state.coaching_conversation.append({
@@ -3336,19 +3333,15 @@ def coaching_assistant_page():
                 "content": response
             })
             
-            # Clear the input immediately BEFORE rerun
-            st.session_state.coaching_user_input = ""
+            # Clear the input using the key
+            st.session_state.coaching_msg_input = ""
             st.rerun()
         
         # Handle clear chat
         if clear_button:
             st.session_state.coaching_conversation = []
-            st.session_state.coaching_user_input = ""
+            st.session_state.coaching_msg_input = ""
             st.rerun()
-        
-        # Update session state with current input ONLY if send button wasn't pressed
-        if not send_button:
-            st.session_state.coaching_user_input = user_input
 
 
 # ==================== HELP & ABOUT PAGE ====================
