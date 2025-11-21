@@ -3291,14 +3291,12 @@ def coaching_assistant_page():
         messages_html += '</div>'
         st.markdown(messages_html, unsafe_allow_html=True)
         
-        # Input area layout (no separator)
-        input_col1, input_col2 = st.columns([1, 1], gap="small")
+        # Input area layout with better button balance
+        input_col1, input_col2, input_col3 = st.columns([3, 1, 1], gap="small")
         
         # Initialize input state if not exists
         if "coaching_user_input" not in st.session_state:
             st.session_state.coaching_user_input = ""
-        if "send_pressed" not in st.session_state:
-            st.session_state.send_pressed = False
         
         with input_col1:
             user_input = st.text_input(
@@ -3307,9 +3305,14 @@ def coaching_assistant_page():
                 placeholder="Ask your coach...",
                 label_visibility="collapsed"
             )
+            # Always update the session state with current input
+            st.session_state.coaching_user_input = user_input
         
         with input_col2:
             send_button = st.button("📤 Send", use_container_width=True, key="send_coaching_btn")
+        
+        with input_col3:
+            clear_button = st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn")
         
         # Handle message sending
         if send_button and user_input.strip():
@@ -3335,19 +3338,12 @@ def coaching_assistant_page():
                 "content": response
             })
             
-            # Clear the input
+            # Clear the input immediately
             st.session_state.coaching_user_input = ""
-            st.session_state.send_pressed = True
             st.rerun()
-        else:
-            # Update session state when user types (only if not just sent)
-            if not st.session_state.send_pressed:
-                st.session_state.coaching_user_input = user_input
-            else:
-                st.session_state.send_pressed = False
         
-        # Clear Chat button (smaller, less prominent)
-        if st.button("🔄 Clear Chat", key="clear_coaching"):
+        # Handle clear chat
+        if clear_button:
             st.session_state.coaching_conversation = []
             st.session_state.coaching_user_input = ""
             st.rerun()
