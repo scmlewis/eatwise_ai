@@ -3062,10 +3062,24 @@ def profile_page():
             
             with st.form("update_profile_form"):
                 full_name = st.text_input("Full Name", value=user_profile.get("full_name", ""))
+                
+                # Handle age group with migration for old format (26-35 -> 26-35 (Adult))
+                current_age_group = user_profile.get("age_group", "26-35 (Adult)")
+                # If user has old format without label, try to find matching new format
+                if current_age_group not in AGE_GROUP_TARGETS.keys():
+                    # Try to find a matching age group key
+                    matching_key = None
+                    for key in AGE_GROUP_TARGETS.keys():
+                        if key.split(" (")[0] == current_age_group:  # Match by age range part
+                            matching_key = key
+                            break
+                    current_age_group = matching_key or "26-35 (Adult)"  # Default fallback
+                
+                age_group_index = list(AGE_GROUP_TARGETS.keys()).index(current_age_group)
                 age_group = st.selectbox(
                     "Age Group",
                     options=list(AGE_GROUP_TARGETS.keys()),
-                    index=list(AGE_GROUP_TARGETS.keys()).index(user_profile.get("age_group", "26-35 (Adult)"))
+                    index=age_group_index
                 )
                 
                 gender_options = ["Male", "Female", "Other", "Prefer not to say"]
