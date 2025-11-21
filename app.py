@@ -2918,12 +2918,14 @@ def profile_page():
                     help="This helps us provide personalized nutrition recommendations"
                 )
                 
+                timezone_options = [
+                    "UTC", "US/Hawaii", "US/Alaska", "US/Pacific", "US/Mountain", "US/Central", "US/Eastern",
+                    "Europe/London", "Europe/Paris", "Europe/Moscow", "Asia/Dubai", "Asia/Kolkata", "Asia/Bangkok",
+                    "Asia/Shanghai", "Asia/Tokyo", "Australia/Sydney", "Pacific/Auckland"
+                ]
                 timezone = st.selectbox(
                     "Timezone",
-                    options=[
-                        "UTC", "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1",
-                        "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
-                    ],
+                    options=timezone_options,
                     index=0,
                     help="Your timezone for meal timing recommendations"
                 )
@@ -3000,8 +3002,9 @@ def profile_page():
                 )
                 
                 timezone_options = [
-                    "UTC", "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1",
-                    "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
+                    "UTC", "US/Hawaii", "US/Alaska", "US/Pacific", "US/Mountain", "US/Central", "US/Eastern",
+                    "Europe/London", "Europe/Paris", "Europe/Moscow", "Asia/Dubai", "Asia/Kolkata", "Asia/Bangkok",
+                    "Asia/Shanghai", "Asia/Tokyo", "Australia/Sydney", "Pacific/Auckland"
                 ]
                 timezone_value = user_profile.get("timezone", "UTC")
                 timezone_index = timezone_options.index(timezone_value) if timezone_value in timezone_options else 0
