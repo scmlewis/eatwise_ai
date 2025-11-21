@@ -3147,10 +3147,15 @@ def profile_page():
                     default=user_profile.get("dietary_preferences", [])
                 )
                 
+                # Handle health goal with safe index lookup
+                current_health_goal = user_profile.get("health_goal", "general_health")
+                goal_keys = list(HEALTH_GOAL_TARGETS.keys())
+                goal_index = goal_keys.index(current_health_goal) if current_health_goal in goal_keys else 0
+                
                 goal = st.selectbox(
                     "Health Goal",
-                    options=list(HEALTH_GOAL_TARGETS.keys()),
-                    index=list(HEALTH_GOAL_TARGETS.keys()).index(user_profile.get("health_goal", "general_health")),
+                    options=goal_keys,
+                    index=goal_index,
                     format_func=lambda x: HEALTH_GOAL_TARGETS.get(x, x),
                     help="What's your primary health goal?"
                 )
