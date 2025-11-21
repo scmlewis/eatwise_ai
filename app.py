@@ -3896,10 +3896,10 @@ def help_page():
             st.markdown("### 🎯 AI Nutrition Coaching")
             st.markdown("""
             - Chat with AI coach about nutrition
-            - Personalized guidance based on your profile
-            - 7-day eating pattern analysis
-            - Daily coaching tips and meal alternatives
-            - Conversational, multi-turn interactions
+            - Ask personalized nutrition questions
+            - Receive guidance based on your profile
+            - Multi-turn conversations with context awareness
+            - Clear chat to start fresh anytime
             """)
     
     with tab3:
@@ -3949,24 +3949,19 @@ def help_page():
         Visit **🎯 Coaching** to access your AI nutrition coach:
         
         **Chat with Coach:**
-        1. Click on the Chat tab
-        2. Ask any nutrition questions or request meal guidance
-        3. Coach provides personalized advice based on your profile
-        4. Continue the conversation naturally - coach remembers context
-        5. Use "Clear Conversation" to start fresh
+        1. Type your question or request in the message box
+        2. Click **📤 Send** to get personalized advice
+        3. Coach provides guidance based on your profile, health conditions, and current nutrition
+        4. Continue the conversation naturally - coach remembers the context
+        5. Click **🔄 Clear** to start a fresh conversation
         
-        **Pattern Analysis:**
-        1. Click on the Pattern Analysis tab
-        2. View automatic analysis of your last 7 days of eating
-        3. See your eating patterns, strengths, and improvement areas
-        4. Get a personalized top recommendation
-        5. Read encouraging messages tailored to your progress
-        
-        **Ask Questions & Daily Tips:**
-        1. Click on the Ask Questions tab
-        2. Get answers to nutrition questions personalized to your health
-        3. Receive a daily coaching tip based on your current nutrition status
-        4. Tips are tailored to help you reach your health goals
+        **What You Can Ask:**
+        - "What should I eat for dinner?" → Gets personalized meal suggestions
+        - "Is pasta healthy?" → Gets advice considering your health conditions
+        - "How can I improve my diet?" → Gets strategies based on your profile
+        - "What nutrients am I missing?" → Analysis based on your recent meals
+        - "How much protein should I eat?" → Recommendations based on your age and goals
+        - General nutrition questions tailored to your health situation
         """)
     
     with tab4:
@@ -4049,24 +4044,12 @@ def help_page():
             age, dietary preferences, and nutrition goals.
             """)
         
-        with st.expander("❓ How does the Pattern Analysis work?"):
-            st.markdown("""
-            The AI analyzes your last 7 days of meal logging to identify:
-            - **Eating Patterns**: When and what you typically eat
-            - **Strengths**: What you're doing well nutritionally
-            - **Areas to Improve**: Opportunities to enhance your diet
-            - **Top Recommendation**: One key action to improve your nutrition
-            - **Motivation**: Encouraging message personalized to your progress
-            
-            This analysis considers your health conditions, goals, and dietary preferences.
-            """)
-        
         with st.expander("❓ How often should I use the Coaching feature?"):
             st.markdown("""
-            - **Daily**: Get daily coaching tips on the Ask Questions tab
-            - **After meals**: Ask coach for feedback on what you just logged
-            - **When unsure**: Chat with coach when deciding what to eat
-            - **Weekly**: Check Pattern Analysis to see your 7-day trends
+            - **Anytime**: Ask your coach whenever you need nutrition guidance
+            - **After meals**: Get feedback on what you just logged
+            - **When deciding**: Get suggestions when choosing what to eat
+            - **For tips**: Ask for personalized nutrition advice
             
             The more you interact with your coach, the better it understands your goals!
             """)
