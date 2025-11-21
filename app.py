@@ -3764,14 +3764,15 @@ def main():
                 }
                 st.session_state.user_profile = user_profile
             
-            # Streak info
-            if len(today_meals) > 0:
-                recent_all_meals = db_manager.get_recent_meals(st.session_state.user_id, limit=30)
-                meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
-                streak_info = get_streak_info(meal_dates_all)
-                current_streak = streak_info.get('current_streak', 0)
-            else:
-                current_streak = 0
+            # Streak info - Use same logic as dashboard
+            # Get meals from last 30 days for accurate streak calculation
+            days_back = 30
+            streak_end_date = date.today()
+            streak_start_date = streak_end_date - timedelta(days=days_back)
+            recent_all_meals = db_manager.get_meals_in_range(st.session_state.user_id, streak_start_date, streak_end_date)
+            meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
+            streak_info = get_streak_info(meal_dates_all)
+            current_streak = streak_info.get('current_streak', 0)
             
             # Get water intake
             water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
