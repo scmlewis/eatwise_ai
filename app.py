@@ -3109,21 +3109,21 @@ def coaching_assistant_page():
             border: 1px solid #3B82F6;
             border-radius: 12px;
             padding: 16px;
-            height: 400px;
+            height: 550px;
             overflow-y: auto;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         
         @media (max-width: 768px) {
             .chat-box {
-                height: 300px;
+                height: 420px;
                 padding: 12px;
             }
         }
         
         @media (max-width: 480px) {
             .chat-box {
-                height: 250px;
+                height: 350px;
                 padding: 10px;
             }
             
@@ -3257,73 +3257,24 @@ def coaching_assistant_page():
     
     # Render all content in page container after loading completes
     with page_container:
-        # Display header
+        # Compact header with less space
         st.markdown("""
         <div class="coaching-header" style="
             background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
-            padding: 15px 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
         ">
-            <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">🎯 Your Personal Nutrition Coach</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 0.95em;">Ask me anything about nutrition, meal plans, eating patterns, or your health goals</p>
+            <h2 style="color: white; margin: 0; font-size: 1.3em;">🎯 Nutrition Coach</h2>
         </div>
         """, unsafe_allow_html=True)
         
-        # Display contextual information
-        st.markdown("### Your Current Context")
-        context_cols = st.columns(3, gap="small")
-        
-        with context_cols[0]:
-            # Today's nutrition summary
-            if today_nutrition:
-                calories = today_nutrition.get("calories", 0)
-                protein = today_nutrition.get("protein", 0)
-                st.markdown(f"""
-                <div class="context-card">
-                    <div class="context-label">📊 Today's Intake</div>
-                    <div class="context-value"><strong>{int(calories)}</strong> cal • <strong>{int(protein)}g</strong> protein</div>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown("""
-                <div class="context-card">
-                    <div class="context-label">📊 Today's Intake</div>
-                    <div class="context-value">No meals logged yet</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        with context_cols[1]:
-            # Daily targets
-            goal_label = user_profile.get("health_goal", "general_health").replace("_", " ").title()
-            st.markdown(f"""
-            <div class="context-card">
-                <div class="context-label">🎯 Your Goal</div>
-                <div class="context-value">{goal_label}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with context_cols[2]:
-            # Health conditions
-            conditions = user_profile.get("health_conditions", [])
-            conditions_text = ", ".join(conditions) if conditions else "None"
-            st.markdown(f"""
-            <div class="context-card">
-                <div class="context-label">💊 Health Conditions</div>
-                <div class="context-value">{conditions_text}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("---")
-        
         # Chat messages container with fixed height and scrolling
-        st.markdown("### Chat History")
-        
         # Create a fixed-height scrollable chat area using HTML/CSS
         messages_html = '<div class="chat-box">'
         
         if not st.session_state.coaching_conversation:
-            messages_html += '<div style="text-align: center; color: #a0a0a0; padding: 20px;">💬 Start a conversation with your coach!</div>'
+            messages_html += '<div style="text-align: center; color: #a0a0a0; padding: 20px;">💬 Start a conversation!</div>'
         else:
             for msg in st.session_state.coaching_conversation:
                 role = msg["role"]
@@ -3340,9 +3291,7 @@ def coaching_assistant_page():
         messages_html += '</div>'
         st.markdown(messages_html, unsafe_allow_html=True)
         
-        st.markdown("---")
-        
-        # Input area layout
+        # Input area layout (no separator)
         input_col1, input_col2 = st.columns([1, 1], gap="small")
         
         # Initialize input state if not exists
