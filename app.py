@@ -260,20 +260,13 @@ st.markdown("""
     }
     
     .main {
-        padding-top: 2.5rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
+        padding-top: 2rem;
         background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
     }
     
-    /* Improved section spacing */
-    [data-testid="stMarkdownContainer"] {
-        margin-bottom: 2rem !important;
-    }
-    
     h1, h2, h3 {
-        margin-top: 1.5rem !important;
-        margin-bottom: 1rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 0.5rem !important;
     }
     
     /* Modern gradient cards */
@@ -305,10 +298,10 @@ st.markdown("""
         background: rgba(16, 161, 157, 0.08);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(82, 196, 184, 0.3);
-        padding: 20px;
-        border-radius: 16px;
+        padding: 16px;
+        border-radius: 12px;
         color: white;
-        margin: 12px 0;
+        margin: 8px 0;
         box-shadow: 
             0 1px 3px rgba(0, 0, 0, 0.12),
             0 4px 12px rgba(16, 161, 157, 0.15),
@@ -343,11 +336,11 @@ st.markdown("""
     }
     
     .nutrition-bar {
-        height: 10px;
+        height: 8px;
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
+        border-radius: 4px;
         overflow: hidden;
-        margin: 8px 0;
+        margin: 5px 0;
         box-shadow: 
             inset 0 2px 4px rgba(0, 0, 0, 0.2),
             0 1px 3px rgba(0, 0, 0, 0.1);
