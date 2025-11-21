@@ -3114,25 +3114,49 @@ def coaching_assistant_page():
             margin-bottom: 12px;
         }
         
+        @media (max-width: 1024px) {
+            .chat-box {
+                height: 480px;
+                padding: 14px;
+            }
+        }
+        
         @media (max-width: 768px) {
             .chat-box {
-                height: 420px;
+                height: 400px;
                 padding: 12px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .chat-box {
+                height: 320px;
+                padding: 10px;
+            }
+            
+            .message-user {
+                margin-left: 15px !important;
+            }
+            
+            .message-coach {
+                margin-right: 15px !important;
             }
         }
         
         @media (max-width: 480px) {
             .chat-box {
-                height: 350px;
-                padding: 10px;
+                height: 280px;
+                padding: 8px;
             }
             
             .message-user {
-                margin-left: 20px !important;
+                margin-left: 10px !important;
+                padding: 10px 12px !important;
             }
             
             .message-coach {
-                margin-right: 20px !important;
+                margin-right: 10px !important;
+                padding: 10px 12px !important;
             }
         }
         
@@ -3293,20 +3317,24 @@ def coaching_assistant_page():
         
         # Use a form for proper input handling
         with st.form(key="chat_form", clear_on_submit=True):
-            input_col1, input_col2, input_col3 = st.columns([3, 1, 1], gap="small")
+            form_col1, form_col2 = st.columns([4, 1], gap="small")
             
-            with input_col1:
+            with form_col1:
                 user_input = st.text_input(
                     "Message",
                     placeholder="Ask your coach...",
                     label_visibility="collapsed"
                 )
             
-            with input_col2:
+            with form_col2:
                 send_button = st.form_submit_button("📤 Send", use_container_width=True)
-            
-            with input_col3:
-                st.write("")  # Placeholder for alignment
+        
+        # Clear Chat button on same level as form, balanced
+        clear_col1, clear_col2 = st.columns([4, 1], gap="small")
+        with clear_col2:
+            if st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn"):
+                st.session_state.coaching_conversation = []
+                st.rerun()
         
         # Handle message sending
         if send_button and user_input.strip():
@@ -3332,11 +3360,6 @@ def coaching_assistant_page():
                 "content": response
             })
             
-            st.rerun()
-        
-        # Clear Chat button outside form
-        if st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn"):
-            st.session_state.coaching_conversation = []
             st.rerun()
 
 
