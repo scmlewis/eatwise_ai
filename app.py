@@ -3092,7 +3092,7 @@ def profile_page():
 def coaching_assistant_page():
     """AI-Powered Nutrition Coaching Assistant - Unified Chat Interface"""
     
-    # Add CSS for clean page transitions and chat styling
+    # Add CSS for clean page transitions and responsive chat styling
     st.markdown("""
     <style>
         @keyframes fadeIn {
@@ -3109,9 +3109,31 @@ def coaching_assistant_page():
             border: 1px solid #3B82F6;
             border-radius: 12px;
             padding: 16px;
-            height: 500px;
+            height: 400px;
             overflow-y: auto;
             margin-bottom: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-box {
+                height: 300px;
+                padding: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chat-box {
+                height: 250px;
+                padding: 10px;
+            }
+            
+            .message-user {
+                margin-left: 20px !important;
+            }
+            
+            .message-coach {
+                margin-right: 20px !important;
+            }
         }
         
         .chat-box::-webkit-scrollbar {
@@ -3140,6 +3162,7 @@ def coaching_assistant_page():
             padding: 12px 16px;
             margin-bottom: 12px;
             margin-left: 40px;
+            word-wrap: break-word;
         }
         
         .message-coach {
@@ -3150,6 +3173,7 @@ def coaching_assistant_page():
             padding: 12px 16px;
             margin-bottom: 12px;
             margin-right: 40px;
+            word-wrap: break-word;
         }
         
         .message-label {
@@ -3164,6 +3188,7 @@ def coaching_assistant_page():
             color: #e0f2f1;
             font-size: 14px;
             line-height: 1.5;
+            word-break: break-word;
         }
         
         .context-card {
@@ -3317,26 +3342,28 @@ def coaching_assistant_page():
         
         st.markdown("---")
         
-        # Input area (fixed at bottom with two-column layout)
-        col1, col2 = st.columns([5, 1], gap="small")
+        # Input area layout
+        input_col1, input_col2 = st.columns([1, 1], gap="small")
         
         # Initialize input state if not exists
         if "coaching_user_input" not in st.session_state:
             st.session_state.coaching_user_input = ""
+        if "send_pressed" not in st.session_state:
+            st.session_state.send_pressed = False
         
-        with col1:
+        with input_col1:
             user_input = st.text_input(
                 "Message",
                 value=st.session_state.coaching_user_input,
-                placeholder="Ask me about nutrition, meal planning, eating patterns, health goals, or anything related to your diet...",
+                placeholder="Ask your coach...",
                 label_visibility="collapsed"
             )
         
-        with col2:
-            send_button = st.button("Send", use_container_width=True, key="send_coaching_btn")
+        with input_col2:
+            send_button = st.button("📤 Send", use_container_width=True, key="send_coaching_btn")
         
         # Handle message sending
-        if send_button and user_input:
+        if send_button and user_input.strip():
             # Add user message to conversation
             st.session_state.coaching_conversation.append({
                 "role": "user",
@@ -3359,15 +3386,19 @@ def coaching_assistant_page():
                 "content": response
             })
             
-            # Clear the input by resetting session state
+            # Clear the input
             st.session_state.coaching_user_input = ""
+            st.session_state.send_pressed = True
             st.rerun()
+        else:
+            # Update session state when user types (only if not just sent)
+            if not st.session_state.send_pressed:
+                st.session_state.coaching_user_input = user_input
+            else:
+                st.session_state.send_pressed = False
         
-        # Update session state when user types
-        st.session_state.coaching_user_input = user_input
-        
-        # Clear Chat button
-        if st.button("🔄 Clear Chat", key="clear_coaching", use_container_width=True):
+        # Clear Chat button (smaller, less prominent)
+        if st.button("🔄 Clear Chat", key="clear_coaching"):
             st.session_state.coaching_conversation = []
             st.session_state.coaching_user_input = ""
             st.rerun()
