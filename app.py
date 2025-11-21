@@ -3152,11 +3152,20 @@ def profile_page():
                 goal_keys = list(HEALTH_GOAL_TARGETS.keys())
                 goal_index = goal_keys.index(current_health_goal) if current_health_goal in goal_keys else 0
                 
+                # Create display names for health goals
+                goal_display_names = {
+                    "general_health": "General Health",
+                    "weight_loss": "Weight Loss",
+                    "weight_gain": "Weight Gain",
+                    "muscle_gain": "Muscle Building",
+                    "performance": "Athletic Performance",
+                }
+                
                 goal = st.selectbox(
                     "Health Goal",
                     options=goal_keys,
                     index=goal_index,
-                    format_func=lambda x: HEALTH_GOAL_TARGETS.get(x, x),
+                    format_func=lambda x: goal_display_names.get(x, x),
                     help="What's your primary health goal?"
                 )
                 

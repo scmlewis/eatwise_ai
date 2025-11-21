@@ -48,6 +48,7 @@ HEALTH_CONDITION_TARGETS = {
 
 # Health Goal Targets (Adjustments for specific health goals)
 HEALTH_GOAL_TARGETS = {
+    "general_health": {},  # No specific adjustments, use age group defaults
     "weight_loss": {"calories": 1500, "protein": 80},
     "weight_gain": {"calories": 3000, "protein": 100},
     "muscle_gain": {"calories": 2800, "protein": 120},
