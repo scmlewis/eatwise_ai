@@ -1308,15 +1308,8 @@ def dashboard_page():
     st.markdown("## 📊 Today's Nutrition Summary")
     
     # Unified nutrition cards with all key info + progress bars
+    # Note: Calories is now shown in "Hydration & Energy Status" section above, so removed from here
     nutrition_cards = [
-        {
-            "icon": "🔥",
-            "label": "Calories",
-            "value": f"{daily_nutrition['calories']:.0f}",
-            "target": targets["calories"],
-            "percentage": calculate_nutrition_percentage(daily_nutrition["calories"], targets["calories"]),
-            "unit": "cal"
-        },
         {
             "icon": "💪",
             "label": "Protein",
