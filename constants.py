@@ -19,6 +19,24 @@ HEALTH_CONDITIONS = {
     "celiac_disease": "Celiac Disease",
 }
 
+# Dietary Preferences (Lifestyle Choices)
+DIETARY_PREFERENCES = {
+    "vegetarian": "Vegetarian",
+    "vegan": "Vegan",
+    "gluten_free": "Gluten-Free",
+    "halal": "Halal",
+    "kosher": "Kosher",
+}
+
+# Health Goals (Primary Objectives)
+HEALTH_GOALS = {
+    "general_health": "General Health",
+    "weight_loss": "Weight Loss",
+    "weight_gain": "Weight Gain",
+    "muscle_gain": "Muscle Building",
+    "performance": "Athletic Performance",
+}
+
 # Gamification
 BADGES = {
     "early_bird": {"name": "Early Bird", "description": "Logged 5 breakfasts", "icon": "🌅"},
