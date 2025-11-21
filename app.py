@@ -237,6 +237,8 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
     :root {
         --primary-color: #10A19D;
         --primary-dark: #0D7A76;
@@ -247,6 +249,12 @@ st.markdown("""
         --danger-color: #FF0000;
         --accent-purple: #845EF7;
         --accent-blue: #3B82F6;
+        --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    /* Apply Inter font globally */
+    html, body, [class*="css"] {
+        font-family: var(--font-family) !important;
     }
     
     .main {
