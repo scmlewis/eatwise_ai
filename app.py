@@ -3104,16 +3104,32 @@ def coaching_assistant_page():
             animation: fadeIn 0.3s ease-in;
         }
         
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+        .chat-box {
+            background: rgba(10, 20, 30, 0.6);
+            border: 1px solid #3B82F6;
+            border-radius: 12px;
+            padding: 16px;
+            height: 500px;
+            overflow-y: auto;
+            margin-bottom: 16px;
         }
         
-        .messages-area {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-bottom: 16px;
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-box::-webkit-scrollbar-track {
+            background: rgba(60, 130, 180, 0.1);
+            border-radius: 10px;
+        }
+        
+        .chat-box::-webkit-scrollbar-thumb {
+            background: rgba(60, 130, 180, 0.3);
+            border-radius: 10px;
+        }
+        
+        .chat-box::-webkit-scrollbar-thumb:hover {
+            background: rgba(60, 130, 180, 0.5);
         }
         
         .message-user {
@@ -3275,33 +3291,36 @@ def coaching_assistant_page():
         
         st.markdown("---")
         
-        # Chat messages container
+        # Chat messages container with fixed height and scrolling
         st.markdown("### Chat History")
         
-        chat_container = st.container()
+        # Create a fixed-height scrollable chat area using HTML/CSS
+        messages_html = '<div class="chat-box">'
         
-        with chat_container:
-            if not st.session_state.coaching_conversation:
-                st.info("💬 Start a conversation with your coach! Ask about meal planning, nutrition tips, eating patterns, or any health-related questions.")
-            else:
-                for msg in st.session_state.coaching_conversation:
-                    role = msg["role"]
-                    content = msg["content"]
-                    
-                    if role == "user":
-                        st.markdown(f"""
-                        <div class="message-user">
-                            <div class="message-label">You</div>
-                            <div class="message-content">{content}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"""
-                        <div class="message-coach">
-                            <div class="message-label">🎯 Coach</div>
-                            <div class="message-content">{content}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
+        if not st.session_state.coaching_conversation:
+            messages_html += '<div style="text-align: center; color: #a0a0a0; padding: 20px;">💬 Start a conversation with your coach! Ask about meal planning, nutrition tips, eating patterns, or any health-related questions.</div>'
+        else:
+            for msg in st.session_state.coaching_conversation:
+                role = msg["role"]
+                content = msg["content"]
+                
+                if role == "user":
+                    messages_html += f'''
+                    <div class="message-user">
+                        <div class="message-label">You</div>
+                        <div class="message-content">{content}</div>
+                    </div>
+                    '''
+                else:
+                    messages_html += f'''
+                    <div class="message-coach">
+                        <div class="message-label">🎯 Coach</div>
+                        <div class="message-content">{content}</div>
+                    </div>
+                    '''
+        
+        messages_html += '</div>'
+        st.markdown(messages_html, unsafe_allow_html=True)
         
         st.markdown("---")
         
@@ -3343,35 +3362,15 @@ def coaching_assistant_page():
                 "content": response
             })
             
+            # Clear the input by using session state
+            st.session_state.coaching_input = ""
             st.rerun()
         
-        # Control buttons
-        col1, col2 = st.columns(2, gap="small")
-        
-        with col1:
-            if st.button("🔄 Clear Chat", key="clear_coaching", use_container_width=True):
-                st.session_state.coaching_conversation = []
-                st.rerun()
-        
-        with col2:
-            if st.button("✨ Get Daily Tip", key="daily_tip_btn", use_container_width=True):
-                with st.spinner("✨ Getting your personalized tip..."):
-                    tip = coaching.get_daily_coaching_tip(user_profile, today_nutrition, targets)
-                
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, #FFD43B15 0%, #FCC41925 100%);
-                    border: 1px solid #FFD43B;
-                    border-left: 4px solid #FFD43B;
-                    border-radius: 12px;
-                    padding: 14px;
-                    margin-top: 12px;
-                    text-align: center;
-                ">
-                    <div style="color: #FFD43B; font-weight: 700; font-size: 12px; margin-bottom: 6px; text-transform: uppercase;">💡 Daily Coaching Tip</div>
-                    <div style="color: #e0f2f1; font-size: 14px; line-height: 1.5;">{tip}</div>
-                </div>
-                """, unsafe_allow_html=True)
+        # Clear Chat button
+        if st.button("🔄 Clear Chat", key="clear_coaching", use_container_width=True):
+            st.session_state.coaching_conversation = []
+            st.session_state.coaching_input = ""
+            st.rerun()
 
 
 # ==================== HELP & ABOUT PAGE ====================
