@@ -3092,35 +3092,25 @@ def profile_page():
 def coaching_assistant_page():
     """AI-Powered Nutrition Coaching Assistant"""
     
-    # Add fade-in animation CSS for smooth page transition
+    # Add CSS for clean page transitions
     st.markdown("""
     <style>
+        /* Hide main container during load */
+        .coaching-main-wrapper {
+            animation: fadeIn 0.3s ease-in forwards;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        .coaching-page-header {
-            animation: fadeIn 0.4s ease-in;
-        }
-        .coaching-page-content {
-            animation: fadeIn 0.5s ease-in 0.2s both;
-        }
     </style>
     """, unsafe_allow_html=True)
     
-    # Display header with fade-in animation
-    st.markdown("""
-    <div class="coaching-page-header" style="
-        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-    ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">🎯 Your Personal Nutrition Coach</h1>
-    </div>
-    """, unsafe_allow_html=True)
+    # Create a placeholder for content that will be populated after loading
+    page_container = st.container()
     
-    # Initialize data with loading spinner (prevents showing old content)
+    # Initialize data with loading spinner
     with st.spinner("⏳ Loading your coaching dashboard..."):
         user_profile = st.session_state.user_profile
         if not user_profile:
@@ -3158,8 +3148,19 @@ def coaching_assistant_page():
         if "coaching_conversation" not in st.session_state:
             st.session_state.coaching_conversation = []
     
-    # Content loads after spinner with fade-in
-    st.markdown('<div class="coaching-page-content">', unsafe_allow_html=True)
+    # Render all content in page container after loading completes
+    with page_container:
+        # Display header
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        ">
+            <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">🎯 Your Personal Nutrition Coach</h1>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Create tabs for different features
     tab1, tab2, tab3 = st.tabs(["💬 Chat with Coach", "📊 Pattern Analysis", "❓ Ask Questions"])
@@ -3411,9 +3412,6 @@ def coaching_assistant_page():
                 <div style="color: #e0f2f1; font-size: 16px; font-weight: 600; line-height: 1.5;">{tip}</div>
             </div>
             """, unsafe_allow_html=True)
-    
-    # Close the fade-in content div
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ==================== HELP & ABOUT PAGE ====================
