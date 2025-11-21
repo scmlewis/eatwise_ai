@@ -32,7 +32,8 @@ from nutrition_components import display_nutrition_targets_progress
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
     get_nutrition_status, format_nutrition_dict, get_streak_info,
-    get_earned_badges, build_nutrition_by_date, paginate_items
+    get_earned_badges, build_nutrition_by_date, paginate_items,
+    show_skeleton_loader, render_icon, get_nutrition_icon
 )
 
 
@@ -238,6 +239,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://cdn.jsdelivr.net/npm/tabler-icons@latest/tabler-icons.min.css');
     
     :root {
         --primary-color: #10A19D;
@@ -717,6 +719,205 @@ st.markdown("""
             border: 2px solid #999 !important;
         }
     }
+    
+    /* ===== ENTRANCE ANIMATIONS ===== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideDownFade {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    /* Apply entrance animations to main containers */
+    .main {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    [data-testid="stMetricDelta"] {
+        animation: slideUpFade 0.6s ease-out;
+    }
+    
+    [data-testid="stMetric"] {
+        animation: slideUpFade 0.6s ease-out;
+    }
+    
+    .stTabs [role="tablist"] {
+        animation: slideDownFade 0.5s ease-out;
+    }
+    
+    /* Card entrance animations with stagger */
+    .meal-card {
+        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .metric-card {
+        animation: slideUpFade 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .stat-card {
+        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .nutrition-info {
+        animation: slideUpFade 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* ===== LOADING SKELETONS ===== */
+    .skeleton {
+        background: linear-gradient(
+            90deg,
+            rgba(16, 161, 157, 0.08) 0%,
+            rgba(16, 161, 157, 0.15) 50%,
+            rgba(16, 161, 157, 0.08) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+    }
+    
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+    
+    .skeleton-text {
+        height: 14px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        display: block;
+    }
+    
+    .skeleton-heading {
+        height: 24px;
+        margin-bottom: 16px;
+        border-radius: 4px;
+        display: block;
+        width: 60%;
+    }
+    
+    .skeleton-card {
+        background: rgba(16, 161, 157, 0.06);
+        border: 1px solid rgba(16, 161, 157, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .skeleton-card .skeleton-heading {
+        margin-top: 0;
+    }
+    
+    .skeleton-line {
+        height: 12px;
+        margin-bottom: 12px;
+        border-radius: 4px;
+    }
+    
+    .skeleton-line:last-child {
+        margin-bottom: 0;
+    }
+    
+    .skeleton-bar {
+        height: 40px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+    }
+    
+    /* Icon styling for integration with icon libraries */
+    .icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+    }
+    
+    .icon-sm {
+        width: 18px;
+        height: 18px;
+        font-size: 16px;
+    }
+    
+    .icon-md {
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+    }
+    
+    .icon-lg {
+        width: 32px;
+        height: 32px;
+        font-size: 28px;
+    }
+    
+    .icon-xl {
+        width: 48px;
+        height: 48px;
+        font-size: 40px;
+    }
+    
+    .icon-primary {
+        color: #10A19D;
+    }
+    
+    .icon-success {
+        color: #51CF66;
+    }
+    
+    .icon-warning {
+        color: #FFD43B;
+    }
+    
+    .icon-danger {
+        color: #FF6B6B;
+    }
+    
+    .icon-info {
+        color: #3B82F6;
+    }
+    
+    .icon-secondary {
+        color: #845EF7;
+    }
+    
 </style>
 """, unsafe_allow_html=True)
 

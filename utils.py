@@ -202,3 +202,104 @@ def paginate_items(items: List, page_size: int = 10) -> tuple[int, List]:
     paginated_items = items[start_idx:end_idx]
     
     return total_pages, paginated_items
+
+
+def show_skeleton_loader(num_items: int = 3, item_type: str = "card"):
+    """
+    Display animated skeleton loaders while content is loading.
+    
+    Args:
+        num_items: Number of skeleton items to show (default: 3)
+        item_type: Type of skeleton - "card", "text", "bar", "list" (default: "card")
+    """
+    import streamlit as st
+    
+    if item_type == "card":
+        for _ in range(num_items):
+            st.markdown("""
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-heading"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line" style="width: 80%;"></div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    elif item_type == "text":
+        for _ in range(num_items):
+            st.markdown("""
+            <div style="margin-bottom: 12px;">
+                <div class="skeleton skeleton-heading"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line"></div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    elif item_type == "bar":
+        for _ in range(num_items):
+            st.markdown("""
+            <div style="margin-bottom: 16px;">
+                <div class="skeleton skeleton-line" style="width: 40%; margin-bottom: 8px;"></div>
+                <div class="skeleton skeleton-bar"></div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    elif item_type == "list":
+        for _ in range(num_items):
+            st.markdown("""
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <div class="skeleton" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 12px;"></div>
+                <div style="flex: 1;">
+                    <div class="skeleton skeleton-line" style="margin-bottom: 8px;"></div>
+                    <div class="skeleton skeleton-line" style="width: 70%;"></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+
+def render_icon(icon_name: str, icon_size: str = "md", color_class: str = "icon-primary") -> str:
+    """
+    Render an icon using Tabler Icons.
+    
+    Args:
+        icon_name: Tabler icon name (e.g., "apple", "flame", "heart", "activity")
+        icon_size: Icon size - "sm", "md", "lg", "xl" (default: "md")
+        color_class: Color class - "icon-primary", "icon-success", "icon-warning", etc.
+    
+    Returns:
+        HTML string for the icon
+    """
+    return f'<i class="icon icon-{icon_size} {color_class} ti ti-{icon_name}"></i>'
+
+
+def get_nutrition_icon(nutrition_type: str) -> str:
+    """
+    Get appropriate icon for nutrition metrics.
+    
+    Args:
+        nutrition_type: Type of nutrition - "calories", "protein", "carbs", "fat", etc.
+    
+    Returns:
+        Tabler icon name
+    """
+    icon_map = {
+        "calories": "flame",
+        "protein": "beef",
+        "carbs": "grain",
+        "fat": "droplet",
+        "fiber": "leaf",
+        "sugar": "candy",
+        "sodium": "salt",
+        "water": "droplets",
+        "meal": "apple",
+        "breakfast": "sun",
+        "lunch": "sun",
+        "dinner": "moon",
+        "snack": "cookie",
+        "health": "heart",
+        "goal": "target",
+        "activity": "activity",
+        "trending": "trending-up"
+    }
+    return icon_map.get(nutrition_type, "circle")
+
