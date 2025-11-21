@@ -2978,17 +2978,34 @@ def profile_page():
                     help="This helps us provide personalized nutrition recommendations"
                 )
                 
-                timezone_options = [
-                    "UTC", "US/Hawaii", "US/Alaska", "US/Pacific", "US/Mountain", "US/Central", "US/Eastern",
-                    "Europe/London", "Europe/Paris", "Europe/Moscow", "Asia/Dubai", "Asia/Kolkata", "Asia/Bangkok",
-                    "Asia/Shanghai", "Asia/Tokyo", "Australia/Sydney", "Pacific/Auckland"
-                ]
+                # Timezone mapping with descriptive labels showing UTC offset and example cities
+                timezone_dict = {
+                    "UTC ±0 (London, Dublin)": "UTC",
+                    "UTC-10 (Hawaii)": "US/Hawaii",
+                    "UTC-9 (Alaska)": "US/Alaska",
+                    "UTC-8 (Pacific: Los Angeles, Vancouver)": "US/Pacific",
+                    "UTC-7 (Mountain: Denver, Phoenix)": "US/Mountain",
+                    "UTC-6 (Central: Chicago, Mexico City)": "US/Central",
+                    "UTC-5 (Eastern: New York, Toronto)": "US/Eastern",
+                    "UTC+0 (London, UK)": "Europe/London",
+                    "UTC+1 (Paris, Berlin, Rome)": "Europe/Paris",
+                    "UTC+3 (Moscow, Istanbul)": "Europe/Moscow",
+                    "UTC+4 (Dubai, Abu Dhabi)": "Asia/Dubai",
+                    "UTC+5:30 (India: Delhi, Mumbai, Bangalore)": "Asia/Kolkata",
+                    "UTC+7 (Bangkok, Hanoi, Ho Chi Minh)": "Asia/Bangkok",
+                    "UTC+8 (Shanghai, Singapore, Hong Kong)": "Asia/Shanghai",
+                    "UTC+9 (Tokyo, Seoul)": "Asia/Tokyo",
+                    "UTC+10 (Sydney, Melbourne)": "Australia/Sydney",
+                    "UTC+12 (Auckland, Fiji)": "Pacific/Auckland"
+                }
+                timezone_options = list(timezone_dict.keys())
                 timezone = st.selectbox(
                     "Timezone",
                     options=timezone_options,
                     index=0,
-                    help="Your timezone for meal timing recommendations"
+                    help="Select your timezone. The UTC offset and major cities help you find yours quickly."
                 )
+                timezone = timezone_dict[timezone]
                 
                 health_conditions = st.multiselect(
                     "Health Conditions",
@@ -3061,19 +3078,41 @@ def profile_page():
                     help="This helps us provide personalized nutrition recommendations"
                 )
                 
-                timezone_options = [
-                    "UTC", "US/Hawaii", "US/Alaska", "US/Pacific", "US/Mountain", "US/Central", "US/Eastern",
-                    "Europe/London", "Europe/Paris", "Europe/Moscow", "Asia/Dubai", "Asia/Kolkata", "Asia/Bangkok",
-                    "Asia/Shanghai", "Asia/Tokyo", "Australia/Sydney", "Pacific/Auckland"
-                ]
+                # Timezone mapping with descriptive labels showing UTC offset and example cities
+                timezone_dict = {
+                    "UTC ±0 (London, Dublin)": "UTC",
+                    "UTC-10 (Hawaii)": "US/Hawaii",
+                    "UTC-9 (Alaska)": "US/Alaska",
+                    "UTC-8 (Pacific: Los Angeles, Vancouver)": "US/Pacific",
+                    "UTC-7 (Mountain: Denver, Phoenix)": "US/Mountain",
+                    "UTC-6 (Central: Chicago, Mexico City)": "US/Central",
+                    "UTC-5 (Eastern: New York, Toronto)": "US/Eastern",
+                    "UTC+0 (London, UK)": "Europe/London",
+                    "UTC+1 (Paris, Berlin, Rome)": "Europe/Paris",
+                    "UTC+3 (Moscow, Istanbul)": "Europe/Moscow",
+                    "UTC+4 (Dubai, Abu Dhabi)": "Asia/Dubai",
+                    "UTC+5:30 (India: Delhi, Mumbai, Bangalore)": "Asia/Kolkata",
+                    "UTC+7 (Bangkok, Hanoi, Ho Chi Minh)": "Asia/Bangkok",
+                    "UTC+8 (Shanghai, Singapore, Hong Kong)": "Asia/Shanghai",
+                    "UTC+9 (Tokyo, Seoul)": "Asia/Tokyo",
+                    "UTC+10 (Sydney, Melbourne)": "Australia/Sydney",
+                    "UTC+12 (Auckland, Fiji)": "Pacific/Auckland"
+                }
+                timezone_options = list(timezone_dict.keys())
                 timezone_value = user_profile.get("timezone", "UTC")
-                timezone_index = timezone_options.index(timezone_value) if timezone_value in timezone_options else 0
+                # Find the matching display key for the saved timezone value
+                timezone_index = 0
+                for key, value in timezone_dict.items():
+                    if value == timezone_value:
+                        timezone_index = timezone_options.index(key)
+                        break
                 timezone = st.selectbox(
                     "Timezone",
                     options=timezone_options,
                     index=timezone_index,
-                    help="Your timezone for meal timing recommendations"
+                    help="Select your timezone. The UTC offset and major cities help you find yours quickly."
                 )
+                timezone = timezone_dict[timezone]
                 
                 health_conditions = st.multiselect(
                     "Health Conditions",
