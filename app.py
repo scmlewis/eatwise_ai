@@ -3090,19 +3090,86 @@ def profile_page():
 # ==================== COACHING ASSISTANT PAGE ====================
 
 def coaching_assistant_page():
-    """AI-Powered Nutrition Coaching Assistant"""
+    """AI-Powered Nutrition Coaching Assistant - Unified Chat Interface"""
     
-    # Add CSS for clean page transitions
+    # Add CSS for clean page transitions and chat styling
     st.markdown("""
     <style>
-        /* Hide main container during load */
-        .coaching-main-wrapper {
-            animation: fadeIn 0.3s ease-in forwards;
-        }
-        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        
+        .coaching-header {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .messages-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 16px;
+        }
+        
+        .message-user {
+            background: linear-gradient(135deg, #10A19D15 0%, #52C4B825 100%);
+            border: 1px solid #10A19D;
+            border-left: 4px solid #10A19D;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            margin-left: 40px;
+        }
+        
+        .message-coach {
+            background: linear-gradient(135deg, #845EF715 0%, #BE80FF25 100%);
+            border: 1px solid #845EF7;
+            border-left: 4px solid #845EF7;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            margin-right: 40px;
+        }
+        
+        .message-label {
+            color: #a0a0a0;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        
+        .message-content {
+            color: #e0f2f1;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .context-card {
+            background: linear-gradient(135deg, #3B82F615 0%, #60A5FA25 100%);
+            border: 1px solid #3B82F6;
+            border-left: 4px solid #3B82F6;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .context-label {
+            color: #a0a0a0;
+            font-weight: 700;
+            margin-bottom: 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .context-value {
+            color: #e0f2f1;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -3111,7 +3178,7 @@ def coaching_assistant_page():
     page_container = st.container()
     
     # Initialize data with loading spinner
-    with st.spinner("⏳ Loading your coaching dashboard..."):
+    with st.spinner("⏳ Loading your nutrition coach..."):
         user_profile = st.session_state.user_profile
         if not user_profile:
             user_profile = db_manager.get_health_profile(st.session_state.user_id)
@@ -3131,7 +3198,6 @@ def coaching_assistant_page():
         
         coaching = CoachingAssistant()
         today = date.today()
-        today_meals = db_manager.get_meals_by_date(st.session_state.user_id, today)
         today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
         
         # Get nutrition targets
@@ -3152,67 +3218,100 @@ def coaching_assistant_page():
     with page_container:
         # Display header
         st.markdown("""
-        <div style="
+        <div class="coaching-header" style="
             background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
             padding: 15px 25px;
             border-radius: 15px;
             margin-bottom: 20px;
         ">
             <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">🎯 Your Personal Nutrition Coach</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 0.95em;">Ask me anything about nutrition, meal plans, eating patterns, or your health goals</p>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Create tabs for different features
-    tab1, tab2, tab3 = st.tabs(["💬 Chat with Coach", "📊 Pattern Analysis", "❓ Ask Questions"])
-    
-    with tab1:
-        st.markdown("### Have a conversation with your AI nutrition coach")
-        st.markdown("Ask anything about nutrition, get meal guidance, or chat about your health goals!")
         
-        # Display conversation history
-        conversation_container = st.container()
+        # Display contextual information
+        st.markdown("### Your Current Context")
+        context_cols = st.columns(3, gap="small")
         
-        with conversation_container:
-            for msg in st.session_state.coaching_conversation:
-                role = msg["role"]
-                content = msg["content"]
-                
-                if role == "user":
-                    st.markdown(f"""
-                    <div style="
-                        background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-                        border-radius: 12px;
-                        padding: 12px 16px;
-                        margin-bottom: 12px;
-                        border-left: 4px solid #10A19D;
-                    ">
-                        <div style="color: #a0a0a0; font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">You</div>
-                        <div style="color: #e0f2f1;">{content}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                else:
-                    st.markdown(f"""
-                    <div style="
-                        background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
-                        border-radius: 12px;
-                        padding: 12px 16px;
-                        margin-bottom: 12px;
-                        border-left: 4px solid #845EF7;
-                    ">
-                        <div style="color: #a0a0a0; font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">🎯 Coach</div>
-                        <div style="color: #e0f2f1;">{content}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+        with context_cols[0]:
+            # Today's nutrition summary
+            if today_nutrition:
+                calories = today_nutrition.get("calories", 0)
+                protein = today_nutrition.get("protein", 0)
+                st.markdown(f"""
+                <div class="context-card">
+                    <div class="context-label">📊 Today's Intake</div>
+                    <div class="context-value"><strong>{int(calories)}</strong> cal • <strong>{int(protein)}g</strong> protein</div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="context-card">
+                    <div class="context-label">📊 Today's Intake</div>
+                    <div class="context-value">No meals logged yet</div>
+                </div>
+                """, unsafe_allow_html=True)
         
-        # Input area
+        with context_cols[1]:
+            # Daily targets
+            goal_label = user_profile.get("health_goal", "general_health").replace("_", " ").title()
+            st.markdown(f"""
+            <div class="context-card">
+                <div class="context-label">🎯 Your Goal</div>
+                <div class="context-value">{goal_label}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with context_cols[2]:
+            # Health conditions
+            conditions = user_profile.get("health_conditions", [])
+            conditions_text = ", ".join(conditions) if conditions else "None"
+            st.markdown(f"""
+            <div class="context-card">
+                <div class="context-label">💊 Health Conditions</div>
+                <div class="context-value">{conditions_text}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
         st.markdown("---")
         
-        col1, col2 = st.columns([4, 1], gap="small")
+        # Chat messages container
+        st.markdown("### Chat History")
+        
+        chat_container = st.container()
+        
+        with chat_container:
+            if not st.session_state.coaching_conversation:
+                st.info("💬 Start a conversation with your coach! Ask about meal planning, nutrition tips, eating patterns, or any health-related questions.")
+            else:
+                for msg in st.session_state.coaching_conversation:
+                    role = msg["role"]
+                    content = msg["content"]
+                    
+                    if role == "user":
+                        st.markdown(f"""
+                        <div class="message-user">
+                            <div class="message-label">You</div>
+                            <div class="message-content">{content}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div class="message-coach">
+                            <div class="message-label">🎯 Coach</div>
+                            <div class="message-content">{content}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Input area (fixed at bottom with two-column layout)
+        col1, col2 = st.columns([5, 1], gap="small")
         
         with col1:
             user_input = st.text_input(
-                "Your message",
-                placeholder="Ask me anything about nutrition, meals, or your health goals...",
+                "Message",
+                placeholder="Ask me about nutrition, meal planning, eating patterns, health goals, or anything related to your diet...",
                 label_visibility="collapsed",
                 key="coaching_input"
             )
@@ -3220,6 +3319,7 @@ def coaching_assistant_page():
         with col2:
             send_button = st.button("Send", use_container_width=True, key="send_coaching_btn")
         
+        # Handle message sending
         if send_button and user_input:
             # Add user message to conversation
             st.session_state.coaching_conversation.append({
@@ -3228,7 +3328,7 @@ def coaching_assistant_page():
             })
             
             # Get coach response
-            with st.spinner("🤖 Coaching Assistant is thinking..."):
+            with st.spinner("🤖 Coach is thinking..."):
                 response = coaching.get_conversation_response(
                     st.session_state.coaching_conversation,
                     user_input,
@@ -3245,173 +3345,33 @@ def coaching_assistant_page():
             
             st.rerun()
         
-        # Clear conversation button
-        if st.button("🔄 Start New Conversation", key="clear_coaching"):
-            st.session_state.coaching_conversation = []
-            st.rerun()
-    
-    with tab2:
-        st.markdown("### Your Eating Patterns & Insights")
+        # Control buttons
+        col1, col2 = st.columns(2, gap="small")
         
-        # Get recent meals for analysis
-        days_back = 7
-        end_date = today
-        start_date = end_date - timedelta(days=days_back)
-        recent_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
+        with col1:
+            if st.button("🔄 Clear Chat", key="clear_coaching", use_container_width=True):
+                st.session_state.coaching_conversation = []
+                st.rerun()
         
-        if recent_meals:
-            with st.spinner("🔍 Analyzing your eating patterns..."):
-                insights = coaching.analyze_eating_patterns(
-                    recent_meals,
-                    today_nutrition,
-                    targets,
-                    user_profile,
-                    days=7
-                )
-            
-            if insights and "error" not in insights:
-                # Display insights in cards
-                col1, col2 = st.columns(2, gap="medium")
-                
-                with col1:
-                    if insights.get("patterns"):
-                        st.markdown("""
-                        <div style="
-                            background: linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%);
-                            border: 1px solid #3B82F6;
-                            border-left: 4px solid #3B82F6;
-                            border-radius: 12px;
-                            padding: 16px;
-                        ">
-                            <div style="color: #e0f2f1; font-weight: 700; margin-bottom: 12px; font-size: 14px;">📊 Eating Patterns</div>
-                        """, unsafe_allow_html=True)
-                        for pattern in insights.get("patterns", []):
-                            st.markdown(f"- {pattern}")
-                        st.markdown("</div>", unsafe_allow_html=True)
-                
-                with col2:
-                    if insights.get("strengths"):
-                        st.markdown("""
-                        <div style="
-                            background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
-                            border: 1px solid #51CF66;
-                            border-left: 4px solid #51CF66;
-                            border-radius: 12px;
-                            padding: 16px;
-                        ">
-                            <div style="color: #e0f2f1; font-weight: 700; margin-bottom: 12px; font-size: 14px;">✅ Strengths</div>
-                        """, unsafe_allow_html=True)
-                        for strength in insights.get("strengths", []):
-                            st.markdown(f"- {strength}")
-                        st.markdown("</div>", unsafe_allow_html=True)
-                
-                # Challenges and recommendations
-                col3, col4 = st.columns(2, gap="medium")
-                
-                with col3:
-                    if insights.get("challenges"):
-                        st.markdown("""
-                        <div style="
-                            background: linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%);
-                            border: 1px solid #FFD43B;
-                            border-left: 4px solid #FFD43B;
-                            border-radius: 12px;
-                            padding: 16px;
-                            margin-top: 12px;
-                        ">
-                            <div style="color: #e0f2f1; font-weight: 700; margin-bottom: 12px; font-size: 14px;">⚠️ Areas to Improve</div>
-                        """, unsafe_allow_html=True)
-                        for challenge in insights.get("challenges", []):
-                            st.markdown(f"- {challenge}")
-                        st.markdown("</div>", unsafe_allow_html=True)
-                
-                with col4:
-                    if insights.get("key_recommendation"):
-                        st.markdown(f"""
-                        <div style="
-                            background: linear-gradient(135deg, #FF6B6B20 0%, #FF8A8A40 100%);
-                            border: 1px solid #FF6B6B;
-                            border-left: 4px solid #FF6B6B;
-                            border-radius: 12px;
-                            padding: 16px;
-                            margin-top: 12px;
-                        ">
-                            <div style="color: #e0f2f1; font-weight: 700; margin-bottom: 12px; font-size: 14px;">🎯 Top Recommendation</div>
-                            <div style="color: #e0f2f1;">{insights.get('key_recommendation', '')}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                
-                # Motivational message
-                if insights.get("motivational_insight"):
-                    st.markdown(f"""
-                    <div style="
-                        background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
-                        border: 2px solid #845EF7;
-                        border-radius: 12px;
-                        padding: 16px;
-                        margin-top: 16px;
-                        text-align: center;
-                    ">
-                        <div style="color: #e0f2f1; font-size: 15px; font-weight: 600;">{insights.get('motivational_insight', '')}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-        else:
-            st.info("📊 Log some meals to get personalized pattern analysis!")
-    
-    with tab3:
-        st.markdown("### Ask Your Nutrition Questions")
-        st.markdown("Have a specific nutrition question? Get answers tailored to your health profile and goals!")
-        
-        question = st.text_area(
-            "Your question",
-            placeholder="E.g., How much protein do I need? Is this ingredient healthy? What's a good snack for weight loss?",
-            height=100,
-            label_visibility="collapsed"
-        )
-        
-        if st.button("Get Answer", use_container_width=True, key="ask_question_btn"):
-            if question:
-                with st.spinner("🤔 Thinking..."):
-                    answer = coaching.answer_nutrition_question(
-                        question,
-                        user_profile,
-                        today_nutrition,
-                        targets
-                    )
+        with col2:
+            if st.button("✨ Get Daily Tip", key="daily_tip_btn", use_container_width=True):
+                with st.spinner("✨ Getting your personalized tip..."):
+                    tip = coaching.get_daily_coaching_tip(user_profile, today_nutrition, targets)
                 
                 st.markdown(f"""
                 <div style="
-                    background: linear-gradient(135deg, #10A19D15 0%, #52C4B825 100%);
-                    border: 2px solid #10A19D;
+                    background: linear-gradient(135deg, #FFD43B15 0%, #FCC41925 100%);
+                    border: 1px solid #FFD43B;
+                    border-left: 4px solid #FFD43B;
                     border-radius: 12px;
-                    padding: 20px;
-                    margin-top: 16px;
+                    padding: 14px;
+                    margin-top: 12px;
+                    text-align: center;
                 ">
-                    <div style="color: #e0f2f1; font-size: 15px; line-height: 1.6;">{answer}</div>
+                    <div style="color: #FFD43B; font-weight: 700; font-size: 12px; margin-bottom: 6px; text-transform: uppercase;">💡 Daily Coaching Tip</div>
+                    <div style="color: #e0f2f1; font-size: 14px; line-height: 1.5;">{tip}</div>
                 </div>
                 """, unsafe_allow_html=True)
-            else:
-                st.warning("Please ask a question!")
-        
-        st.divider()
-        st.markdown("### Daily Coaching Tip")
-        
-        if st.button("Get Today's Tip", use_container_width=True, key="daily_tip_btn"):
-            with st.spinner("✨ Getting your personalized tip..."):
-                tip = coaching.get_daily_coaching_tip(user_profile, today_nutrition, targets)
-            
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%);
-                border: 2px solid #FFD43B;
-                border-radius: 12px;
-                padding: 16px;
-                margin-top: 12px;
-                text-align: center;
-            ">
-                <div style="color: #e0f2f1; font-size: 16px; font-weight: 600; line-height: 1.5;">{tip}</div>
-            </div>
-            """, unsafe_allow_html=True)
 
 
 # ==================== HELP & ABOUT PAGE ====================
