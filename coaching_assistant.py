@@ -42,7 +42,7 @@ class CoachingAssistant:
         """
         try:
             health_conditions = user_profile.get("health_conditions", [])
-            age_group = user_profile.get("age_group", "26-35")
+            age_group = user_profile.get("age_group", "26-35 (Adult)")
             health_goal = user_profile.get("health_goal", "general_health")
             
             # Calculate how this meal affects daily totals
@@ -205,7 +205,7 @@ Be specific, data-driven, and positive. Focus on what they're doing well and one
         """
         try:
             health_conditions = user_profile.get("health_conditions", [])
-            age_group = user_profile.get("age_group", "26-35")
+            age_group = user_profile.get("age_group", "26-35 (Adult)")
             
             context = f"""User Context:
 - Age Group: {age_group}

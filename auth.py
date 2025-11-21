@@ -99,7 +99,7 @@ class AuthManager:
                         default_profile = {
                             "user_id": user_id,
                             "full_name": user_data.get("full_name", ""),
-                            "age_group": "26-35",  # Default age group
+                            "age_group": "26-35 (Adult)",  # Default age group
                             "gender": "Prefer not to say",
                             "timezone": "UTC",
                             "health_conditions": [],

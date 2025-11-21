@@ -26,11 +26,15 @@ DAILY_SODIUM_TARGET = 2300  # mg
 DAILY_SUGAR_TARGET = 50  # grams
 DAILY_FIBER_TARGET = 25  # grams
 
-# Age Group Recommendations
+# Age Group Recommendations (with personalized nutrition targets)
 AGE_GROUP_TARGETS = {
-    "20-25": {"calories": 2400, "protein": 56, "carbs": 330, "fat": 80, "sodium": 2300, "sugar": 50},
-    "26-35": {"calories": 2200, "protein": 50, "carbs": 300, "fat": 73, "sodium": 2300, "sugar": 50},
-    "36-45": {"calories": 2000, "protein": 50, "carbs": 275, "fat": 65, "sodium": 2300, "sugar": 50},
+    "13-19 (Teens)": {"calories": 2200, "protein": 59, "carbs": 300, "fat": 73, "sodium": 2300, "sugar": 50},
+    "20-25 (Young Adult)": {"calories": 2400, "protein": 56, "carbs": 330, "fat": 80, "sodium": 2300, "sugar": 50},
+    "26-35 (Adult)": {"calories": 2200, "protein": 50, "carbs": 300, "fat": 73, "sodium": 2300, "sugar": 50},
+    "36-45 (Mid Adult)": {"calories": 2000, "protein": 50, "carbs": 275, "fat": 65, "sodium": 2300, "sugar": 50},
+    "46-55 (Mature Adult)": {"calories": 1900, "protein": 50, "carbs": 260, "fat": 63, "sodium": 2300, "sugar": 50},
+    "56-65 (Senior)": {"calories": 1800, "protein": 50, "carbs": 245, "fat": 60, "sodium": 2300, "sugar": 50},
+    "65+ (Older Adult)": {"calories": 1600, "protein": 50, "carbs": 220, "fat": 53, "sodium": 2300, "sugar": 50},
 }
 
 # Health Condition Targets

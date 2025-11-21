@@ -1034,8 +1034,8 @@ def dashboard_page():
     st.markdown("")
     
     # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    age_group = user_profile.get("age_group", "26-35 (Adult)")
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35 (Adult)"])
     
     # Apply health condition adjustments
     health_conditions = user_profile.get("health_conditions", [])
@@ -1947,7 +1947,7 @@ def analytics_page():
     if not user_profile:
         user_profile = {
             "user_id": st.session_state.user_id,
-            "age_group": "26-35",
+            "age_group": "26-35 (Adult)",
             "health_goal": "general_health",
             "timezone": "UTC",
             "health_conditions": [],
@@ -1999,8 +1999,8 @@ def analytics_page():
         return
     
     # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    age_group = user_profile.get("age_group", "26-35 (Adult)")
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35 (Adult)"])
     
     # ===== STATISTICS CARDS =====
     st.markdown("## 📊 Statistics")
@@ -2198,7 +2198,7 @@ def insights_page():
     if not user_profile:
         user_profile = {
             "user_id": st.session_state.user_id,
-            "age_group": "26-35",
+            "age_group": "26-35 (Adult)",
             "health_goal": "general_health",
             "timezone": "UTC",
             "health_conditions": [],
@@ -2214,8 +2214,8 @@ def insights_page():
         return
     
     # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    age_group = user_profile.get("age_group", "26-35 (Adult)")
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35 (Adult)"])
     
     # Today's summary
     today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
@@ -3065,7 +3065,7 @@ def profile_page():
                 age_group = st.selectbox(
                     "Age Group",
                     options=list(AGE_GROUP_TARGETS.keys()),
-                    index=list(AGE_GROUP_TARGETS.keys()).index(user_profile.get("age_group", "26-35"))
+                    index=list(AGE_GROUP_TARGETS.keys()).index(user_profile.get("age_group", "26-35 (Adult)"))
                 )
                 
                 gender_options = ["Male", "Female", "Other", "Prefer not to say"]
@@ -3362,7 +3362,7 @@ def coaching_assistant_page():
         if not user_profile:
             user_profile = {
                 "user_id": st.session_state.user_id,
-                "age_group": "26-35",
+                "age_group": "26-35 (Adult)",
                 "health_goal": "general_health",
                 "timezone": "UTC",
                 "health_conditions": [],
@@ -3375,8 +3375,8 @@ def coaching_assistant_page():
         today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
         
         # Get nutrition targets
-        age_group = user_profile.get("age_group", "26-35")
-        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+        age_group = user_profile.get("age_group", "26-35 (Adult)")
+        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35 (Adult)"])
         
         # Apply health condition adjustments
         health_conditions = user_profile.get("health_conditions", [])
@@ -3854,7 +3854,7 @@ def main():
             if not user_profile:
                 user_profile = {
                     "user_id": st.session_state.user_id,
-                    "age_group": "26-35",
+                    "age_group": "26-35 (Adult)",
                     "health_goal": "general_health",
                     "timezone": "UTC",
                     "health_conditions": [],
@@ -3879,8 +3879,8 @@ def main():
             
             # Calories calculation
             if user_profile:
-                age_group = user_profile.get("age_group", "26-35")
-                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                age_group = user_profile.get("age_group", "26-35 (Adult)")
+                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35 (Adult)"])
                 cal_display = int(today_nutrition['calories'])
             else:
                 cal_display = int(today_nutrition['calories'])

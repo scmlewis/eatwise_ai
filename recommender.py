@@ -38,7 +38,7 @@ class RecommendationEngine:
         try:
             # Build context for recommendations
             health_conditions = user_profile.get("health_conditions", [])
-            age_group = user_profile.get("age_group", "26-35")
+            age_group = user_profile.get("age_group", "26-35 (Adult)")
             dietary_preferences = user_profile.get("dietary_preferences", [])
             
             # Calculate nutrition gaps
@@ -131,7 +131,7 @@ Focus on:
         """
         try:
             health_conditions = user_profile.get("health_conditions", [])
-            age_group = user_profile.get("age_group", "26-35")
+            age_group = user_profile.get("age_group", "26-35 (Adult)")
             
             prompt = f"""Create a personalized 7-day meal plan for a health-conscious professional.
 
