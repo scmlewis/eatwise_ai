@@ -3091,8 +3091,26 @@ def profile_page():
 
 def coaching_assistant_page():
     """AI-Powered Nutrition Coaching Assistant"""
+    
+    # Add fade-in animation CSS for smooth page transition
     st.markdown("""
-    <div style="
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .coaching-page-header {
+            animation: fadeIn 0.4s ease-in;
+        }
+        .coaching-page-content {
+            animation: fadeIn 0.5s ease-in 0.2s both;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Display header with fade-in animation
+    st.markdown("""
+    <div class="coaching-page-header" style="
         background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
         padding: 15px 25px;
         border-radius: 15px;
@@ -3102,41 +3120,46 @@ def coaching_assistant_page():
     </div>
     """, unsafe_allow_html=True)
     
-    user_profile = st.session_state.user_profile
-    if not user_profile:
-        user_profile = db_manager.get_health_profile(st.session_state.user_id)
-        user_profile = normalize_profile(user_profile) if user_profile else user_profile
-        st.session_state.user_profile = user_profile
+    # Initialize data with loading spinner (prevents showing old content)
+    with st.spinner("⏳ Loading your coaching dashboard..."):
+        user_profile = st.session_state.user_profile
+        if not user_profile:
+            user_profile = db_manager.get_health_profile(st.session_state.user_id)
+            user_profile = normalize_profile(user_profile) if user_profile else user_profile
+            st.session_state.user_profile = user_profile
+        
+        if not user_profile:
+            user_profile = {
+                "user_id": st.session_state.user_id,
+                "age_group": "26-35",
+                "health_goal": "general_health",
+                "timezone": "UTC",
+                "health_conditions": [],
+                "dietary_preferences": []
+            }
+            st.session_state.user_profile = user_profile
+        
+        coaching = CoachingAssistant()
+        today = date.today()
+        today_meals = db_manager.get_meals_by_date(st.session_state.user_id, today)
+        today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
+        
+        # Get nutrition targets
+        age_group = user_profile.get("age_group", "26-35")
+        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+        
+        # Apply health condition adjustments
+        health_conditions = user_profile.get("health_conditions", [])
+        for condition in health_conditions:
+            if condition in HEALTH_CONDITION_TARGETS:
+                targets.update(HEALTH_CONDITION_TARGETS[condition])
+        
+        # Initialize conversation history in session state
+        if "coaching_conversation" not in st.session_state:
+            st.session_state.coaching_conversation = []
     
-    if not user_profile:
-        user_profile = {
-            "user_id": st.session_state.user_id,
-            "age_group": "26-35",
-            "health_goal": "general_health",
-            "timezone": "UTC",
-            "health_conditions": [],
-            "dietary_preferences": []
-        }
-        st.session_state.user_profile = user_profile
-    
-    coaching = CoachingAssistant()
-    today = date.today()
-    today_meals = db_manager.get_meals_by_date(st.session_state.user_id, today)
-    today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
-    
-    # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
-    
-    # Apply health condition adjustments
-    health_conditions = user_profile.get("health_conditions", [])
-    for condition in health_conditions:
-        if condition in HEALTH_CONDITION_TARGETS:
-            targets.update(HEALTH_CONDITION_TARGETS[condition])
-    
-    # Initialize conversation history in session state
-    if "coaching_conversation" not in st.session_state:
-        st.session_state.coaching_conversation = []
+    # Content loads after spinner with fade-in
+    st.markdown('<div class="coaching-page-content">', unsafe_allow_html=True)
     
     # Create tabs for different features
     tab1, tab2, tab3 = st.tabs(["💬 Chat with Coach", "📊 Pattern Analysis", "❓ Ask Questions"])
@@ -3388,6 +3411,9 @@ def coaching_assistant_page():
                 <div style="color: #e0f2f1; font-size: 16px; font-weight: 600; line-height: 1.5;">{tip}</div>
             </div>
             """, unsafe_allow_html=True)
+    
+    # Close the fade-in content div
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ==================== HELP & ABOUT PAGE ====================
