@@ -3298,26 +3298,19 @@ def coaching_assistant_page():
         messages_html = '<div class="chat-box">'
         
         if not st.session_state.coaching_conversation:
-            messages_html += '<div style="text-align: center; color: #a0a0a0; padding: 20px;">💬 Start a conversation with your coach! Ask about meal planning, nutrition tips, eating patterns, or any health-related questions.</div>'
+            messages_html += '<div style="text-align: center; color: #a0a0a0; padding: 20px;">💬 Start a conversation with your coach!</div>'
         else:
             for msg in st.session_state.coaching_conversation:
                 role = msg["role"]
                 content = msg["content"]
+                # Escape HTML special characters in content
+                import html
+                escaped_content = html.escape(content)
                 
                 if role == "user":
-                    messages_html += f'''
-                    <div class="message-user">
-                        <div class="message-label">You</div>
-                        <div class="message-content">{content}</div>
-                    </div>
-                    '''
+                    messages_html += f'<div class="message-user"><div class="message-label">You</div><div class="message-content">{escaped_content}</div></div>'
                 else:
-                    messages_html += f'''
-                    <div class="message-coach">
-                        <div class="message-label">🎯 Coach</div>
-                        <div class="message-content">{content}</div>
-                    </div>
-                    '''
+                    messages_html += f'<div class="message-coach"><div class="message-label">🎯 Coach</div><div class="message-content">{escaped_content}</div></div>'
         
         messages_html += '</div>'
         st.markdown(messages_html, unsafe_allow_html=True)
