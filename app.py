@@ -3305,8 +3305,6 @@ def coaching_assistant_page():
                 placeholder="Ask your coach...",
                 label_visibility="collapsed"
             )
-            # Always update the session state with current input
-            st.session_state.coaching_user_input = user_input
         
         with input_col2:
             send_button = st.button("📤 Send", use_container_width=True, key="send_coaching_btn")
@@ -3314,7 +3312,7 @@ def coaching_assistant_page():
         with input_col3:
             clear_button = st.button("🔄 Clear", use_container_width=True, key="clear_coaching_btn")
         
-        # Handle message sending
+        # Handle message sending BEFORE updating session state
         if send_button and user_input.strip():
             # Add user message to conversation
             st.session_state.coaching_conversation.append({
@@ -3338,7 +3336,7 @@ def coaching_assistant_page():
                 "content": response
             })
             
-            # Clear the input immediately
+            # Clear the input immediately BEFORE rerun
             st.session_state.coaching_user_input = ""
             st.rerun()
         
@@ -3347,6 +3345,10 @@ def coaching_assistant_page():
             st.session_state.coaching_conversation = []
             st.session_state.coaching_user_input = ""
             st.rerun()
+        
+        # Update session state with current input ONLY if send button wasn't pressed
+        if not send_button:
+            st.session_state.coaching_user_input = user_input
 
 
 # ==================== HELP & ABOUT PAGE ====================
