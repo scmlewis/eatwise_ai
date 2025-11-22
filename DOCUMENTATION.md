@@ -42,10 +42,13 @@ Get personalized recommendations based on your eating patterns and health profil
 ### 4. **Personalized Coaching** 🎯
 Chat with your AI nutrition coach for real-time guidance, pattern analysis, and daily tips.
 
-### 5. **Analytics & Trends**
+### 5. **Restaurant Menu Analyzer** 🍽️
+Paste or upload restaurant menus to get personalized healthy meal recommendations before dining out.
+
+### 6. **Analytics & Trends**
 Visualize your nutrition data with interactive charts and detailed insights.
 
-### 6. **Gamification**
+### 7. **Gamification**
 Earn badges and track streaks to stay motivated on your health journey.
 
 ## 🚀 Getting Started
@@ -59,10 +62,13 @@ Earn badges and track streaks to stay motivated on your health journey.
 
 ## 📊 Project Status
 
-**Current Version**: v1.1.0  
-**Latest Update**: November 21, 2025
+**Current Version**: v1.2.0  
+**Latest Update**: November 22, 2025
 
 ### Recent Features
+- ✅ Restaurant Menu Analyzer with OCR photo upload
+- ✅ Nutrition cards with gradient styling
+- ✅ Tab-based menu input interface
 - ✅ AI Nutrition Coaching System
 - ✅ Responsive chat interface with form-based input
 - ✅ 7-day pattern analysis
@@ -73,6 +79,7 @@ Earn badges and track streaks to stay motivated on your health journey.
 - ✅ Meal logging (text & photo)
 - ✅ Nutrition tracking and analytics
 - ✅ Personalized recommendations
+- ✅ Restaurant menu analysis
 - ✅ Gamification system
 - ✅ Secure authentication
 
@@ -101,6 +108,7 @@ Once logged in, you'll see these pages:
 - 📈 **Analytics** - View trends and statistics
 - 📋 **Meal History** - Browse and edit past meals
 - 💡 **Insights** - AI-powered recommendations
+- 🍽️ **Eating Out** - Analyze restaurant menus
 - 🎯 **Coaching** - Chat with AI nutrition coach
 - 👤 **My Profile** - Update your health profile
 - ❓ **Help** - Feature overview and FAQ

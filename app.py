@@ -4234,6 +4234,15 @@ def help_page():
             - Multi-turn conversations with context awareness
             - Clear chat to start fresh anytime
             """)
+            
+            st.markdown("### 🍽️ Restaurant Menu Analyzer")
+            st.markdown("""
+            - Paste restaurant menus for analysis
+            - Upload menu photos with OCR
+            - Get personalized recommendations
+            - See items to avoid
+            - Modification suggestions for healthier ordering
+            """)
     
     with tab3:
         st.markdown("## How to Use EatWise")
@@ -4296,6 +4305,32 @@ def help_page():
         - "How much protein should I eat?" → Recommendations based on your age and goals
         - General nutrition questions tailored to your health situation
         """)
+        
+        st.markdown("### Step 5: Analyze Restaurant Menus (Optional)")
+        st.markdown("""
+        Before eating out, visit **🍽️ Eating Out** to get healthy recommendations:
+        
+        **Using Text Menu:**
+        1. Click the "📝 Paste Menu Text" tab
+        2. Copy and paste the full restaurant menu
+        3. Click "🔍 Analyze Menu"
+        4. Review recommendations, items to avoid, and modification tips
+        
+        **Using Menu Photo:**
+        1. Click the "📸 Upload Menu Photo" tab
+        2. Upload a clear photo of the menu
+        3. Click "📸 Extract Text from Photo" (AI will read the menu for you)
+        4. Review extracted text if needed
+        5. Click "✅ Analyze Extracted Menu"
+        6. Get personalized recommendations for what to order
+        
+        **What You Get:**
+        - ⭐ Best Options: Recommendations tailored to your health profile
+        - ⚠️ Items to Avoid: Dishes that don't align with your goals
+        - 🎯 Special Recommendations: Lowest calorie, highest protein, etc.
+        - 💡 Modification Tips: How to order healthier versions
+        - 📊 Nutrition Cards: Beautiful breakdown of each meal option
+        """)
     
     with tab4:
         st.markdown("## Frequently Asked Questions")
@@ -4347,6 +4382,57 @@ def help_page():
             - Desktops
             
             Just use your browser to access https://eatwise-ai.streamlit.app/
+            """)
+        
+        with st.expander("❓ How does the restaurant menu analyzer work?"):
+            st.markdown("""
+            The **Eating Out** feature helps you make healthy choices when dining:
+            
+            **Text Menu Option:**
+            1. Paste the restaurant menu
+            2. AI analyzes it against your health profile and goals
+            3. Get personalized recommendations
+            
+            **Photo Menu Option:**
+            1. Upload a menu photo
+            2. AI reads the text automatically (OCR)
+            3. Same analysis and recommendations as text
+            
+            The analyzer considers:
+            - Your health conditions
+            - Your dietary preferences
+            - Your nutrition goals
+            - Your remaining daily nutrition budget
+            """)
+        
+        with st.expander("❓ What do the nutrition cards show?"):
+            st.markdown("""
+            Each recommended meal option displays:
+            - **Calories**: Total energy content
+            - **Protein**: Important for muscle and satiety
+            - **Carbs**: Carbohydrates for energy
+            - **Sodium**: Salt content (important if you monitor sodium)
+            
+            All nutrition estimates are realistic approximations based on:
+            - Typical portions
+            - Cooking methods mentioned
+            - Standard food composition data
+            """)
+        
+        with st.expander("❓ Can I trust the restaurant recommendations?"):
+            st.markdown("""
+            Our AI provides intelligent recommendations, but remember:
+            
+            **Accuracy factors:**
+            - AI estimates nutrition from descriptions
+            - Actual values may vary by restaurant
+            - Portion sizes can differ
+            
+            **Best practices:**
+            - Use recommendations as guidance, not exact values
+            - When unsure, ask the restaurant for nutrition info
+            - Check modification tips (like "sauce on the side")
+            - Trust your body and adjust as needed
             """)
         
         with st.expander("❓ How is my data stored?"):

@@ -44,7 +44,16 @@ A Streamlit-based personalized nutrition assistant that helps busy professionals
 - **Meal alternatives** - Discover healthier swaps for your favorite foods
 - All coaching is personalized based on your health conditions, goals, and dietary preferences
 
-### 7. **Gamification**
+### 7. **Restaurant Menu Analyzer** 🍽️
+- **Menu Text Analysis** - Paste restaurant menus for personalized recommendations
+- **Photo Upload & OCR** - Upload menu photos and extract text automatically
+- **Healthy Recommendations** - AI identifies best options based on your profile
+- **Items to Avoid** - Flags problematic items for your health goals
+- **Special Recommendations** - Highlights lowest-calorie, highest-protein, etc. options
+- **Modification Suggestions** - Get tips on how to order healthier versions
+- **Nutrition Cards** - Beautiful visual breakdown of each meal option
+
+### 8. **Gamification**
 - Logging streaks (🔥 Current & Longest)
 - Achievement badges
 - Progress tracking
@@ -59,9 +68,12 @@ eatwise_ai/
 ├── database.py                 # Supabase database operations
 ├── nutrition_analyzer.py       # Food analysis & recognition
 ├── recommender.py              # AI recommendation engine
+├── coaching_assistant.py       # AI nutrition coaching
+├── restaurant_analyzer.py      # Restaurant menu analysis
 ├── config.py                   # Configuration & targets
 ├── constants.py                # App constants & translations
 ├── utils.py                    # Utility functions
+├── nutrition_components.py     # UI components for nutrition
 ├── database_setup.sql          # Supabase schema setup
 ├── requirements.txt            # Python dependencies
 ├── .env.example                # Environment variables template
@@ -76,8 +88,8 @@ eatwise_ai/
 - **PostgreSQL**: Data storage (via Supabase)
 
 ### AI & ML
-- **OpenAI GPT-3.5**: Natural language meal analysis
-- **OpenAI Vision**: Food image recognition
+- **Azure OpenAI GPT-4**: Natural language meal analysis and recommendations
+- **Azure OpenAI Vision**: Food image recognition and menu OCR
 
 ### Frontend
 - **Streamlit**: Web application framework
@@ -186,6 +198,16 @@ The app will open at `http://localhost:8501`
   - Areas for improvement
   - Specific recommendations
   - Red flags & motivational messages
+
+#### 6. **Eating Out** 🍽️
+- **Menu Text Input**: Paste restaurant menus for analysis
+- **Photo Upload**: Upload menu photos with automatic OCR text extraction
+- **Personalized Recommendations**: AI identifies best options for you
+- **Nutrition Cards**: Beautiful visual breakdown of each meal
+- **Items to Avoid**: Flagged dishes that don't align with your health goals
+- **Special Recommendations**: Highlights best options (lowest calorie, highest protein, etc.)
+- **Modification Tips**: Suggestions on how to order healthier versions
+- **Smart Filtering**: Only shows recommendations based on your dietary preferences and health conditions
 
 #### 6. **Coaching** 🎯
 - **Chat with Coach**: Multi-turn conversational interface with your AI nutrition coach
