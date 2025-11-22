@@ -28,6 +28,7 @@ from database import DatabaseManager
 from nutrition_analyzer import NutritionAnalyzer
 from recommender import RecommendationEngine
 from coaching_assistant import CoachingAssistant
+from restaurant_analyzer import RestaurantMenuAnalyzer
 from nutrition_components import display_nutrition_targets_progress
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
@@ -3820,6 +3821,269 @@ def coaching_assistant_page():
             st.rerun()
 
 
+# ==================== RESTAURANT MENU ANALYZER PAGE ====================
+
+def restaurant_analyzer_page():
+    """Analyze restaurant menus and find healthiest options"""
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #FF6B6B 0%, #FFA94D 100%);
+        padding: 15px 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">🍽️ Restaurant Menu Analyzer</h1>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    Eating out doesn't have to derail your nutrition goals! Paste a restaurant menu below and get 
+    personalized recommendations based on your health profile, goals, and today's nutrition intake.
+    """)
+    
+    user_profile = st.session_state.user_profile
+    if not user_profile:
+        user_profile = db_manager.get_health_profile(st.session_state.user_id)
+        user_profile = normalize_profile(user_profile) if user_profile else user_profile
+        st.session_state.user_profile = user_profile
+    
+    if not user_profile:
+        st.warning("⚠️ Please complete your health profile in 'My Profile' for personalized recommendations")
+        return
+    
+    # Initialize menu analyzer
+    menu_analyzer = RestaurantMenuAnalyzer()
+    
+    # Create tabs for different features
+    tab1, tab2, tab3 = st.tabs(["📋 Analyze Menu", "🔄 Compare Items", "💡 Cuisine Tips"])
+    
+    with tab1:
+        st.markdown("### Paste Restaurant Menu")
+        st.caption("Copy and paste the full restaurant menu text below")
+        
+        menu_text = st.text_area(
+            "Restaurant Menu",
+            height=250,
+            placeholder="Paste restaurant menu here...\n\nExample:\nAPPETIZERS\n- Bruschetta $8\n- Calamari $12\n\nMAIN COURSES\n- Grilled Salmon $18\n- Pasta Carbonara $16",
+            label_visibility="collapsed"
+        )
+        
+        if st.button("🔍 Analyze Menu", use_container_width=True, type="primary"):
+            if not menu_text.strip():
+                st.warning("Please paste a menu to analyze")
+            else:
+                with st.spinner("🤖 Analyzing menu with AI..."):
+                    # Get today's nutrition
+                    today_nutrition = db_manager.get_daily_nutrition_summary(
+                        st.session_state.user_id, date.today()
+                    )
+                    
+                    # Get targets
+                    age_group = user_profile.get("age_group", "26-35")
+                    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                    
+                    # Analyze menu
+                    analysis = menu_analyzer.analyze_menu(
+                        menu_text,
+                        user_profile,
+                        today_nutrition,
+                        targets
+                    )
+                    
+                    if analysis:
+                        st.session_state.menu_analysis = analysis
+                        st.success("✅ Menu analyzed!")
+                    else:
+                        st.error("Could not analyze menu. Please try again.")
+        
+        # Display analysis if available
+        if "menu_analysis" in st.session_state:
+            analysis = st.session_state.menu_analysis
+            
+            st.markdown("---")
+            st.markdown("## 📊 Menu Analysis")
+            
+            # Restaurant assessment
+            if "restaurant_analysis" in analysis:
+                st.info(f"**Restaurant Assessment:** {analysis['restaurant_analysis']}")
+            
+            # Best options
+            if "best_options" in analysis and analysis["best_options"]:
+                st.markdown("### ⭐ Best Options for You")
+                
+                for i, option in enumerate(analysis["best_options"][:5], 1):
+                    col1, col2 = st.columns([3, 1])
+                    
+                    with col1:
+                        badge = option.get("badge", "")
+                        st.markdown(f"**{i}. {option.get('menu_item', 'N/A')}** {f'🏆 {badge}' if badge else ''}")
+                        st.caption(option.get("reason", ""))
+                        
+                        # Nutrition
+                        nutrition = option.get("estimated_nutrition", {})
+                        nut_cols = st.columns(4)
+                        with nut_cols[0]:
+                            st.metric("Calories", f"{nutrition.get('calories', 0):.0f}")
+                        with nut_cols[1]:
+                            st.metric("Protein", f"{nutrition.get('protein', 0):.0f}g")
+                        with nut_cols[2]:
+                            st.metric("Carbs", f"{nutrition.get('carbs', 0):.0f}g")
+                        with nut_cols[3]:
+                            st.metric("Sodium", f"{nutrition.get('sodium', 0):.0f}mg")
+                        
+                        # Modifications
+                        if option.get("modifications"):
+                            st.info(f"💡 **Tip:** {option['modifications']}")
+                    
+                    st.markdown("---")
+            
+            # Items to avoid
+            if "items_to_avoid" in analysis and analysis["items_to_avoid"]:
+                st.markdown("### ⚠️ Items to Avoid")
+                
+                for item in analysis["items_to_avoid"][:3]:
+                    st.warning(f"**{item.get('menu_item', 'N/A')}** - {item.get('concern', 'Not ideal')}")
+                    st.caption(item.get("reason", ""))
+            
+            # Special recommendations
+            if "special_recommendations" in analysis:
+                st.markdown("### 🎯 Special Recommendations")
+                
+                specs = analysis["special_recommendations"]
+                rec_cols = st.columns(2)
+                
+                if "best_for_calories" in specs and specs["best_for_calories"]:
+                    with rec_cols[0]:
+                        item = specs["best_for_calories"]
+                        st.metric("Lowest Calorie", item.get("item", "N/A"), f"{item.get('calories', 0):.0f} cal")
+                
+                if "best_for_protein" in specs and specs["best_for_protein"]:
+                    with rec_cols[1]:
+                        item = specs["best_for_protein"]
+                        st.metric("Highest Protein", item.get("item", "N/A"), f"{item.get('protein', 0):.0f}g")
+            
+            # Tips
+            if "general_tips" in analysis:
+                st.markdown("### 💡 General Tips")
+                st.info(analysis["general_tips"])
+    
+    with tab2:
+        st.markdown("### Compare Two Menu Items")
+        st.caption("Compare items side-by-side to see which is better for your goals")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            item1 = st.text_input(
+                "First Item",
+                placeholder="e.g., Grilled Salmon with Rice",
+                label_visibility="collapsed"
+            )
+        
+        with col2:
+            item2 = st.text_input(
+                "Second Item",
+                placeholder="e.g., Pasta Carbonara",
+                label_visibility="collapsed"
+            )
+        
+        if st.button("⚖️ Compare Items", use_container_width=True, type="primary"):
+            if not item1.strip() or not item2.strip():
+                st.warning("Please enter both items to compare")
+            else:
+                with st.spinner("🤖 Comparing items..."):
+                    comparison = menu_analyzer.compare_menu_items(
+                        item1,
+                        item2,
+                        user_profile
+                    )
+                    
+                    if comparison:
+                        st.session_state.item_comparison = comparison
+                        st.success("✅ Comparison complete!")
+                    else:
+                        st.error("Could not compare items. Please try again.")
+        
+        # Display comparison
+        if "item_comparison" in st.session_state:
+            comp = st.session_state.item_comparison
+            
+            st.markdown("---")
+            st.markdown("## ⚖️ Comparison Results")
+            
+            col1, col2 = st.columns(2)
+            
+            # Item 1
+            with col1:
+                st.markdown(f"### {comp.get('item1', {}).get('name', 'Item 1')}")
+                
+                item1_nut = comp.get('item1', {}).get('estimated_nutrition', {})
+                nut_cols = st.columns(2)
+                with nut_cols[0]:
+                    st.metric("Calories", f"{item1_nut.get('calories', 0):.0f}")
+                    st.metric("Protein", f"{item1_nut.get('protein', 0):.0f}g")
+                with nut_cols[1]:
+                    st.metric("Carbs", f"{item1_nut.get('carbs', 0):.0f}g")
+                    st.metric("Sodium", f"{item1_nut.get('sodium', 0):.0f}mg")
+                
+                st.markdown("**Pros:**")
+                for pro in comp.get('item1', {}).get('pros', []):
+                    st.success(pro)
+                
+                st.markdown("**Cons:**")
+                for con in comp.get('item1', {}).get('cons', []):
+                    st.error(con)
+            
+            # Item 2
+            with col2:
+                st.markdown(f"### {comp.get('item2', {}).get('name', 'Item 2')}")
+                
+                item2_nut = comp.get('item2', {}).get('estimated_nutrition', {})
+                nut_cols = st.columns(2)
+                with nut_cols[0]:
+                    st.metric("Calories", f"{item2_nut.get('calories', 0):.0f}")
+                    st.metric("Protein", f"{item2_nut.get('protein', 0):.0f}g")
+                with nut_cols[1]:
+                    st.metric("Carbs", f"{item2_nut.get('carbs', 0):.0f}g")
+                    st.metric("Sodium", f"{item2_nut.get('sodium', 0):.0f}mg")
+                
+                st.markdown("**Pros:**")
+                for pro in comp.get('item2', {}).get('pros', []):
+                    st.success(pro)
+                
+                st.markdown("**Cons:**")
+                for con in comp.get('item2', {}).get('cons', []):
+                    st.error(con)
+            
+            # Winner
+            st.markdown("---")
+            winner = comp.get('winner', 'N/A')
+            badge = comp.get('winner_badge', '')
+            st.markdown(f"### 🏆 Winner: **{winner}** {f'({badge})' if badge else ''}")
+            st.info(comp.get('reason', 'Better choice for your goals'))
+    
+    with tab3:
+        st.markdown("### 🌍 Cuisine-Specific Tips")
+        
+        cuisines = [
+            "Italian", "Japanese", "Mexican", "Chinese", 
+            "Indian", "Thai", "Mediterranean", "American",
+            "Korean", "Vietnamese", "Greek"
+        ]
+        
+        selected_cuisine = st.selectbox("Select a cuisine type:", cuisines)
+        
+        if st.button("Get Tips", use_container_width=True, type="primary"):
+            with st.spinner(f"🤖 Getting {selected_cuisine} restaurant tips..."):
+                tips = menu_analyzer.get_cuisine_tips(selected_cuisine)
+                st.session_state.cuisine_tips = tips
+                st.success("✅ Tips loaded!")
+        
+        if "cuisine_tips" in st.session_state:
+            st.markdown(f"### 💡 {selected_cuisine} Restaurant Tips")
+            st.info(st.session_state.cuisine_tips)
+
+
 # ==================== HELP & ABOUT PAGE ====================
 
 def help_page():
@@ -4140,6 +4404,7 @@ def main():
                 "Analytics": "📈",
                 "Meal History": "📋",
                 "Insights": "💡",
+                "Eating Out": "🍽️",
                 "Coaching": "🎯",
                 "My Profile": "👤",
                 "Help": "❓",
@@ -4272,6 +4537,8 @@ def main():
                 meal_history_page()
             elif st.session_state.current_page == "Insights":
                 insights_page()
+            elif st.session_state.current_page == "Eating Out":
+                restaurant_analyzer_page()
             elif st.session_state.current_page == "Coaching":
                 coaching_assistant_page()
             elif st.session_state.current_page == "My Profile":
