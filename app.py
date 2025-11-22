@@ -1861,7 +1861,16 @@ def meal_logging_page():
     
     # ===== TIME-BASED SUGGESTIONS =====
     from datetime import datetime as dt
-    current_hour = dt.now().hour
+    import pytz
+    
+    # Get user's timezone for accurate time-based suggestions
+    user_timezone = st.session_state.user_data.get("timezone", "UTC") if st.session_state.user_data else "UTC"
+    try:
+        tz = pytz.timezone(user_timezone)
+        current_time = dt.now(tz)
+        current_hour = current_time.hour
+    except (pytz.exceptions.UnknownTimeZoneError, AttributeError):
+        current_hour = dt.now(pytz.UTC).hour
     
     if 6 <= current_hour < 10:
         suggestion = "🌅 Good morning! It's breakfast time. Fuel your day with a healthy breakfast!"
