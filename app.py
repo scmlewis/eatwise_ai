@@ -1863,10 +1863,17 @@ def meal_logging_page():
     from datetime import datetime as dt
     import pytz
     
-    # Get user's timezone for accurate time-based suggestions
+    # Get user's timezone for accurate time-based suggestions (same as dashboard)
     user_timezone = "UTC"
-    if hasattr(st.session_state, "user_data") and st.session_state.user_data:
-        user_timezone = st.session_state.user_data.get("timezone", "UTC")
+    if hasattr(st.session_state, "user_profile") and st.session_state.user_profile:
+        user_timezone = st.session_state.user_profile.get("timezone", "UTC")
+    elif hasattr(st.session_state, "user_id"):
+        # If user_profile not in session, fetch it
+        user_profile = db_manager.get_health_profile(st.session_state.user_id)
+        user_profile = normalize_profile(user_profile) if user_profile else None
+        if user_profile:
+            user_timezone = user_profile.get("timezone", "UTC")
+            st.session_state.user_profile = user_profile
     
     try:
         tz = pytz.timezone(user_timezone)
