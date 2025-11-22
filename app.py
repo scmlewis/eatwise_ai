@@ -1191,6 +1191,7 @@ def login_page():
                 line-height: 1.4;
                 opacity: 0.95;
                 letter-spacing: -0.01em;
+                color: white;
             ">Your AI-Powered Nutrition Hub</h2>
             
             <p style="
