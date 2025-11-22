@@ -1174,33 +1174,94 @@ def login_page():
     
     with col1:
         st.markdown("""
-        <div class="login-hero" style="padding: 40px 30px;">
-            <h1 style="font-size: 3.5em; font-weight: 900; margin: 0 0 10px 0; line-height: 1.1; text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3); letter-spacing: -0.02em;">EatWise</h1>
+        <div class="login-hero" style="padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; height: 100%;">
+            <h1 style="
+                font-size: 3.5em; 
+                font-weight: 900;
+                margin: 0 0 10px 0; 
+                line-height: 1.1;
+                text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+                letter-spacing: -0.02em;
+            ">EatWise</h1>
             
-            <h2 style="font-size: 1.35em; font-weight: 500; margin: 0 0 24px 0; line-height: 1.4; opacity: 0.95; letter-spacing: -0.01em; color: white;">Your AI-Powered Nutrition Hub</h2>
+            <h2 style="
+                font-size: 1.35em;
+                font-weight: 500;
+                margin: 0 0 24px 0;
+                line-height: 1.4;
+                opacity: 0.95;
+                letter-spacing: -0.01em;
+                color: white;
+            ">Your AI-Powered Nutrition Hub</h2>
             
-            <p style="font-size: 1em; opacity: 0.88; margin-bottom: 28px; line-height: 1.6; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); letter-spacing: 0.3px;">
+            <p style="
+                font-size: 1em; 
+                opacity: 0.88;
+                margin-bottom: 28px;
+                line-height: 1.6;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+                letter-spacing: 0.3px;
+            ">
                 Transform your eating habits with intelligent meal tracking and personalized nutrition insights.
             </p>
             
-            <ul style="list-style: none; padding: 0; margin: 0;">
-                <li style="font-size: 1.02em; margin-bottom: 12px; line-height: 1.5; display: flex; align-items: center; gap: 12px;">
+            <ul style="
+                list-style: none; 
+                padding: 0;
+                margin: 0;
+            ">
+                <li style="
+                    font-size: 1.02em;
+                    margin-bottom: 12px;
+                    line-height: 1.5;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                ">
                     <span style="font-size: 1.3em;">📸</span>
                     <span>Smart meal logging (text or photo)</span>
                 </li>
-                <li style="font-size: 1.02em; margin-bottom: 12px; line-height: 1.5; display: flex; align-items: center; gap: 12px;">
+                <li style="
+                    font-size: 1.02em;
+                    margin-bottom: 12px;
+                    line-height: 1.5;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                ">
                     <span style="font-size: 1.3em;">📊</span>
                     <span>Instant nutritional analysis</span>
                 </li>
-                <li style="font-size: 1.02em; margin-bottom: 12px; line-height: 1.5; display: flex; align-items: center; gap: 12px;">
+                <li style="
+                    font-size: 1.02em;
+                    margin-bottom: 12px;
+                    line-height: 1.5;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                ">
                     <span style="font-size: 1.3em;">📈</span>
                     <span>Habit tracking and progress monitoring</span>
                 </li>
-                <li style="font-size: 1.02em; margin-bottom: 12px; line-height: 1.5; display: flex; align-items: center; gap: 12px;">
+                <li style="
+                    font-size: 1.02em;
+                    margin-bottom: 12px;
+                    line-height: 1.5;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                ">
                     <span style="font-size: 1.3em;">💡</span>
                     <span>AI-powered personalized suggestions</span>
                 </li>
-                <li style="font-size: 1.02em; margin-bottom: 0; line-height: 1.5; display: flex; align-items: center; gap: 12px;">
+                <li style="
+                    font-size: 1.02em;
+                    margin-bottom: 0;
+                    line-height: 1.5;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                ">
                     <span style="font-size: 1.3em;">🎮</span>
                     <span>Gamification with badges and streaks</span>
                 </li>
