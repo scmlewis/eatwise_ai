@@ -231,7 +231,7 @@ def success_state(title: str, message: str, icon: str = "✅"):
 
 st.set_page_config(
     page_title=APP_NAME,
-    page_icon="🥗",
+    page_icon="assets/eatwise-logo.png",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items=None
@@ -1173,9 +1173,11 @@ def login_page():
     col1, col2 = st.columns([1.1, 1], gap="medium")
     
     with col1:
+        # Display EatWise logo
+        st.image("assets/eatwise-logo.png", width=280)
+        
         st.markdown("""
-        <div class="login-hero">
-            <h1>🥗 EatWise</h1>
+        <div class="login-hero" style="padding-top: 20px;">
             <h2>Your AI-Powered Nutrition Hub</h2>
             <p style="font-size: 0.95em; opacity: 0.9; margin-bottom: 15px; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);">
                 Transform your eating habits with intelligent meal tracking and personalized nutrition insights.
