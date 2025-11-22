@@ -4116,7 +4116,7 @@ def main():
             text-align: center;
             word-wrap: break-word;
         ">
-            <h1 style="color: white; margin: 0; font-size: 1.5em;">🥗 EatWise</h1>
+            <h1 style="color: white; margin: 0; font-size: 1.5em; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4), 0 0 8px rgba(0, 0, 0, 0.3);">🥗 EatWise</h1>
         </div>
         """, unsafe_allow_html=True)
         
