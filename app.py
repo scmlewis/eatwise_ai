@@ -1864,7 +1864,10 @@ def meal_logging_page():
     import pytz
     
     # Get user's timezone for accurate time-based suggestions
-    user_timezone = st.session_state.user_data.get("timezone", "UTC") if st.session_state.user_data else "UTC"
+    user_timezone = "UTC"
+    if hasattr(st.session_state, "user_data") and st.session_state.user_data:
+        user_timezone = st.session_state.user_data.get("timezone", "UTC")
+    
     try:
         tz = pytz.timezone(user_timezone)
         current_time = dt.now(tz)
