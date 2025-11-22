@@ -1037,6 +1037,8 @@ def login_page():
             font-size: 2.2em;
             margin: 0 0 8px 0;
             font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4), 
+                         0 0 8px rgba(0, 0, 0, 0.3);
         }
         
         .login-hero h2 {
@@ -1044,6 +1046,7 @@ def login_page():
             margin: 0 0 15px 0;
             font-weight: 300;
             opacity: 0.95;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         }
         
         .login-hero ul {
@@ -1056,6 +1059,7 @@ def login_page():
             display: flex;
             align-items: center;
             gap: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
         
         .login-form-container {
@@ -1081,6 +1085,7 @@ def login_page():
             font-size: 1.3em;
             margin: 0;
             margin-bottom: 2px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         }
         
         .login-header p {
@@ -1169,7 +1174,7 @@ def login_page():
         <div class="login-hero">
             <h1>🥗 EatWise</h1>
             <h2>Your AI-Powered Nutrition Hub</h2>
-            <p style="font-size: 0.95em; opacity: 0.9; margin-bottom: 15px;">
+            <p style="font-size: 0.95em; opacity: 0.9; margin-bottom: 15px; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);">
                 Transform your eating habits with intelligent meal tracking and personalized nutrition insights.
             </p>
             <ul style="list-style: none; padding: 0;">
