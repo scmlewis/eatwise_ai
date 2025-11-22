@@ -3839,8 +3839,8 @@ def restaurant_analyzer_page():
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    Eating out doesn't have to derail your nutrition goals! Paste a restaurant menu or upload a photo below 
-    and get personalized recommendations based on your health profile, goals, and today's nutrition intake.
+    Eating out doesn't have to derail your nutrition goals! Enter a restaurant menu and get 
+    personalized recommendations based on your health profile, goals, and today's nutrition intake.
     """)
     
     user_profile = st.session_state.user_profile
@@ -3856,110 +3856,151 @@ def restaurant_analyzer_page():
     # Initialize menu analyzer
     menu_analyzer = RestaurantMenuAnalyzer()
     
-    st.markdown("### 📋 Enter Restaurant Menu")
-    st.caption("Paste menu text OR upload a menu photo (we'll extract the text)")
-    
     # Create tabs for input method
-    input_col1, input_col2 = st.columns(2)
+    tab_text, tab_photo = st.tabs(["📝 Paste Menu Text", "📸 Upload Menu Photo"])
     
-    with input_col1:
-        st.markdown("#### Text Input")
+    with tab_text:
+        st.markdown("### Enter Menu Text")
+        st.caption("Copy and paste the full restaurant menu")
+        
         menu_text = st.text_area(
             "Restaurant Menu",
-            height=250,
+            height=300,
             placeholder="Paste restaurant menu here...\n\nExample:\nAPPETIZERS\n- Bruschetta $8\n- Calamari $12\n\nMAIN COURSES\n- Grilled Salmon $18\n- Pasta Carbonara $16",
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="menu_text_input"
         )
+        
+        if st.button("🔍 Analyze Menu", use_container_width=True, type="primary", key="analyze_text_btn"):
+            if not menu_text.strip():
+                st.warning("Please paste a menu to analyze")
+            else:
+                with st.spinner("🤖 Analyzing menu with AI..."):
+                    # Get today's nutrition
+                    today_nutrition = db_manager.get_daily_nutrition_summary(
+                        st.session_state.user_id, date.today()
+                    )
+                    
+                    # Get targets
+                    age_group = user_profile.get("age_group", "26-35")
+                    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                    
+                    # Analyze menu
+                    analysis = menu_analyzer.analyze_menu(
+                        menu_text,
+                        user_profile,
+                        today_nutrition,
+                        targets
+                    )
+                    
+                    if analysis:
+                        st.session_state.menu_analysis = analysis
+                        st.success("✅ Menu analyzed!")
+                    else:
+                        st.error("Could not analyze menu. Please try again.")
     
-    with input_col2:
-        st.markdown("#### Photo Upload")
-        st.caption("Upload a photo of the menu (JPG, PNG)")
+    with tab_photo:
+        st.markdown("### Upload Menu Photo")
+        st.caption("Take a photo of the menu (JPG, PNG)")
+        
         uploaded_file = st.file_uploader(
             "Menu Photo",
             type=["jpg", "jpeg", "png"],
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="menu_photo_upload"
         )
         
-        menu_from_photo = None
         if uploaded_file is not None:
-            # Display uploaded image
-            st.image(uploaded_file, caption="Menu Photo", use_column_width=True)
+            # Display uploaded image in a smaller preview format
+            col1, col2 = st.columns([2, 1])
             
-            # Extract text from image using Vision API
-            if st.button("📸 Extract Text from Photo", use_container_width=True):
-                with st.spinner("🔍 Extracting text from menu photo..."):
-                    try:
-                        # Read image file
-                        image_data = uploaded_file.getvalue()
-                        image_base64 = base64.b64encode(image_data).decode('utf-8')
-                        
-                        # Use OpenAI Vision to extract menu text
-                        from openai import AzureOpenAI
-                        client = AzureOpenAI(
-                            api_key=AZURE_OPENAI_API_KEY,
-                            api_version="2023-05-15",
-                            azure_endpoint=AZURE_OPENAI_ENDPOINT
-                        )
-                        
-                        response = client.chat.completions.create(
-                            model=AZURE_OPENAI_DEPLOYMENT,
-                            messages=[
-                                {"role": "system", "content": "You are an OCR expert. Extract all text from the menu image. Preserve the structure and formatting as much as possible."},
-                                {
-                                    "role": "user",
-                                    "content": [
-                                        {"type": "text", "text": "Extract all text from this menu image:"},
-                                        {
-                                            "type": "image_url",
-                                            "image_url": {
-                                                "url": f"data:image/jpeg;base64,{image_base64}"
+            with col1:
+                st.image(uploaded_file, caption="Menu Photo Preview", use_column_width=True)
+            
+            with col2:
+                st.markdown("")  # Spacing
+                if st.button("📸 Extract Text from Photo", use_container_width=True, type="primary"):
+                    with st.spinner("🔍 Extracting text from menu..."):
+                        try:
+                            # Read image file
+                            image_data = uploaded_file.getvalue()
+                            image_base64 = base64.b64encode(image_data).decode('utf-8')
+                            
+                            # Use OpenAI Vision to extract menu text
+                            from openai import AzureOpenAI
+                            client = AzureOpenAI(
+                                api_key=AZURE_OPENAI_API_KEY,
+                                api_version="2023-05-15",
+                                azure_endpoint=AZURE_OPENAI_ENDPOINT
+                            )
+                            
+                            response = client.chat.completions.create(
+                                model=AZURE_OPENAI_DEPLOYMENT,
+                                messages=[
+                                    {"role": "system", "content": "You are an OCR expert. Extract all text from the menu image. Preserve the structure and formatting as much as possible."},
+                                    {
+                                        "role": "user",
+                                        "content": [
+                                            {"type": "text", "text": "Extract all text from this menu image:"},
+                                            {
+                                                "type": "image_url",
+                                                "image_url": {
+                                                    "url": f"data:image/jpeg;base64,{image_base64}"
+                                                }
                                             }
-                                        }
-                                    ]
-                                }
-                            ],
-                            max_tokens=2000
+                                        ]
+                                    }
+                                ],
+                                max_tokens=2000
+                            )
+                            
+                            extracted_text = response.choices[0].message.content
+                            st.session_state.extracted_menu_text = extracted_text
+                            st.success("✅ Text extracted!")
+                            
+                        except Exception as e:
+                            st.error(f"Error extracting text: {str(e)}")
+            
+            # Show extracted text if available
+            if "extracted_menu_text" in st.session_state:
+                st.markdown("---")
+                st.markdown("### 📋 Extracted Text")
+                
+                with st.expander("View extracted text", expanded=False):
+                    st.text_area(
+                        "Extracted Menu Text",
+                        value=st.session_state.extracted_menu_text,
+                        height=200,
+                        disabled=True,
+                        label_visibility="collapsed"
+                    )
+                
+                if st.button("✅ Analyze Extracted Menu", use_container_width=True, type="primary"):
+                    with st.spinner("🤖 Analyzing menu with AI..."):
+                        # Get today's nutrition
+                        today_nutrition = db_manager.get_daily_nutrition_summary(
+                            st.session_state.user_id, date.today()
                         )
                         
-                        menu_from_photo = response.choices[0].message.content
-                        st.session_state.extracted_menu_text = menu_from_photo
-                        st.success("✅ Text extracted from photo!")
+                        # Get targets
+                        age_group = user_profile.get("age_group", "26-35")
+                        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
                         
-                    except Exception as e:
-                        st.error(f"Error extracting text: {str(e)}")
+                        # Analyze menu
+                        analysis = menu_analyzer.analyze_menu(
+                            st.session_state.extracted_menu_text,
+                            user_profile,
+                            today_nutrition,
+                            targets
+                        )
+                        
+                        if analysis:
+                            st.session_state.menu_analysis = analysis
+                            st.success("✅ Menu analyzed!")
+                        else:
+                            st.error("Could not analyze menu. Please try again.")
     
-    # Use either pasted text or extracted text from photo
-    final_menu_text = menu_text if menu_text.strip() else st.session_state.get("extracted_menu_text", "")
-    
-    if st.button("🔍 Analyze Menu", use_container_width=True, type="primary"):
-        if not final_menu_text.strip():
-            st.warning("Please paste a menu or upload a menu photo")
-        else:
-            with st.spinner("🤖 Analyzing menu with AI..."):
-                # Get today's nutrition
-                today_nutrition = db_manager.get_daily_nutrition_summary(
-                    st.session_state.user_id, date.today()
-                )
-                
-                # Get targets
-                age_group = user_profile.get("age_group", "26-35")
-                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
-                
-                # Analyze menu
-                analysis = menu_analyzer.analyze_menu(
-                    final_menu_text,
-                    user_profile,
-                    today_nutrition,
-                    targets
-                )
-                
-                if analysis:
-                    st.session_state.menu_analysis = analysis
-                    st.success("✅ Menu analyzed!")
-                else:
-                    st.error("Could not analyze menu. Please try again.")
-    
-    # Display analysis if available
+    # Display analysis results (shared between both tabs)
     if "menu_analysis" in st.session_state:
         analysis = st.session_state.menu_analysis
         
