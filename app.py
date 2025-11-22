@@ -4023,17 +4023,65 @@ def restaurant_analyzer_page():
                     st.markdown(f"**{i}. {option.get('menu_item', 'N/A')}** {f'🏆 {badge}' if badge else ''}")
                     st.caption(option.get("reason", ""))
                     
-                    # Nutrition
+                    # Nutrition in cards
                     nutrition = option.get("estimated_nutrition", {})
-                    nut_cols = st.columns(4)
-                    with nut_cols[0]:
-                        st.metric("Calories", f"{nutrition.get('calories', 0):.0f}")
-                    with nut_cols[1]:
-                        st.metric("Protein", f"{nutrition.get('protein', 0):.0f}g")
-                    with nut_cols[2]:
-                        st.metric("Carbs", f"{nutrition.get('carbs', 0):.0f}g")
-                    with nut_cols[3]:
-                        st.metric("Sodium", f"{nutrition.get('sodium', 0):.0f}mg")
+                    nut_col1, nut_col2, nut_col3, nut_col4 = st.columns(4, gap="small")
+                    
+                    with nut_col1:
+                        st.markdown(f"""
+                        <div style="
+                            background: linear-gradient(135deg, #FF6B6B 0%, #FFA94D 100%);
+                            padding: 12px;
+                            border-radius: 10px;
+                            text-align: center;
+                            color: white;
+                        ">
+                            <div style="font-size: 0.8em; opacity: 0.9;">Calories</div>
+                            <div style="font-size: 1.8em; font-weight: bold;">{nutrition.get('calories', 0):.0f}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    with nut_col2:
+                        st.markdown(f"""
+                        <div style="
+                            background: linear-gradient(135deg, #845EF7 0%, #BE123C 100%);
+                            padding: 12px;
+                            border-radius: 10px;
+                            text-align: center;
+                            color: white;
+                        ">
+                            <div style="font-size: 0.8em; opacity: 0.9;">Protein</div>
+                            <div style="font-size: 1.8em; font-weight: bold;">{nutrition.get('protein', 0):.0f}g</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    with nut_col3:
+                        st.markdown(f"""
+                        <div style="
+                            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+                            padding: 12px;
+                            border-radius: 10px;
+                            text-align: center;
+                            color: white;
+                        ">
+                            <div style="font-size: 0.8em; opacity: 0.9;">Carbs</div>
+                            <div style="font-size: 1.8em; font-weight: bold;">{nutrition.get('carbs', 0):.0f}g</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    with nut_col4:
+                        st.markdown(f"""
+                        <div style="
+                            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+                            padding: 12px;
+                            border-radius: 10px;
+                            text-align: center;
+                            color: white;
+                        ">
+                            <div style="font-size: 0.8em; opacity: 0.9;">Sodium</div>
+                            <div style="font-size: 1.8em; font-weight: bold;">{nutrition.get('sodium', 0):.0f}mg</div>
+                        </div>
+                        """, unsafe_allow_html=True)
                     
                     # Modifications
                     if option.get("modifications"):
