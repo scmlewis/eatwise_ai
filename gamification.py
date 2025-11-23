@@ -190,8 +190,8 @@ class GamificationManager:
         """Render daily challenges display in 2x2 grid"""
         st.markdown("### 🎯 Daily Challenges")
         
-        # Create 2-column layout for 2x2 grid
-        cols = st.columns(2, gap="medium")
+        # Create 2-column layout for 2x2 grid with consistent gap
+        cols = st.columns(2, gap="large")
         
         for idx, challenge in enumerate(challenges):
             name = challenge.get("challenge_name")
@@ -226,7 +226,7 @@ class GamificationManager:
                     border: 1px solid {border_color};
                     border-radius: 8px;
                     padding: 12px;
-                    margin-bottom: 12px;
+                    margin-bottom: 16px;
                     min-height: 130px;
                     display: flex;
                     flex-direction: column;
