@@ -187,10 +187,13 @@ class GamificationManager:
     
     @staticmethod
     def render_daily_challenges(challenges: List[Dict], completed: Dict[str, bool]) -> None:
-        """Render daily challenges display"""
+        """Render daily challenges display in 2x2 grid"""
         st.markdown("### 🎯 Daily Challenges")
         
-        for challenge in challenges:
+        # Create 2-column layout for 2x2 grid
+        cols = st.columns(2, gap="medium")
+        
+        for idx, challenge in enumerate(challenges):
             name = challenge.get("challenge_name")
             description = challenge.get("description")
             current = challenge.get("current_progress", 0)
@@ -215,25 +218,35 @@ class GamificationManager:
                 border_color = "#3B82F6"
                 status_icon = "📌"
             
-            st.markdown(f"""
-            <div style="
-                background: {bg_color};
-                border: 1px solid {border_color};
-                border-radius: 8px;
-                padding: 10px;
-                margin-bottom: 10px;
-            ">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="color: #e0f2f1; font-weight: 600;">{status_icon} {name}</span>
-                    <span style="color: {border_color}; font-size: 11px; font-weight: 700;">+{xp_reward} XP</span>
+            # Use column index to place in grid (2x2)
+            with cols[idx % 2]:
+                st.markdown(f"""
+                <div style="
+                    background: {bg_color};
+                    border: 1px solid {border_color};
+                    border-radius: 8px;
+                    padding: 12px;
+                    margin-bottom: 12px;
+                    min-height: 130px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                ">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="color: #e0f2f1; font-weight: 600;">{status_icon} {name}</span>
+                            <span style="color: {border_color}; font-size: 10px; font-weight: 700;">+{xp_reward} XP</span>
+                        </div>
+                        <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px;">{description}</div>
+                    </div>
+                    <div>
+                        <div style="background: #0a0e27; border-radius: 3px; height: 6px; overflow: hidden; margin-bottom: 6px;">
+                            <div style="background: {border_color}; height: 100%; width: {progress_pct}%;"></div>
+                        </div>
+                        <div style="font-size: 9px; color: #a0a0a0; text-align: right;">{int(current)}/{target}</div>
+                    </div>
                 </div>
-                <div style="color: #a0a0a0; font-size: 12px; margin-bottom: 6px;">{description}</div>
-                <div style="background: #0a0e27; border-radius: 3px; height: 6px; overflow: hidden;">
-                    <div style="background: {border_color}; height: 100%; width: {progress_pct}%;"></div>
-                </div>
-                <div style="font-size: 10px; color: #a0a0a0; margin-top: 4px; text-align: right;">{int(current)}/{target}</div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
     
     @staticmethod
     def render_weekly_goals(weekly_goal: Optional[Dict]) -> None:
