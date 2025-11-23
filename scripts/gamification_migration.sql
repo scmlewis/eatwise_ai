@@ -37,17 +37,9 @@ CREATE TABLE IF NOT EXISTS weekly_goals (
   UNIQUE(user_id, week_start_date)
 );
 
--- Create water_intake table if not exists
-CREATE TABLE IF NOT EXISTS water_intake (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL,
-  water_date DATE NOT NULL,
-  glasses_count INTEGER DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-  UNIQUE(user_id, water_date)
-);
+-- Note: water_intake table should already exist from create_water_intake_table.sql
+-- It uses: logged_date (not water_date), glasses (not glasses_count)
+-- If you need to create it manually, use the schema from create_water_intake_table.sql
 
 -- ==================== ADD MISSING COLUMNS ====================
 
@@ -65,16 +57,12 @@ CREATE INDEX IF NOT EXISTS idx_daily_challenges_date ON daily_challenges(challen
 CREATE INDEX IF NOT EXISTS idx_weekly_goals_user_id ON weekly_goals(user_id);
 CREATE INDEX IF NOT EXISTS idx_weekly_goals_week_start ON weekly_goals(week_start_date);
 
--- Indexes for water_intake
-CREATE INDEX IF NOT EXISTS idx_water_intake_user_id ON water_intake(user_id);
-CREATE INDEX IF NOT EXISTS idx_water_intake_date ON water_intake(water_date);
-
 -- ==================== ENABLE ROW LEVEL SECURITY ====================
 
 -- Enable RLS on new tables
 ALTER TABLE daily_challenges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE weekly_goals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE water_intake ENABLE ROW LEVEL SECURITY;
+-- water_intake RLS should already be enabled from create_water_intake_table.sql
 
 -- ==================== CREATE RLS POLICIES ====================
 
@@ -118,22 +106,6 @@ CREATE POLICY "Users can update weekly goals"
 DROP POLICY IF EXISTS "Users can delete weekly goals" ON weekly_goals;
 CREATE POLICY "Users can delete weekly goals"
   ON weekly_goals FOR DELETE
-  USING (auth.uid() = user_id);
-
--- Water intake policies
-DROP POLICY IF EXISTS "Users can view their water intake" ON water_intake;
-CREATE POLICY "Users can view their water intake"
-  ON water_intake FOR SELECT
-  USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can insert water intake" ON water_intake;
-CREATE POLICY "Users can insert water intake"
-  ON water_intake FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can update water intake" ON water_intake;
-CREATE POLICY "Users can update water intake"
-  ON water_intake FOR UPDATE
   USING (auth.uid() = user_id);
 
 -- ==================== GAMIFICATION MIGRATION COMPLETE ====================
