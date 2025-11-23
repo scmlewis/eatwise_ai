@@ -190,68 +190,63 @@ class GamificationManager:
         """Render daily challenges display in 2x2 grid"""
         st.markdown("### 🎯 Daily Challenges")
         
-        # Create 2x2 grid by rendering 2 rows of 2 columns each
-        for row_idx in range(0, len(challenges), 2):
-            cols = st.columns(2, gap="large")
+        # Create wrapper container for grid layout
+        grid_html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%;">'
+        
+        for challenge in challenges:
+            name = challenge.get("challenge_name")
+            description = challenge.get("description")
+            current = challenge.get("current_progress", 0)
+            target = challenge.get("target", 1)
+            xp_reward = challenge.get("xp_reward", 0)
+            is_completed = completed.get(name, False)
             
-            for col_idx in range(2):
-                challenge_idx = row_idx + col_idx
-                if challenge_idx >= len(challenges):
-                    break
-                
-                challenge = challenges[challenge_idx]
-                name = challenge.get("challenge_name")
-                description = challenge.get("description")
-                current = challenge.get("current_progress", 0)
-                target = challenge.get("target", 1)
-                xp_reward = challenge.get("xp_reward", 0)
-                is_completed = completed.get(name, False)
-                
-                # Calculate progress percentage
-                progress_pct = min((current / target) * 100, 100) if target > 0 else 0
-                
-                # Determine color based on completion
-                if is_completed:
-                    bg_color = "linear-gradient(135deg, #51CF6620 0%, #80C34240 100%)"
-                    border_color = "#51CF66"
-                    status_icon = "✅"
-                elif progress_pct >= 75:
-                    bg_color = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
-                    border_color = "#FFD43B"
-                    status_icon = "🔥"
-                else:
-                    bg_color = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
-                    border_color = "#3B82F6"
-                    status_icon = "📌"
-                
-                # Render challenge card in the appropriate column
-                with cols[col_idx]:
-                    st.markdown(f"""
-                    <div style="
-                        background: {bg_color};
-                        border: 1px solid {border_color};
-                        border-radius: 8px;
-                        padding: 12px;
-                        min-height: 130px;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                    ">
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <span style="color: #e0f2f1; font-weight: 600;">{status_icon} {name}</span>
-                                <span style="color: {border_color}; font-size: 10px; font-weight: 700;">+{xp_reward} XP</span>
-                            </div>
-                            <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px;">{description}</div>
-                        </div>
-                        <div>
-                            <div style="background: #0a0e27; border-radius: 3px; height: 6px; overflow: hidden; margin-bottom: 6px;">
-                                <div style="background: {border_color}; height: 100%; width: {progress_pct}%;"></div>
-                            </div>
-                            <div style="font-size: 9px; color: #a0a0a0; text-align: right;">{int(current)}/{target}</div>
-                        </div>
+            # Calculate progress percentage
+            progress_pct = min((current / target) * 100, 100) if target > 0 else 0
+            
+            # Determine color based on completion
+            if is_completed:
+                bg_color = "linear-gradient(135deg, #51CF6620 0%, #80C34240 100%)"
+                border_color = "#51CF66"
+                status_icon = "✅"
+            elif progress_pct >= 75:
+                bg_color = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
+                border_color = "#FFD43B"
+                status_icon = "🔥"
+            else:
+                bg_color = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
+                border_color = "#3B82F6"
+                status_icon = "📌"
+            
+            grid_html += f"""
+            <div style="
+                background: {bg_color};
+                border: 1px solid {border_color};
+                border-radius: 8px;
+                padding: 12px;
+                min-height: 130px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            ">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="color: #e0f2f1; font-weight: 600;">{status_icon} {name}</span>
+                        <span style="color: {border_color}; font-size: 10px; font-weight: 700;">+{xp_reward} XP</span>
                     </div>
-                    """, unsafe_allow_html=True)
+                    <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px;">{description}</div>
+                </div>
+                <div>
+                    <div style="background: #0a0e27; border-radius: 3px; height: 6px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="background: {border_color}; height: 100%; width: {progress_pct}%;"></div>
+                    </div>
+                    <div style="font-size: 9px; color: #a0a0a0; text-align: right;">{int(current)}/{target}</div>
+                </div>
+            </div>
+            """
+        
+        grid_html += '</div>'
+        st.markdown(grid_html, unsafe_allow_html=True)
     
     @staticmethod
     def render_weekly_goals(weekly_goal: Optional[Dict]) -> None:
