@@ -32,6 +32,7 @@ from recommender import RecommendationEngine
 from coaching_assistant import CoachingAssistant
 from restaurant_analyzer import RestaurantMenuAnalyzer
 from nutrition_components import display_nutrition_targets_progress
+from gamification import GamificationManager
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
     get_nutrition_status, format_nutrition_dict, get_streak_info,
@@ -1433,6 +1434,36 @@ def dashboard_page():
         </div>
         """, unsafe_allow_html=True)
     
+    # Display XP Level
+    st.markdown("### 🎮 Experience & Level")
+    user_level = db_manager.get_user_level(st.session_state.user_id)
+    xp_progress = db_manager.get_user_xp_progress(st.session_state.user_id)
+    GamificationManager.render_xp_progress(
+        user_level,
+        xp_progress.get("current_xp", 0),
+        xp_progress.get("xp_needed", 100)
+    )
+    
+    # Display Daily Challenges
+    st.markdown("### 🎯 Daily Challenges")
+    daily_challenges = GamificationManager.calculate_daily_challenges(db_manager, st.session_state.user_id, user_profile)
+    today = date.today()
+    daily_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
+    water_intake = db_manager.get_daily_water_intake(st.session_state.user_id, today)
+    
+    # Update challenge progress
+    completed_challenges = GamificationManager.update_challenge_progress(
+        db_manager, st.session_state.user_id, daily_nutrition, targets, water_intake
+    )
+    
+    GamificationManager.render_daily_challenges(daily_challenges, completed_challenges)
+    
+    # Display Weekly Goals
+    week_start = GamificationManager.get_week_start_date(today)
+    db_manager.create_weekly_goals(st.session_state.user_id, week_start)
+    weekly_goal = db_manager.get_weekly_goals(st.session_state.user_id, week_start)
+    GamificationManager.render_weekly_goals(weekly_goal)
+    
     # Display earned badges
     if user_profile.get("badges_earned"):
         st.markdown("### 🎖️ Earned Badges")
@@ -1931,7 +1962,9 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
-                    st.toast("Meal added!", icon="✅")
+                    # Award XP for logging meal
+                    db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
+                    st.toast("Meal added! +25 XP", icon="✅")
                     # Reset the selectbox for next quick add
                     st.session_state.quick_add_selector = ""
                 else:
@@ -2021,9 +2054,12 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
+                    # Award XP for logging meal
+                    db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
                     # Clear the analysis from session state
                     del st.session_state.meal_analysis
                     del st.session_state.meal_type
+                    st.toast("Meal saved! +25 XP", icon="✅")
                     st.rerun()
                 else:
                     error_state(
@@ -2109,10 +2145,13 @@ def meal_logging_page():
                 }
                 
                 if db_manager.log_meal(meal_data):
+                    # Award XP for logging meal
+                    db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
                     # Clear the analysis from session state
                     del st.session_state.photo_analysis
                     # Set flag to show success message on next render
                     st.session_state._photo_meal_saved = True
+                    st.toast("Meal saved! +25 XP", icon="✅")
                     st.rerun()
                 else:
                     error_state(
@@ -2216,6 +2255,8 @@ def meal_logging_page():
                                 }
                                 
                                 if db_manager.log_meal(meal_data):
+                                    # Award XP for logging meal
+                                    db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
                                     total_saved += 1
                                 else:
                                     total_failed += 1
