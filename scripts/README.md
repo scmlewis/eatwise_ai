@@ -7,6 +7,7 @@ This directory contains **essential** utility scripts for database setup and use
 ### 🗄️ Database Setup
 - **`database_setup.sql`** - Initial Supabase schema (run this first!)
 - **`create_water_intake_table.sql`** - Create water tracking table
+- **`gamification_migration.sql`** - Set up gamification features (daily challenges, weekly goals)
 
 ### 🔧 User Maintenance Tools
 - **`create_missing_profiles.py`** - Fix missing user health profiles (user-facing tool)
@@ -31,6 +32,9 @@ This directory contains **essential** utility scripts for database setup and use
 
 # 2. Optional: Create water intake table
 # Open Supabase dashboard > SQL Editor > paste create_water_intake_table.sql > Run
+
+# 3. Optional: Set up gamification features
+# Open Supabase dashboard > SQL Editor > paste gamification_migration.sql > Run
 ```
 
 ### User Maintenance
