@@ -1445,7 +1445,6 @@ def dashboard_page():
     )
     
     # Display Daily Challenges
-    st.markdown("### 🎯 Daily Challenges")
     daily_challenges = GamificationManager.calculate_daily_challenges(db_manager, st.session_state.user_id, user_profile)
     today = date.today()
     daily_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
