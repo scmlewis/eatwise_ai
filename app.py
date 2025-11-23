@@ -1965,8 +1965,7 @@ def meal_logging_page():
                     # Award XP for logging meal
                     db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
                     st.toast("Meal added! +25 XP", icon="✅")
-                    # Reset the selectbox for next quick add
-                    st.session_state.quick_add_selector = ""
+                    st.rerun()
                 else:
                     st.toast("Failed to add meal", icon="❌")
         
