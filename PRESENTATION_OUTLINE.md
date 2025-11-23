@@ -95,8 +95,46 @@
 
 ---
 
-## Slide 6: Key Features - Analytics Dashboard & Streaks
-**Title:** Comprehensive Nutrition Analytics & Habit Tracking
+## Slide 6: Key Features - Daily Challenges & XP System
+**Title:** Gamification: Make Nutrition Fun
+
+**XP & Leveling System** ⭐
+- **Earn XP** with every action:
+  - Log a meal: +25 XP
+  - Meet nutrition targets: +50 XP
+  - Complete daily challenges: +40-50 XP
+  - Complete weekly goals: +200 XP
+  - Streak milestones (3/7/30 days): +100/200/500 XP
+- **Level Up**: Level = Total XP ÷ 100
+- **Dashboard Display**: Real-time progress toward next level
+
+**Daily Challenges** 🎯 (4 Types)
+- **Meal Logger**: Log 3 meals today (+50 XP)
+- **Calorie Control**: Stay under calorie target (+50 XP)
+- **Protein Power**: Hit daily protein goal (+40 XP)
+- **Hydration Hero**: Drink 8 glasses of water (+30 XP)
+
+**Challenge Features**:
+- Real-time progress bars
+- Color-coded status (blue=in progress, 🔥yellow=75%, ✅green=complete)
+- Refresh daily with new challenges
+- No penalty for missing—just try tomorrow!
+
+**Why Gamification Works**:
+- People are 80% more likely to stick to habits when tracking streaks
+- Visual progress motivates behavior
+- Losing a streak drives re-engagement
+- Makes nutrition fun, not a chore
+
+**Real-World Impact**:
+"Log 3 meals today and complete Meal Logger for +50 XP. Do it 7 days in a row for +200 more bonus XP. Level up while building better habits!"
+
+**Visual:** Screenshots showing XP progress, daily challenges with progress bars, level display
+
+---
+
+## Slide 7: Key Features - Streaks & Hydration
+**Title:** Streaks, Badges & Water Tracking
 
 **What You Track:**
 - 📊 Daily calorie intake & progress
@@ -207,45 +245,54 @@
 ## Slide 10: Gamification & Habit Formation
 **Title:** Streaks, Badges & Motivation
 
+---
+
+## Slide 10: Gamification & Habit Formation
+**Title:** Streaks, Badges & Motivation
+
 **The Science Behind Streaks:**
 - People are 80% more likely to stick to habits when tracking streaks
 - Visual progress motivates continued behavior
 - Losing a streak drives re-engagement
 
-**EatWise Gamification System:**
-
 **Current Streak** 🔥
 - Real-time counter shows consecutive logging days
-- Visual progress indicator
-- Encouraging notifications at milestones (3-day, 7-day, etc.)
-- Example: "Amazing! You've achieved a 7-day streak! Keep it going!"
+- Encouraging notifications at milestones (3-day, 7-day, 30-day)
+- Example: "Amazing! You've achieved a 7-day streak!"
 
 **Longest Streak** 🏅
 - Personal record display
 - Achievement badge for historical best
-- Inspires users to beat their record
+- Inspires users to beat their own record
 
-**Achievement Badges** 🎖️
-- Early Bird: Logged 5 breakfasts
-- Night Owl: Logged 5 dinners
-- Streak Warrior: Achieved 7-day streak
-- Health Champion: Met nutrition targets for 7 days
-- Foodie: Logged 50 meals
-- Sodium Watchdog: 5 days under sodium target
+**Achievement Badges** 🏆
+- 🌅 Early Bird: Logged 5 breakfasts
+- 🌙 Night Owl: Logged 5 dinners
+- 🔥 Streak Warrior: Achieved 7-day streak
+- 🏅 Health Champion: Met nutrition targets 7 days
+- 🍔 Foodie: Logged 50+ meals
+- 🧂 Sodium Watchdog: 5 days under sodium
 
-**Milestone Notifications:**
-- 3-day achievement: "Great start!"
-- 7-day achievement: "You're committed!"
-- 14-day achievement: "Two weeks strong!"
-- 30-day achievement: "You're a champion!"
+**Weekly Goals** 📅
+- Complete nutrition logging 5 days = 200 XP bonus
+- New goal starts each Sunday
+- Encourages consistent week-long habit building
 
-**Why It Works:**
-- Psychological principle: Variable rewards maintain habit loops
-- Social proof: Badges signal accomplishment
-- Competitive element: Personal records drive improvement
-- Low stakes: No penalty for missed days, just reset
+**Water Tracking** 💧
+- Daily goal with visual progress bar
+- Quick buttons: ➕ Add, ➖ Remove, 🏁 Complete Goal
+- Linked to "Hydration Hero" daily challenge
+- Customizable daily target (default: 8 glasses)
 
-**Visual:** Screenshot showing streak display, badges, and milestone notifications
+**Why This Works:**
+✅ Streaks leverage habit psychology
+✅ Badges provide clear achievement milestones
+✅ Water tracking integrates health with gamification
+✅ Weekly goals encourage consistency
+✅ Everything is visible on one dashboard
+✅ No penalties—only rewards for action!
+
+**Visual:** Screenshot showing streak counter, badges, water tracker buttons, daily challenges, all integrated on dashboard
 
 ---
 
@@ -309,11 +356,14 @@
 - **Streamlit Cloud** - Serverless deployment
 - **Scalable Infrastructure** - Grows with your user base
 
-**Recent Improvements (Phase 2):**
+**Recent Improvements (Phase 2):** ✅
 - ✅ Design system for consistency
 - ✅ WCAG 2.1 Level AA accessibility compliance
-- ✅ Water intake tracking system
-- ✅ Streak and badge gamification
+- ✅ **Water intake tracking system** 💧
+- ✅ **Streak and badge gamification system** 🔥🏆
+- ✅ **XP & leveling system** ⭐
+- ✅ **Daily challenges (4 types)** 🎯
+- ✅ **Weekly nutrition goals** 📅
 - ✅ Enhanced UI animations and transitions
 - ✅ Mobile-responsive layouts
 - ✅ Improved error states and empty states

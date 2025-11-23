@@ -53,11 +53,14 @@ A Streamlit-based personalized nutrition assistant that helps busy professionals
 - **Modification Suggestions** - Get tips on how to order healthier versions
 - **Nutrition Cards** - Beautiful visual breakdown of each meal option
 
-### 8. **Gamification**
-- Logging streaks (🔥 Current & Longest)
-- Achievement badges
-- Progress tracking
-- Fun nutrition trivia
+### 8. **Gamification System** 🎮
+- **XP & Leveling** - Earn XP with every meal, progress through levels
+- **Daily Challenges** (4 types) - Meal Logger, Calorie Control, Protein Power, Hydration Hero
+- **Weekly Goals** - Complete 5 days of nutrition goals for 200 XP bonus
+- **Streaks** - Track current & longest consecutive logging days
+- **Achievement Badges** - Unlock badges for milestones (Early Bird, Night Owl, Streak Warrior, etc.)
+- **Progress Tracking** - Real-time challenge progress bars and goal completion
+- **Motivational Notifications** - Celebrate milestones and encourage continued engagement
 
 ## 📋 Project Structure
 
@@ -70,15 +73,26 @@ eatwise_ai/
 ├── recommender.py              # AI recommendation engine
 ├── coaching_assistant.py       # AI nutrition coaching
 ├── restaurant_analyzer.py      # Restaurant menu analysis
-├── config.py                   # Configuration & targets
+├── gamification.py             # Gamification system (XP, challenges, streaks)
+├── config.py                   # Configuration & nutrition targets
 ├── constants.py                # App constants & translations
 ├── utils.py                    # Utility functions
 ├── nutrition_components.py     # UI components for nutrition
-├── database_setup.sql          # Supabase schema setup
 ├── requirements.txt            # Python dependencies
-├── .env.example                # Environment variables template
 ├── README.md                   # This file
-└── .gitignore                  # Git ignore file
+├── DOCUMENTATION.md            # Detailed feature documentation
+├── GAMIFICATION_SUMMARY.md     # Gamification implementation details
+├── PRESENTATION_OUTLINE.md     # Presentation slides outline
+├── .env.example                # Environment variables template
+├── .gitignore                  # Git ignore file
+├── assets/                     # Images and static files
+├── docs/                       # Documentation and guides
+│   ├── guides/                 # User guides and tutorials
+│   └── setup/                  # Deployment and setup guides
+└── scripts/                    # Database and setup scripts
+    ├── database_setup.sql      # Supabase schema setup
+    ├── gamification_migration.sql # Gamification tables migration
+    └── create_missing_profiles.py # Profile creation script
 ```
 
 ## 🛠️ Tech Stack
@@ -244,17 +258,19 @@ The app will open at `http://localhost:8501`
 
 ## 📊 Database Schema
 
-### Users Table
-- user_id, email, full_name, created_at
+### Core Tables
+- **users** - User authentication and profile
+- **health_profiles** - Age, health conditions, dietary preferences, goals, XP progress, timezone
+- **meals** - Meal entries with nutrition data
+- **food_history** - Cached food items with nutrition
 
-### Health Profiles Table
-- user_id, age_group, health_conditions, dietary_preferences, health_goal, badges_earned
-
-### Meals Table
-- user_id, meal_name, description, meal_type, nutrition (JSONB), healthiness_score, logged_at
-
-### Food History Table
-- user_id, food_name, nutrition (JSONB), last_used, usage_count
+### Gamification Tables
+- **daily_challenges** - Daily challenges (4 types: Meal Logger, Calorie Control, Protein Power, Hydration Hero)
+  - Columns: id, user_id, challenge_date, challenge_type, challenge_name, description, target, current_progress, xp_reward, completed
+- **weekly_goals** - Weekly nutrition goal tracking
+  - Columns: id, user_id, week_start_date, target_days_with_nutrition_goals, days_completed, completed, xp_reward
+- **water_intake** - Daily water tracking (linked to Hydration Hero challenge)
+  - Columns: id, user_id, logged_date, glasses, created_at
 
 ## 🤖 AI Capabilities
 
@@ -297,17 +313,54 @@ Provides:
 
 ## 🎮 Gamification System
 
-### Streaks
-- 🔥 Tracks consecutive days of meal logging
-- Displayed on dashboard and analytics
+### XP & Leveling
+- **Earn XP** for various actions:
+  - Logging a meal: +25 XP
+  - Meeting nutrition targets: +50 XP
+  - Completing daily challenges: +50 XP
+  - Completing weekly goals: +200 XP
+  - Streak milestones (3-day, 7-day, 30-day): +100/200/500 XP
+- **Leveling System**: Progress through levels (Level = Total XP ÷ 100)
+- **Real-time Tracking**: Dashboard displays current level and XP progress
 
-### Badges
-- **Early Bird**: 5 breakfasts logged
-- **Night Owl**: 5 dinners logged
-- **Streak Warrior**: 7-day streak
-- **Health Champion**: 7 days meeting targets
-- **Foodie**: 50 meals logged
-- **Sodium Watchdog**: 5 days under sodium target
+### Daily Challenges (4 Types)
+- **Meal Logger** 📝 - Log 3 meals today (+50 XP)
+- **Calorie Control** 🎯 - Stay under calorie target (+50 XP)
+- **Protein Power** 💪 - Hit daily protein goal (+40 XP)
+- **Hydration Hero** 💧 - Drink 8 glasses of water (+30 XP)
+
+**Features:**
+- Progress bars showing completion percentage
+- Real-time progress updates as you log meals
+- Color-coded indicators (blue=in progress, yellow=75%+ complete, green=completed)
+- Refresh daily with new challenges
+
+### Weekly Goals
+- **Objective**: Complete nutrition logging goals for 5 days
+- **Reward**: 200 XP upon completion
+- **Tracking**: Visual progress bar and day counter
+- **Reset**: New goal starts each week (Sunday-Saturday)
+
+### Streaks
+- **Current Streak** 🔥 - Consecutive days of meal logging
+- **Longest Streak** 🏅 - Personal record for streak length
+- **Milestone Bonuses**: Special notifications at 3-day, 7-day, 14-day, 30-day marks
+- **Motivation**: Streaks drive habit formation through psychological commitment
+
+### Achievement Badges
+- **Early Bird**: Logged 5 breakfasts
+- **Night Owl**: Logged 5 dinners
+- **Streak Warrior**: Achieved 7-day logging streak
+- **Health Champion**: Met nutrition targets for 7 consecutive days
+- **Foodie**: Logged 50+ meals total
+- **Sodium Watchdog**: Stayed under sodium target for 5 days
+
+### Dashboard Integration
+- **XP & Level Display**: Shows current level and progress to next level
+- **Daily Challenges Section**: All 4 challenges with progress tracking
+- **Weekly Goal Card**: Visual progress and days completed
+- **Streak Counter**: Current streak with motivational messages
+- **Hydration Tracker**: Integrated water intake logging with quick buttons
 
 ## 🌍 Nutrition Targets
 
