@@ -358,7 +358,7 @@
 
 **Recent Improvements (Phase 2):** ✅
 - ✅ Design system for consistency
-- ✅ WCAG 2.1 Level AA accessibility compliance
+- ✅ **Accessibility enhancements** (focus states, keyboard navigation, aria labels)
 - ✅ **Water intake tracking system** 💧
 - ✅ **Streak and badge gamification system** 🔥🏆
 - ✅ **XP & leveling system** ⭐
@@ -368,6 +368,7 @@
 - ✅ Mobile-responsive layouts
 - ✅ Improved error states and empty states
 - ✅ Interactive components with smooth interactions
+- ✅ Row-level security (RLS) with Supabase for data privacy
 
 **Visual:** Technology logos/icons arranged in a diagram
 
@@ -511,24 +512,32 @@
 ## Slide 17: Market Opportunity
 **Title:** Massive Market Potential
 
-**Market Size:**
-- 💰 Global nutrition & wellness app market: $11.2B (2023)
-- 📈 Projected growth: 16.5% CAGR through 2030
-- 🌍 Potential users: Billions of health-conscious people
+**Market Size & Growth:**
+- 💰 **Global wellness app market: $11.2B (2023)** - Estimated by industry analysts (Allied Market Research, Grand View Research)
+- 📈 **Projected growth: 12-18% CAGR through 2030** - Driven by mobile health adoption and AI personalization
+- 🌍 **Addressable market: 2-3 billion health-conscious people globally**
+  - Developed markets (North America, Europe, Japan): ~1.5B users
+  - Emerging markets (urban China, India, Southeast Asia): ~500M+ users
 
-**Target Audience:**
-- **Primary:** Health-conscious individuals (20-45 years old)
-- **Secondary:** People with specific health conditions
-- **Tertiary:** Fitness enthusiasts, athletes
+**Target Audience Segments:**
+- **Primary:** Health-conscious individuals (20-45 years old) with smartphones and disposable income
+- **Secondary:** People managing chronic conditions (diabetes, hypertension) needing daily tracking
+- **Tertiary:** Fitness enthusiasts, athletes, and corporate wellness programs
 
 **Market Drivers:**
-- 🏥 Rising healthcare costs (preventive nutrition matters)
-- 📱 Smartphone penetration increasing
-- 🤖 AI adoption accelerating
-- 🌱 Health consciousness growing post-pandemic
-- 🎮 Gamification becoming mainstream
+- 🏥 Rising healthcare costs (preventive nutrition reduces chronic disease burden)
+- 📱 Smartphone penetration globally 60%+ and growing
+- 🤖 AI personalization becoming expected standard in health apps
+- 🌱 Health consciousness accelerating post-pandemic (wellness boom continues)
+- 🎮 Gamification proven effective (Noom: 78% of users report behavior change)
+- 💪 Wearable integration (Apple Watch, Fitbit) driving ecosystem growth
 
-**Visual:** Market growth chart or target audience illustration
+**Competitive Benchmarks:**
+- MyFitnessPal: 100M+ active users
+- Noom: 50-100M users, $1.5B+ valuation, $400M+ annual revenue
+- **Your goal: 1M users in 2 years** = 500K/year target (conservative vs. peers taking 8+ years to 1M)
+
+**Visual:** Market growth chart showing regional breakdown and target audience illustration
 
 ---
 
@@ -645,9 +654,10 @@
 - Solution: Cloud infrastructure (Streamlit Cloud, Supabase)
 - Efficient architecture ready to scale
 
-**Challenge 4: Data Privacy**
-- Solution: Encrypted storage, GDPR compliance
-- Users own their data
+**Challenge 4: Data Privacy & Security**
+- Solution: Row-level security (RLS) database policies, encrypted data transfer
+- User data isolation: Each user can only access their own records via database policies
+- Supabase infrastructure handles privacy compliance
 
 **Challenge 5: Hydration & Habit Tracking**
 - Solution: Integrated water intake tracker with visual progress
