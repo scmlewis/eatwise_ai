@@ -6,27 +6,27 @@ Welcome to EatWise! This document helps you navigate our comprehensive documenta
 
 All detailed documentation has been organized in the `docs/` folder for better maintainability.
 
+### 📖 Main Documentation Hub
+
+**Start here:** [docs/INDEX.md](docs/INDEX.md) - Complete documentation directory with all guides organized by topic
+
 ### Quick Links
 
 **For Users:**
 - 📖 [README.md](README.md) - Start here! Overview of features and quick start guide
 - ❓ **Help Page** - Available in the app (❓ Help menu) with features, usage guide, and FAQ
-- 🎯 [Coaching Complete Guide](docs/COACHING_COMPLETE.md) - Comprehensive coaching assistant documentation
+- 🎯 [Gamification Guide](docs/GAMIFICATION_QUICKSTART.md) - 5-minute guide to gamification features
 
 **For Developers:**
 - 📋 [Implementation Report](docs/IMPLEMENTATION_REPORT.md) - Technical implementation details
 - 🔍 [Code Audit Report](docs/CODE_AUDIT_REPORT.md) - Code quality analysis
 - 📊 [Code Quality Analysis](docs/CODE_QUALITY_ANALYSIS.md) - Quality metrics and recommendations
+- 📂 [Workspace Structure](docs/guides/WORKSPACE_STRUCTURE.md) - Project file organization
 
-**Documentation Archive:**
-- `docs/COACHING_IMPLEMENTATION.md` - Coaching feature implementation summary
-- `docs/COACHING_QUICKSTART.md` - Quick start for coaching assistant
-- `docs/CODE_CHANGES.md` - Summary of code changes
-- `docs/DELIVERY_SUMMARY.md` - Project delivery summary
-- `docs/HOUSEKEEPING.md` - Housekeeping and maintenance notes
-- `docs/PHASE_2_COMPLETE.md` - Phase 2 completion report
-- `docs/PROJECT_STATUS.md` - Project status and progress tracking
-- `docs/VISUAL_SUMMARY.md` - Visual comparison of UI changes
+**Documentation Library:**
+- [docs/INDEX.md](docs/INDEX.md) - Complete navigation hub (recommended)
+- `docs/guides/` - Developer guides and component documentation
+- `docs/setup/` - Deployment and setup instructions
 
 ## 🎯 Key Features
 
@@ -62,15 +62,16 @@ Earn badges and track streaks to stay motivated on your health journey.
 
 ## 📊 Project Status
 
-**Current Version**: v1.2.0  
-**Latest Update**: November 22, 2025
+**Current Version**: v2.6.0  
+**Latest Update**: November 25, 2025
 
-### Recent Features
+### Recent Features (November 2025)
+- ✅ Gamification System (XP, levels, daily challenges, weekly goals)
+- ✅ Streamlit 1.40+ compatibility (updated deprecated parameters)
 - ✅ Restaurant Menu Analyzer with OCR photo upload
 - ✅ Nutrition cards with gradient styling
-- ✅ Tab-based menu input interface
 - ✅ AI Nutrition Coaching System
-- ✅ Responsive chat interface with form-based input
+- ✅ Responsive chat interface
 - ✅ 7-day pattern analysis
 - ✅ Real-time meal guidance
 - ✅ Daily coaching tips
@@ -80,7 +81,7 @@ Earn badges and track streaks to stay motivated on your health journey.
 - ✅ Nutrition tracking and analytics
 - ✅ Personalized recommendations
 - ✅ Restaurant menu analysis
-- ✅ Gamification system
+- ✅ Gamification system (production ready)
 - ✅ Secure authentication
 
 ## 🔗 External Resources
@@ -115,7 +116,7 @@ Once logged in, you'll see these pages:
 
 ---
 
-**Last Updated**: November 21, 2025  
-**Documentation Version**: v1.1.0
+**Last Updated**: November 25, 2025  
+**Documentation Version**: v2.0
 
-For the most up-to-date information, always refer to the in-app Help page or visit our GitHub repository.
+For the most up-to-date information, see [docs/INDEX.md](docs/INDEX.md) or visit our GitHub repository.

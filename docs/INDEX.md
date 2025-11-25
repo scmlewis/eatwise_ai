@@ -9,6 +9,11 @@ Welcome to the EatWise documentation! This directory contains all guides and ref
 - **[DEPLOYMENT.md](./setup/DEPLOYMENT.md)** - Comprehensive deployment instructions
 - **[.env.example](./setup/.env.example)** - Environment variables template
 
+### 🎮 [Gamification](./GAMIFICATION_IMPLEMENTATION.md)
+- **[GAMIFICATION_IMPLEMENTATION.md](./GAMIFICATION_IMPLEMENTATION.md)** - Complete reference guide
+- **[GAMIFICATION_QUICKSTART.md](./GAMIFICATION_QUICKSTART.md)** - 5-minute deployment guide
+- **[GAMIFICATION_DEPLOY_CHECKLIST.md](./GAMIFICATION_DEPLOY_CHECKLIST.md)** - Deployment checklist and verification
+
 ### 📖 [Developer Guides](./guides/)
 
 #### Project Overview
@@ -36,6 +41,11 @@ Welcome to the EatWise documentation! This directory contains all guides and ref
 2. Read [FILE_GUIDE.md](./guides/FILE_GUIDE.md)
 3. Check [IMPLEMENTATION_VERIFICATION.md](./guides/IMPLEMENTATION_VERIFICATION.md)
 
+### For Gamification Features
+1. Quick start: [GAMIFICATION_QUICKSTART.md](./GAMIFICATION_QUICKSTART.md) (5 minutes)
+2. Full reference: [GAMIFICATION_IMPLEMENTATION.md](./GAMIFICATION_IMPLEMENTATION.md)
+3. Deployment: [GAMIFICATION_DEPLOY_CHECKLIST.md](./GAMIFICATION_DEPLOY_CHECKLIST.md)
+
 ### For Deployment
 1. Check [QUICK_DEPLOY.md](./setup/QUICK_DEPLOY.md) for fast setup
 2. Refer to [DEPLOYMENT.md](./setup/DEPLOYMENT.md) for detailed steps
@@ -59,6 +69,6 @@ See [README.md](../README.md) in the project root for:
 
 ---
 
-**Last Updated**: November 19, 2025
+**Last Updated**: November 25, 2025
 
-**Documentation Version**: 1.0
+**Documentation Version**: 1.1
