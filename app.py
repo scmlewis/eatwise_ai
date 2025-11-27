@@ -15,6 +15,7 @@ import json
 import io
 import csv
 import base64
+from streamlit_option_menu import option_menu
 
 # Import modules
 from config import (
@@ -4623,15 +4624,26 @@ def main():
             if "nav_index" not in st.session_state:
                 st.session_state.nav_index = default_index
             
-            # Modern Navigation with active indicator
-            # Navigation in sidebar - radio buttons instead of dropdown
-            st.sidebar.markdown("**Navigation**")
-            selected_page = st.sidebar.radio(
-                "Pages",
+            # Modern Navigation with option_menu
+            # Map pages to icons for better visual appeal
+            page_icons = {
+                "Dashboard": "house-fill",
+                "Log Meal": "plus-circle-fill",
+                "Analytics": "bar-chart-fill",
+                "Meal History": "clock-history",
+                "Insights": "lightbulb-fill",
+                "Coaching": "chat-dots-fill",
+                "My Profile": "person-fill",
+                "Help": "question-circle-fill"
+            }
+            
+            selected_page = option_menu(
+                menu_title=None,
                 options=list(pages.keys()),
-                index=st.session_state.nav_index,
-                format_func=lambda x: f"{pages[x]} {x}",
-                label_visibility="collapsed",
+                icons=[page_icons.get(page, "circle-fill") for page in pages.keys()],
+                menu_icon="cast",
+                default_index=st.session_state.nav_index,
+                orientation="vertical",
                 key="page_selector"
             )
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
