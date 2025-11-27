@@ -4624,7 +4624,7 @@ def main():
             if "nav_index" not in st.session_state:
                 st.session_state.nav_index = default_index
             
-            # Modern Navigation with option_menu
+            # Modern Navigation with option_menu in sidebar
             # Map pages to icons for better visual appeal
             page_icons = {
                 "Dashboard": "house-fill",
@@ -4637,15 +4637,16 @@ def main():
                 "Help": "question-circle-fill"
             }
             
-            selected_page = option_menu(
-                menu_title=None,
-                options=list(pages.keys()),
-                icons=[page_icons.get(page, "circle-fill") for page in pages.keys()],
-                menu_icon="cast",
-                default_index=st.session_state.nav_index,
-                orientation="vertical",
-                key="page_selector"
-            )
+            with st.sidebar:
+                selected_page = option_menu(
+                    menu_title=None,
+                    options=list(pages.keys()),
+                    icons=[page_icons.get(page, "circle-fill") for page in pages.keys()],
+                    menu_icon="cast",
+                    default_index=st.session_state.nav_index,
+                    orientation="vertical",
+                    key="page_selector"
+                )
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
             st.session_state.current_page = selected_page
             
