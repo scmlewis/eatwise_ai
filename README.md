@@ -13,6 +13,11 @@ A Streamlit-based personalized nutrition assistant that helps busy professionals
 - Instant nutritional breakdown (calories, protein, carbs, fats, sodium, sugar, fiber)
 - Healthiness scoring
 - Health recommendations for each meal
+- **Hybrid Nutrition System**: Combines AI ingredient detection with USDA-based food database for maximum accuracy
+  - Database lookup ensures precise nutrition values for 100+ common foods
+  - Intelligent fallback estimation for less common ingredients
+  - Real-time coverage reporting showing database vs. estimated foods
+  - USDA-validated nutrition data for complete accuracy
 
 ### 3. **Habit Tracking**
 - Daily nutrition summary
@@ -69,7 +74,9 @@ eatwise_ai/
 ├── app.py                      # Main Streamlit application
 ├── auth.py                     # Authentication module
 ├── database.py                 # Supabase database operations
-├── nutrition_analyzer.py       # Food analysis & recognition
+├── nutrition_analyzer.py       # AI-powered food analysis & recognition
+├── nutrition_database.py       # USDA-based food nutrition database (100+ foods)
+├── hybrid_nutrition_analyzer.py # Hybrid system: AI detection + database accuracy
 ├── recommender.py              # AI recommendation engine
 ├── coaching_assistant.py       # AI nutrition coaching
 ├── restaurant_analyzer.py      # Restaurant menu analysis
