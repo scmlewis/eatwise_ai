@@ -84,13 +84,15 @@ class GamificationManager:
         challenges = db_manager.get_daily_challenges(user_id, today)
         completed_challenges = {}
         
+        # Get meal count for the day
+        meal_count = len(db_manager.get_meals_by_date(user_id, today))
+        
         for challenge in challenges:
             challenge_type = challenge.get("challenge_type")
             target = challenge.get("target")
             
             # Meal count challenge
             if challenge_type == "meal_count":
-                meal_count = len(db_manager.get_meals_by_date(user_id, today))
                 current_progress = meal_count
                 db_manager.update_challenge_progress(user_id, today, challenge.get("challenge_name"), current_progress)
                 if meal_count >= target:
@@ -104,7 +106,8 @@ class GamificationManager:
                 calorie_pct = (daily_nutrition.get("calories", 0) / targets.get("calories", 2000)) * 100
                 current_progress = min(int(calorie_pct), 100)
                 db_manager.update_challenge_progress(user_id, today, challenge.get("challenge_name"), current_progress)
-                if calorie_pct <= 100:  # At or under target
+                # Must have logged at least one meal AND stay under or at target
+                if meal_count > 0 and calorie_pct <= 100:
                     db_manager.complete_challenge(user_id, today, challenge.get("challenge_name"))
                     completed_challenges[challenge.get("challenge_name")] = True
                 else:
@@ -115,7 +118,8 @@ class GamificationManager:
                 protein_pct = (daily_nutrition.get("protein", 0) / targets.get("protein", 50)) * 100
                 current_progress = int(protein_pct)
                 db_manager.update_challenge_progress(user_id, today, challenge.get("challenge_name"), current_progress)
-                if protein_pct >= 100:  # At or above target
+                # Must have logged at least one meal AND meet protein target
+                if meal_count > 0 and protein_pct >= 100:
                     db_manager.complete_challenge(user_id, today, challenge.get("challenge_name"))
                     completed_challenges[challenge.get("challenge_name")] = True
                 else:
