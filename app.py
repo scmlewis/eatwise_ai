@@ -3357,6 +3357,30 @@ def profile_page():
                     )
                     timezone = timezone_dict[timezone]
                 
+                # Row 2.5: Height and Weight (Optional)
+                col3b, col4b = st.columns(2)
+                with col3b:
+                    height_cm = st.number_input(
+                        "Height (cm) - Optional",
+                        min_value=100,
+                        max_value=250,
+                        value=170,
+                        step=1,
+                        help="Your height in centimeters (optional)"
+                    )
+                    height_cm = height_cm if height_cm else None
+                
+                with col4b:
+                    weight_kg = st.number_input(
+                        "Weight (kg) - Optional",
+                        min_value=30,
+                        max_value=200,
+                        value=70,
+                        step=0.5,
+                        help="Your weight in kilograms (optional)"
+                    )
+                    weight_kg = weight_kg if weight_kg else None
+                
                 # Row 3: Health Conditions and Dietary Preferences
                 col5, col6 = st.columns(2)
                 with col5:
@@ -3370,8 +3394,9 @@ def profile_page():
                 with col6:
                     dietary_preferences = st.multiselect(
                         "Dietary Preferences",
-                        options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
-                        help="Select any dietary restrictions"
+                        options=list(DIETARY_PREFERENCES.keys()),
+                        format_func=lambda x: DIETARY_PREFERENCES.get(x, x),
+                        help="Select any dietary restrictions or preferences"
                     )
                 
                 # Row 4: Health Goal and Water Goal
@@ -3400,6 +3425,8 @@ def profile_page():
                         "age_group": age_group,
                         "gender": gender,
                         "timezone": timezone,
+                        "height_cm": height_cm,
+                        "weight_kg": weight_kg,
                         "health_conditions": health_conditions,
                         "dietary_preferences": dietary_preferences,
                         "health_goal": goal,
@@ -3495,6 +3522,30 @@ def profile_page():
                     )
                     timezone = timezone_dict[timezone]
                 
+                # Row 2.5: Height and Weight (Optional)
+                col3b, col4b = st.columns(2)
+                with col3b:
+                    height_cm = st.number_input(
+                        "Height (cm) - Optional",
+                        min_value=100,
+                        max_value=250,
+                        value=int(user_profile.get("height_cm", 170)) if user_profile.get("height_cm") else 170,
+                        step=1,
+                        help="Your height in centimeters (optional)"
+                    )
+                    height_cm = height_cm if height_cm else None
+                
+                with col4b:
+                    weight_kg = st.number_input(
+                        "Weight (kg) - Optional",
+                        min_value=30,
+                        max_value=200,
+                        value=float(user_profile.get("weight_kg", 70)) if user_profile.get("weight_kg") else 70,
+                        step=0.5,
+                        help="Your weight in kilograms (optional)"
+                    )
+                    weight_kg = weight_kg if weight_kg else None
+                
                 # Row 3: Health Conditions and Dietary Preferences
                 col5, col6 = st.columns(2)
                 with col5:
@@ -3508,8 +3559,9 @@ def profile_page():
                 with col6:
                     dietary_preferences = st.multiselect(
                         "Dietary Preferences",
-                        options=["vegetarian", "vegan", "gluten_free", "halal", "kosher"],
-                        default=user_profile.get("dietary_preferences", [])
+                        options=list(DIETARY_PREFERENCES.keys()),
+                        default=user_profile.get("dietary_preferences", []),
+                        format_func=lambda x: DIETARY_PREFERENCES.get(x, x)
                     )
                 
                 # Row 4: Health Goal and Water Goal
@@ -3552,6 +3604,8 @@ def profile_page():
                         "age_group": age_group,
                         "gender": gender,
                         "timezone": timezone,
+                        "height_cm": height_cm,
+                        "weight_kg": weight_kg,
                         "health_conditions": health_conditions,
                         "dietary_preferences": dietary_preferences,
                         "health_goal": goal,

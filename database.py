@@ -22,7 +22,7 @@ class DatabaseManager:
             # Filter out fields that don't exist in the schema
             valid_fields = {
                 "user_id", "full_name", "age_group", "gender", "timezone", 
-                "health_conditions", "dietary_preferences", "health_goal"
+                "height_cm", "weight_kg", "health_conditions", "dietary_preferences", "health_goal"
             }
             
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
@@ -49,7 +49,7 @@ class DatabaseManager:
             # Only update fields that are known to exist in health_profiles table
             valid_fields = {
                 "full_name", "age_group", "gender", "timezone", 
-                "health_conditions", "dietary_preferences", "health_goal"
+                "height_cm", "weight_kg", "health_conditions", "dietary_preferences", "health_goal"
             }
             
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}

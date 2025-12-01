@@ -17,6 +17,15 @@ HEALTH_CONDITIONS = {
     "nut_allergy": "Nut Allergy",
     "lactose_intolerance": "Lactose Intolerance",
     "celiac_disease": "Celiac Disease",
+    "keto_diet": "Ketogenic Diet",
+    "low_carb": "Low Carb",
+    "ibs": "Irritable Bowel Syndrome (IBS)",
+    "gout": "Gout",
+    "kidney_disease": "Kidney Disease",
+    "peanut_allergy": "Peanut Allergy",
+    "shellfish_allergy": "Shellfish Allergy",
+    "egg_allergy": "Egg Allergy",
+    "soy_allergy": "Soy Allergy",
 }
 
 # Dietary Preferences (Lifestyle Choices)
@@ -26,6 +35,11 @@ DIETARY_PREFERENCES = {
     "gluten_free": "Gluten-Free",
     "halal": "Halal",
     "kosher": "Kosher",
+    "keto": "Ketogenic (Keto)",
+    "paleo": "Paleo",
+    "pescatarian": "Pescatarian",
+    "no_sugar": "No Added Sugar",
+    "organic": "Organic Only",
 }
 
 # Health Goals (Primary Objectives)
