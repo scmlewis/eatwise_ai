@@ -3373,9 +3373,9 @@ def profile_page():
                 with col4b:
                     weight_kg = st.number_input(
                         "Weight (kg) - Optional",
-                        min_value=30,
-                        max_value=200,
-                        value=70,
+                        min_value=30.0,
+                        max_value=200.0,
+                        value=70.0,
                         step=0.5,
                         help="Your weight in kilograms (optional)"
                     )
@@ -3538,9 +3538,9 @@ def profile_page():
                 with col4b:
                     weight_kg = st.number_input(
                         "Weight (kg) - Optional",
-                        min_value=30,
-                        max_value=200,
-                        value=float(user_profile.get("weight_kg", 70)) if user_profile.get("weight_kg") else 70,
+                        min_value=30.0,
+                        max_value=200.0,
+                        value=float(user_profile.get("weight_kg", 70.0)) if user_profile.get("weight_kg") else 70.0,
                         step=0.5,
                         help="Your weight in kilograms (optional)"
                     )
