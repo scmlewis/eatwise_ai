@@ -2551,7 +2551,7 @@ def show_meal_quality(meals):
                 score = meal.get('healthiness_score', 0)
                 desc = meal.get('description', 'N/A')
                 items_html += f"<li style='margin-bottom:12px;'>\n"
-                items_html += f"<div style='font-weight:700; font-size:16px; color:#e0f2f1;'>{idx}. {name} - <span style='font-weight:900;'>{score}/100</span></div>\n"
+                items_html += f"<div style='font-weight:700; font-size:16px; color:#e0f2f1;'>{name} - <span style='font-weight:900;'>{score}/100</span></div>\n"
                 items_html += f"<div style='color:#97a7a3; font-size:13px; margin-top:6px;'>{desc}</div>\n"
                 items_html += "</li>\n"
 
@@ -2574,7 +2574,7 @@ def show_meal_quality(meals):
                 score = meal.get('healthiness_score', 0)
                 desc = meal.get('description', 'N/A')
                 items_html += f"<li style='margin-bottom:12px;'>\n"
-                items_html += f"<div style='font-weight:700; font-size:16px; color:#e0f2f1;'>{idx}. {name} - <span style='font-weight:900;'>{score}/100</span></div>\n"
+                items_html += f"<div style='font-weight:700; font-size:16px; color:#e0f2f1;'>{name} - <span style='font-weight:900;'>{score}/100</span></div>\n"
                 items_html += f"<div style='color:#97a7a3; font-size:13px; margin-top:6px;'>{desc}</div>\n"
                 items_html += "</li>\n"
 
