@@ -1906,8 +1906,44 @@ def dashboard_page():
     
     # EATING PATTERNS - Right side (replaced "Most Frequent Foods")
     with breakdown_col2:
-        # 🍽️ Today's Eating Patterns section removed to streamline the dashboard
-        pass
+        # Compact insight: Most Frequent Meal (today)
+        try:
+            # Count meal names for today
+            meal_counts = {}
+            for m in meals:
+                name = m.get('meal_name', 'Unknown').strip()
+                if not name:
+                    name = 'Unknown'
+                meal_counts[name] = meal_counts.get(name, 0) + 1
+
+            if meal_counts:
+                most_common = max(meal_counts.items(), key=lambda x: x[1])
+                most_name, most_count = most_common
+                st.markdown(f"""
+                <div class="dashboard-info-box" style="
+                    background: linear-gradient(135deg, rgba(16, 161, 157, 0.06) 0%, rgba(81, 207, 102, 0.03) 100%);
+                    border: 1px solid rgba(16, 161, 157, 0.12);
+                    border-radius: 12px;
+                    padding: 18px;
+                    margin-bottom: 16px;
+                ">
+                    <div style="display:flex; justify-content: space-between; align-items:center; gap:12px;">
+                        <div>
+                            <div style="font-size:12px; color:#a0a0a0; text-transform:uppercase; font-weight:700;">Most Frequent Meal</div>
+                            <div style="font-size:18px; font-weight:900; color:#e0f2f1;">{most_name}</div>
+                            <div style="font-size:12px; color:#a0a0a0;">Logged {most_count} time(s) today</div>
+                        </div>
+                        <div>
+                            <a href="#" onclick="window.scrollTo({{top: document.body.scrollHeight, behavior: 'smooth'}})" style="background:#10A19D; color:white; padding:10px 14px; border-radius:8px; text-decoration:none;">View</a>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.info("No meals logged today")
+        except Exception:
+            # Fallback to avoid breaking the dashboard
+            st.info("No meals logged yet. Start by logging a meal!")
     
     # Remove duplicate EATING TIME PATTERNS section that was below
     
