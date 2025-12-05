@@ -23,17 +23,35 @@ class DatabaseManager:
             profile_data["user_id"] = user_id
             
             # Filter out fields that don't exist in the schema
+            # height_cm and weight_kg are optional fields that may not exist in all deployments
             valid_fields = {
                 "user_id", "full_name", "age_group", "gender", "timezone", 
-                "height_cm", "weight_kg", "health_conditions", "dietary_preferences", "health_goal"
+                "health_conditions", "dietary_preferences", "health_goal", "water_goal_glasses",
+                "height_cm", "weight_kg"  # Optional fields
             }
             
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
             
-            self.supabase.table("health_profiles").insert(filtered_data).execute()
-            return True
+            try:
+                self.supabase.table("health_profiles").insert(filtered_data).execute()
+                return True
+            except Exception as e:
+                # If schema cache error for height_cm/weight_kg, retry without them
+                if "height_cm" in str(e) or "weight_kg" in str(e):
+                    logger.warning(f"Schema cache issue with height/weight fields during creation: {e}. Retrying without optional fields.")
+                    filtered_data.pop("height_cm", None)
+                    filtered_data.pop("weight_kg", None)
+                    
+                    if filtered_data:
+                        self.supabase.table("health_profiles").insert(filtered_data).execute()
+                        return True
+                    else:
+                        raise
+                else:
+                    raise
         except Exception as e:
             st.error(f"Error creating health profile: {str(e)}")
+            logger.error(f"Failed to create health profile for user {user_id}: {str(e)}")
             return False
     
     def get_health_profile(self, user_id: str) -> Optional[Dict]:
@@ -50,9 +68,12 @@ class DatabaseManager:
         try:
             # Filter out fields that don't exist in the schema
             # Only update fields that are known to exist in health_profiles table
+            # Note: height_cm and weight_kg are optional and may not exist in all deployments
+            # They will be silently skipped if not present in the schema
             valid_fields = {
                 "full_name", "age_group", "gender", "timezone", 
-                "height_cm", "weight_kg", "health_conditions", "dietary_preferences", "health_goal"
+                "health_conditions", "dietary_preferences", "health_goal", "water_goal_glasses",
+                "height_cm", "weight_kg"  # Optional fields - may not exist in schema
             }
             
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
@@ -61,10 +82,29 @@ class DatabaseManager:
                 st.error("No valid profile fields to update")
                 return False
             
-            self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
-            return True
+            # Attempt to update, but if height_cm/weight_kg cause schema errors, retry without them
+            try:
+                self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
+                return True
+            except Exception as e:
+                # If schema cache error for height_cm/weight_kg, remove them and retry
+                if "height_cm" in str(e) or "weight_kg" in str(e):
+                    logger.warning(f"Schema cache issue with height/weight fields: {e}. Retrying without optional fields.")
+                    # Remove optional fields that may not exist
+                    filtered_data.pop("height_cm", None)
+                    filtered_data.pop("weight_kg", None)
+                    
+                    if filtered_data:
+                        self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
+                        return True
+                    else:
+                        st.error("No valid profile fields to update")
+                        return False
+                else:
+                    raise
         except Exception as e:
             st.error(f"Error updating health profile: {str(e)}")
+            logger.error(f"Failed to update health profile for user {user_id}: {str(e)}")
             return False
     
     # ==================== MEAL LOGGING ====================
