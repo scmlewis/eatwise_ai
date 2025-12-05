@@ -3628,6 +3628,8 @@ def profile_page():
                     }
                     
                     if db_manager.update_health_profile(st.session_state.user_id, update_data):
+                        # Refresh profile from DB to ensure we have the latest stored representation
+                        fetched = db_manager.get_health_profile(st.session_state.user_id) or update_data
                         st.session_state.user_profile = normalize_profile(fetched)
                         show_notification("Profile updated!", "success", use_toast=False)
                         st.rerun()
