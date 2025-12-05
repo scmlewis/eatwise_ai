@@ -1954,17 +1954,9 @@ def meal_logging_page():
     from datetime import datetime as dt
     import pytz
     
-    # Get user's timezone for accurate time-based suggestions (same as dashboard)
-    user_timezone = "UTC"
-    if hasattr(st.session_state, "user_profile") and st.session_state.user_profile:
-        user_timezone = st.session_state.user_profile.get("timezone", "UTC")
-    elif hasattr(st.session_state, "user_id"):
-        # If user_profile not in session, fetch it
-        user_profile = db_manager.get_health_profile(st.session_state.user_id)
-        user_profile = normalize_profile(user_profile) if user_profile else None
-        if user_profile:
-            user_timezone = user_profile.get("timezone", "UTC")
-            st.session_state.user_profile = user_profile
+    # Get user profile (handles loading and caching automatically)
+    user_profile = get_or_load_user_profile()
+    user_timezone = user_profile.get("timezone", "UTC")
     
     try:
         tz = pytz.timezone(user_timezone)
@@ -3791,22 +3783,8 @@ def coaching_assistant_page():
     
     # Initialize data with loading spinner
     with st.spinner("⏳ Loading your nutrition coach..."):
-        user_profile = st.session_state.user_profile
-        if not user_profile:
-            user_profile = db_manager.get_health_profile(st.session_state.user_id)
-            user_profile = normalize_profile(user_profile) if user_profile else user_profile
-            st.session_state.user_profile = user_profile
-        
-        if not user_profile:
-            user_profile = {
-                "user_id": st.session_state.user_id,
-                "age_group": "26-35",
-                "health_goal": "general_health",
-                "timezone": "UTC",
-                "health_conditions": [],
-                "dietary_preferences": []
-            }
-            st.session_state.user_profile = user_profile
+        # Get user profile (handles loading and caching automatically)
+        user_profile = get_or_load_user_profile()
         
         coaching = CoachingAssistant()
         today = date.today()
@@ -3934,11 +3912,8 @@ def restaurant_analyzer_page():
     personalized recommendations based on your health profile, goals, and today's nutrition intake.
     """)
     
-    user_profile = st.session_state.user_profile
-    if not user_profile:
-        user_profile = db_manager.get_health_profile(st.session_state.user_id)
-        user_profile = normalize_profile(user_profile) if user_profile else user_profile
-        st.session_state.user_profile = user_profile
+    # Get user profile (handles loading and caching automatically)
+    user_profile = get_or_load_user_profile()
     
     if not user_profile:
         st.warning("⚠️ Please complete your health profile in 'My Profile' for personalized recommendations")
@@ -4737,27 +4712,9 @@ def main():
             # Get today's data for sidebar stats
             today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
             today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
-            user_profile = st.session_state.user_profile
             
-            # Auto-load profile if not in session state (first visit after login)
-            if not user_profile:
-                user_profile = db_manager.get_health_profile(st.session_state.user_id)
-                if user_profile:
-                    user_profile = normalize_profile(user_profile)
-                    st.session_state.user_profile = user_profile
-            
-            # Ensure we have a profile with defaults for sidebar stats
-            if not user_profile:
-                user_profile = {
-                    "user_id": st.session_state.user_id,
-                    "age_group": "26-35",
-                    "health_goal": "general_health",
-                    "timezone": "UTC",
-                    "health_conditions": [],
-                    "dietary_preferences": [],
-                    "water_goal_glasses": 8
-                }
-                st.session_state.user_profile = user_profile
+            # Get user profile (handles loading and caching automatically)
+            user_profile = get_or_load_user_profile()
             
             # Streak info - Use same logic as dashboard
             # Get meals from last 30 days for accurate streak calculation
