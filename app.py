@@ -2572,22 +2572,6 @@ def analytics_page():
         barmode="group"
     )
     st.plotly_chart(fig_macro, use_container_width=True)
-    
-    # ===== Meal Type Distribution =====
-    st.markdown("## 🍽️ Meal Type Distribution")
-    
-    meal_types_count = {}
-    for meal in meals:
-        meal_type = meal.get("meal_type", "unknown")
-        meal_types_count[meal_type] = meal_types_count.get(meal_type, 0) + 1
-    
-    if meal_types_count:
-        fig_pie = px.pie(
-            values=list(meal_types_count.values()),
-            names=[MEAL_TYPES.get(k, k) for k in meal_types_count.keys()],
-            title="Meals by Type"
-        )
-        st.plotly_chart(fig_pie, use_container_width=True)
 
 
 def show_meal_quality(meals):
