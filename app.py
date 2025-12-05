@@ -247,6 +247,20 @@ def validate_meal_data(meal_name: str, nutrition: dict, meal_date: datetime.date
     return True, ""
 
 
+def show_nutrition_facts(nutrition: dict, show_label: bool = False):
+    """
+    Display nutrition facts in a consistent card format across the app.
+    
+    Args:
+        nutrition: Dictionary with nutrition values (calories, protein, carbs, fat, etc.)
+        show_label: Whether to show "Nutrition Facts" label (for main meal detail displays)
+    """
+    if show_label:
+        st.markdown("### 📊 Nutrition Facts")
+    
+    st.markdown(nutrition_analyzer.get_nutrition_facts_html(nutrition), unsafe_allow_html=True)
+
+
 def error_state(title: str, message: str, suggestion: str = None, icon: str = "⚠️"):
     """
     Display a professional error state with helpful suggestions.
@@ -1968,7 +1982,7 @@ def dashboard_page():
                 
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    st.markdown(nutrition_analyzer.get_nutrition_facts_html(nutrition), unsafe_allow_html=True)
+                    show_nutrition_facts(nutrition)
                 with col2:
                     healthiness = meal.get('healthiness_score', 'N/A')
                     st.metric("Score", healthiness)
@@ -2114,7 +2128,7 @@ def meal_logging_page():
             col1, col2 = st.columns([3, 1])
             
             with col1:
-                st.markdown(nutrition_analyzer.get_nutrition_facts_html(analysis['nutrition']), unsafe_allow_html=True)
+                show_nutrition_facts(analysis['nutrition'])
             
             with col2:
                 healthiness = analysis.get('healthiness_score', 0)
@@ -2217,7 +2231,7 @@ def meal_logging_page():
                 st.write(f"- {food['name']} ({food['quantity']})")
             
             # Display nutrition
-            st.markdown(nutrition_analyzer.get_nutrition_facts_html(analysis['total_nutrition']), unsafe_allow_html=True)
+            show_nutrition_facts(analysis['total_nutrition'], show_label=True)
             
             st.info(f"**Confidence:** {analysis.get('confidence', 0)}%")
             st.info(f"**Notes:** {analysis.get('notes', 'N/A')}")
@@ -2624,7 +2638,7 @@ def show_meal_recommendations(user_profile, meals, today_nutrition, targets):
                         col1, col2 = st.columns([3, 1])
                         
                         with col1:
-                            st.markdown(nutrition_analyzer.get_nutrition_facts_html(rec.get('estimated_nutrition', {})), unsafe_allow_html=True)
+                            show_nutrition_facts(rec.get('estimated_nutrition', {}))
                         
                         with col2:
                             st.info(f"**Why:** {rec.get('why_recommended', '')}")
@@ -3266,7 +3280,7 @@ def meal_history_page():
             with st.expander("View Details", expanded=False):
                 st.write(f"**Description:** {meal.get('description', 'N/A')}")
                 nutrition = meal.get("nutrition", {})
-                st.markdown(nutrition_analyzer.get_nutrition_facts_html(nutrition), unsafe_allow_html=True)
+                show_nutrition_facts(nutrition)
             
             # Edit form
             if st.session_state.get(f"edit_meal_id_{meal['id']}", False):
