@@ -3163,7 +3163,6 @@ def meal_history_page():
                 with del_col2:
                     if st.button("❌ Cancel", key=f"confirm_delete_no_{meal['id']}", use_container_width=True):
                         st.session_state[f"confirm_delete_{meal['id']}"] = False
-                        st.rerun()
             
             # Duplicate meal section
             if st.session_state.get(f"dup_meal_id_{meal['id']}", False):
@@ -3201,7 +3200,6 @@ def meal_history_page():
                 with dup_col2:
                     if st.button("❌ Cancel", key=f"cancel_dup_{meal['id']}", use_container_width=True):
                         st.session_state[f"dup_meal_id_{meal['id']}"] = False
-                        st.rerun()
                 
                 st.divider()
             
@@ -3269,7 +3267,6 @@ def meal_history_page():
                     with btn_col2:
                         if st.form_submit_button("❌ Cancel", key=f"cancel_hist_{meal['id']}", use_container_width=True):
                             st.session_state[f"edit_meal_id_{meal['id']}"] = False
-                            st.rerun()
             
             st.divider()
         
