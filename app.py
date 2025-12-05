@@ -2517,37 +2517,33 @@ def analytics_page():
         st.plotly_chart(fig_pie, use_container_width=True)
 
 
-def insights_page():
-    """Health insights and recommendations page"""
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-    ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">💡 Health Insights & Recommendations</h1>
-    </div>
-    """, unsafe_allow_html=True)
+def show_meal_quality(meals):
+    """Display best and worst meals quality section"""
+    st.markdown("## 🏆 Your Meal Quality")
     
-    # Get user profile (handles loading and caching automatically)
-    user_profile = get_or_load_user_profile()
+    # Sort meals by healthiness score
+    sorted_meals = sorted(meals, key=lambda x: x.get('healthiness_score', 0), reverse=True)
     
-    # Get recent meals
-    meals = db_manager.get_recent_meals(st.session_state.user_id, limit=20)
-    
-    if not meals:
-        st.info("Log some meals to get personalized insights!")
-        return
-    
-    # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
-    
-    # Today's summary
-    today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
-    
-    # ===== Personalized Recommendations =====
+    if sorted_meals:
+        best_worst_col1, best_worst_col2 = st.columns(2)
+        
+        with best_worst_col1:
+            st.markdown("### ✅ Healthiest Meals")
+            for idx, meal in enumerate(sorted_meals[:3], 1):
+                score = meal.get('healthiness_score', 0)
+                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
+                st.caption(meal.get('description', 'N/A')[:100])
+        
+        with best_worst_col2:
+            st.markdown("### ⚠️ Meals to Improve")
+            for idx, meal in enumerate(reversed(sorted_meals[-3:]), 1):
+                score = meal.get('healthiness_score', 0)
+                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
+                st.caption(meal.get('description', 'N/A')[:100])
+
+
+def show_meal_recommendations(user_profile, meals, today_nutrition, targets):
+    """Display personalized meal recommendations section"""
     st.markdown("## 🎯 Today's Meal Recommendations")
     st.caption("💡 Click the button below to generate personalized meal recommendations (this uses API calls)")
     
@@ -2576,15 +2572,17 @@ def insights_page():
                         
                         if rec.get('health_benefits'):
                             st.success(f"**Benefits:** {', '.join(rec.get('health_benefits', []))}")
-    
-    # ===== Weekly Meal Plan =====
+
+
+def show_weekly_meal_plan(user_profile):
+    """Display weekly meal plan section"""
     st.markdown("## 📅 Weekly Meal Plan")
     
     if st.button("Generate 7-Day Meal Plan", use_container_width=True):
         with st.spinner("🤖 Creating your personalized meal plan..."):
             meal_plan = recommender.get_weekly_meal_plan(
                 user_profile,
-                targets,
+                AGE_GROUP_TARGETS.get(user_profile.get("age_group", "26-35"), AGE_GROUP_TARGETS["26-35"]),
                 user_profile.get("dietary_preferences", [])
             )
             
@@ -2594,38 +2592,16 @@ def insights_page():
                         for meal in meals_list:
                             st.write(f"**{meal.get('meal_type').title()}:** {meal.get('meal_name')}")
                             st.caption(meal.get('description', ''))
-    
-    # ===== BEST & WORST MEALS =====
-    st.divider()
-    st.markdown("## 🏆 Your Meal Quality")
-    
-    # Sort meals by healthiness score
-    sorted_meals = sorted(meals, key=lambda x: x.get('healthiness_score', 0), reverse=True)
-    
-    if sorted_meals:
-        best_worst_col1, best_worst_col2 = st.columns(2)
-        
-        with best_worst_col1:
-            st.markdown("### ✅ Healthiest Meals")
-            for idx, meal in enumerate(sorted_meals[:3], 1):
-                score = meal.get('healthiness_score', 0)
-                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
-                st.caption(meal.get('description', 'N/A')[:100])
-        
-        with best_worst_col2:
-            st.markdown("### ⚠️ Meals to Improve")
-            for idx, meal in enumerate(reversed(sorted_meals[-3:]), 1):
-                score = meal.get('healthiness_score', 0)
-                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
-                st.caption(meal.get('description', 'N/A')[:100])
-    
-    # ===== Health Insights =====
+
+
+def show_health_insights(meals, user_profile, st_session_state):
+    """Display health insights and analysis section"""
     st.markdown("## 📊 Health Insights")
     st.caption("💡 Click the button below to analyze your eating patterns (this uses API calls)")
     
     if st.button("🤖 Analyze Health Insights", use_container_width=True):
         with st.spinner("🤖 Analyzing your eating patterns..."):
-            nutrition_history = db_manager.get_weekly_nutrition_summary(st.session_state.user_id, date.today())
+            nutrition_history = db_manager.get_weekly_nutrition_summary(st_session_state.user_id, date.today())
             
             insights = recommender.get_health_insights(
                 meals,
@@ -2680,15 +2656,60 @@ def insights_page():
                 
                 with col1:
                     if st.button("📋 Copy to Clipboard", use_container_width=True):
-                        # Show copyable text area
                         st.info("📝 Select all text below and copy (Ctrl+C):")
                         st.text_area("Insights:", value=insights_text, height=250, disabled=True, key="copy_insights")
                 
                 with col2:
                     if st.button("🔗 Share as Text", use_container_width=True):
-                        # Show formatted text for sharing
                         with st.expander("📧 Shareable Format", expanded=True):
                             st.text_area("Copy and share this:", value=insights_text, height=250, disabled=True, key="share_insights")
+
+
+def insights_page():
+    """Health insights and recommendations page"""
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
+        padding: 15px 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">💡 Health Insights & Recommendations</h1>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Get user profile (handles loading and caching automatically)
+    user_profile = get_or_load_user_profile()
+    
+    # Get recent meals
+    meals = db_manager.get_recent_meals(st.session_state.user_id, limit=20)
+    
+    if not meals:
+        st.info("Log some meals to get personalized insights!")
+        return
+    
+    # Get nutrition targets
+    age_group = user_profile.get("age_group", "26-35")
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    
+    # Today's summary
+    today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
+    
+    # ===== BEST & WORST MEALS =====
+    st.divider()
+    show_meal_quality(meals)
+    
+    # ===== Personalized Recommendations =====
+    st.divider()
+    show_meal_recommendations(user_profile, meals, today_nutrition, targets)
+    
+    # ===== Weekly Meal Plan =====
+    st.divider()
+    show_weekly_meal_plan(user_profile)
+    
+    # ===== Health Insights =====
+    st.divider()
+    show_health_insights(meals, user_profile, st.session_state)
     
     # ===== NUTRITION COMPARISON (TODAY VS WEEKLY AVG) =====
     st.divider()
@@ -3120,10 +3141,29 @@ def meal_history_page():
             
             with col4:
                 if st.button("Delete", key=f"delete_hist_{meal['id']}", use_container_width=True):
-                    if db_manager.delete_meal(meal['id']):
-                        st.toast("Meal deleted!", icon="✅")
-                    else:
-                        st.toast("Failed to delete meal", icon="❌")
+                    st.session_state[f"confirm_delete_{meal['id']}"] = True
+            
+            # Delete confirmation dialog
+            if st.session_state.get(f"confirm_delete_{meal['id']}", False):
+                st.divider()
+                st.warning(f"⚠️ Are you sure you want to delete **{meal.get('meal_name', 'this meal')}**?")
+                st.caption("This action cannot be undone.")
+                
+                del_col1, del_col2 = st.columns(2)
+                
+                with del_col1:
+                    if st.button("✅ Yes, Delete", key=f"confirm_delete_yes_{meal['id']}", use_container_width=True):
+                        if db_manager.delete_meal(meal['id']):
+                            st.toast("Meal deleted!", icon="✅")
+                            st.session_state[f"confirm_delete_{meal['id']}"] = False
+                            st.rerun()
+                        else:
+                            st.toast("Failed to delete meal", icon="❌")
+                
+                with del_col2:
+                    if st.button("❌ Cancel", key=f"confirm_delete_no_{meal['id']}", use_container_width=True):
+                        st.session_state[f"confirm_delete_{meal['id']}"] = False
+                        st.rerun()
             
             # Duplicate meal section
             if st.session_state.get(f"dup_meal_id_{meal['id']}", False):
