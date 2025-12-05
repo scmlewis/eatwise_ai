@@ -2741,27 +2741,11 @@ def insights_page():
     
     # Today's summary
     today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
-    
-    # ===== BEST & WORST MEALS =====
-    st.divider()
-    show_meal_quality(meals)
-    
-    # ===== Personalized Recommendations =====
-    st.divider()
-    show_meal_recommendations(user_profile, meals, today_nutrition, targets)
-    
-    # ===== Weekly Meal Plan =====
-    st.divider()
-    show_weekly_meal_plan(user_profile)
-    
-    # ===== Health Insights =====
-    st.divider()
-    show_health_insights(meals, user_profile, st.session_state)
-    
+
     # ===== NUTRITION TARGETS SUMMARY =====
     st.divider()
     st.markdown("## 🎯 Your Nutrition Targets")
-    
+
     if user_profile:
         # Set end_date for nutrition summary
         end_date = date.today()
@@ -2861,7 +2845,7 @@ def insights_page():
         
         # Macronutrients - 2x2 grid
         macro_cols = st.columns(2, gap="medium")
-        
+
         # Calories
         with macro_cols[0]:
             cal_target = targets['calories']
@@ -2917,84 +2901,23 @@ def insights_page():
                 </div>
             </div>
             """, unsafe_allow_html=True)
-        
-        # Carbs
-        with macro_cols[0]:
-            carbs_target = targets['carbs']
-            carbs_current = today_nutrition.get('carbs', 0)
-            carbs_percent = min(100, (carbs_current / carbs_target * 100)) if carbs_target > 0 else 0
-            carbs_emoji = "✅" if 0.9 <= carbs_percent <= 1.1 else ("⚠️" if carbs_percent < 0.9 else "⚡")
-            
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #F59E0B20 0%, #FBBF2440 100%);
-                border: 1px solid #F59E0B;
-                border-radius: 12px;
-                padding: 18px;
-            ">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-size: 20px; font-weight: 900; color: #F59E0B;">🌾 Carbs</div>
-                    <div style="font-size: 18px;">{carbs_emoji}</div>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <div style="font-size: 24px; font-weight: 900; color: #FCD34D;">{carbs_current:.0f}g</div>
-                    <div style="font-size: 12px; color: #a0a0a0;">of {carbs_target}g/day</div>
-                </div>
-                <div style="background: #ffffff20; border-radius: 8px; height: 8px; overflow: hidden;">
-                    <div style="background: linear-gradient(90deg, #F59E0B 0%, #FCD34D 100%); height: 100%; width: {carbs_percent}%;"></div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # Fat
-        with macro_cols[1]:
-            fat_target = targets['fat']
-            fat_current = today_nutrition.get('fat', 0)
-            fat_percent = min(100, (fat_current / fat_target * 100)) if fat_target > 0 else 0
-            fat_emoji = "✅" if 0.9 <= fat_percent <= 1.1 else ("⚠️" if fat_percent < 0.9 else "⚡")
-            
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #06B6D420 0%, #14B8A640 100%);
-                border: 1px solid #06B6D4;
-                border-radius: 12px;
-                padding: 18px;
-            ">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-size: 20px; font-weight: 900; color: #06B6D4;">🌿 Fat</div>
-                    <div style="font-size: 18px;">{fat_emoji}</div>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <div style="font-size: 24px; font-weight: 900; color: #22D3EE;">{fat_current:.0f}g</div>
-                    <div style="font-size: 12px; color: #a0a0a0;">of {fat_target}g/day</div>
-                </div>
-                <div style="background: #ffffff20; border-radius: 8px; height: 8px; overflow: hidden;">
-                    <div style="background: linear-gradient(90deg, #06B6D4 0%, #22D3EE 100%); height: 100%; width: {fat_percent}%;"></div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("")  # Spacing
-        
-        # ===== MICRONUTRIENTS =====
-        st.markdown("**Micronutrients:**")
-        micro_cols = st.columns(3, gap="small")
-        
-        with micro_cols[0]:
-            sodium_target = targets['sodium']
-            sodium_current = today_nutrition.get('sodium', 0)
-            st.metric("Sodium", f"{sodium_current:.0f}mg", f"Target: {sodium_target}mg")
-        
-        with micro_cols[1]:
-            fiber_target = targets.get('fiber', 25)
-            fiber_current = today_nutrition.get('fiber', 0)
-            st.metric("Fiber", f"{fiber_current:.0f}g", f"Target: {fiber_target}g")
-        
-        with micro_cols[2]:
-            sugar_target = 50  # Recommended daily max
-            sugar_current = today_nutrition.get('sugar', 0)
-            st.metric("Sugar", f"{sugar_current:.0f}g", f"Limit: {sugar_target}g")
+
+    # ===== BEST & WORST MEALS =====
+    st.divider()
+    show_meal_quality(meals)
     
+    # ===== Personalized Recommendations =====
+    st.divider()
+    show_meal_recommendations(user_profile, meals, today_nutrition, targets)
+    
+    # ===== Weekly Meal Plan =====
+    st.divider()
+    show_weekly_meal_plan(user_profile)
+    
+    # ===== Health Insights =====
+    st.divider()
+    show_health_insights(meals, user_profile, st.session_state)
+
     # ===== Export Data =====
     st.divider()
     st.markdown("## 📥 Export Your Data")
