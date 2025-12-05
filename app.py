@@ -2773,40 +2773,15 @@ def insights_page():
                     pct = (count / total_week_meals) * 100
                     st.write(f"**{meal_type.title()}:** {count} meals ({pct:.0f}%)")
     
-    # ===== NUTRITION TIPS =====
-    st.divider()
-    st.markdown("## 💡 Nutrition Tips")
-    
-    nutrition_tips = [
-        "🥗 Eat a variety of colorful vegetables - each color has different nutrients!",
-        "💧 Aim to drink 8 glasses of water daily for optimal hydration",
-        "🍗 Include lean proteins in every meal to keep you feeling full longer",
-        "🌾 Whole grains are better than refined grains for sustained energy",
-        "🥑 Healthy fats from avocados, nuts, and olive oil support heart health",
-        "🍓 Berries are packed with antioxidants and vitamins",
-        "🥦 Cruciferous vegetables like broccoli are anti-inflammatory powerhouses",
-        "🍚 Balance your macros: aim for 40% carbs, 30% protein, 30% fat",
-        "⏰ Eat smaller meals more frequently to maintain stable energy levels",
-        "🚫 Limit added sugars - they provide empty calories",
-        "🧂 Reduce sodium intake to support heart and kidney health",
-        "🥜 Nuts and seeds are great sources of protein and healthy fats",
-        "🍌 Potassium-rich foods help maintain healthy blood pressure",
-        "🥕 Vitamin A from orange vegetables supports eye health",
-        "🍊 Citrus fruits are excellent sources of vitamin C for immunity",
-    ]
-    
-    import random
-    daily_tip = random.choice(nutrition_tips)
-    st.info(f"**Did you know?** {daily_tip}")
-    
     # ===== NUTRITION TARGETS SUMMARY =====
     st.divider()
     st.markdown("## 🎯 Your Nutrition Targets")
     
     if user_profile:
         # ===== PERSONALIZATION CONTEXT =====
-        # Only render the three context boxes when meaningful profile values exist.
+        # Only render the context boxes when meaningful profile values exist.
         age_group = user_profile.get('age_group', 'N/A')
+        gender = user_profile.get('gender', 'N/A')
         health_goal_val = user_profile.get('health_goal', 'N/A')
         health_conditions_list = user_profile.get('health_conditions', []) or []
 
@@ -2816,6 +2791,7 @@ def insights_page():
             user_profile and
             (
                 (age_group and age_group != 'N/A') or
+                (gender and gender != 'N/A') or
                 (health_goal_val and health_goal_val != 'N/A') or
                 (isinstance(health_conditions_list, list) and len(health_conditions_list) > 0)
             )
@@ -2823,7 +2799,7 @@ def insights_page():
 
         if has_personalization and age_group != 'N/A':
             st.markdown("**Your targets are personalized based on:**")
-            context_cols = st.columns(3, gap="small")
+            context_cols = st.columns(4, gap="small")
 
             with context_cols[0]:
                 st.markdown(f"""
@@ -2840,6 +2816,20 @@ def insights_page():
                 """, unsafe_allow_html=True)
 
             with context_cols[1]:
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #EC4899 20 0%, #F472B620 100%);
+                    border: 1px solid #EC4899;
+                    border-radius: 10px;
+                    padding: 12px 16px;
+                    text-align: center;
+                ">
+                    <div style="font-size: 12px; color: #a0a0a0; text-transform: uppercase; margin-bottom: 4px; font-weight: 700;">Gender</div>
+                    <div style="font-size: 16px; font-weight: 900; color: #F472B6;">{gender}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with context_cols[2]:
                 health_goal = str(health_goal_val).replace('_', ' ').title()
                 st.markdown(f"""
                 <div style="
@@ -2854,7 +2844,7 @@ def insights_page():
                 </div>
                 """, unsafe_allow_html=True)
 
-            with context_cols[2]:
+            with context_cols[3]:
                 health_conditions = ', '.join(health_conditions_list) or 'None'
                 st.markdown(f"""
                 <div style="
