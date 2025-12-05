@@ -1906,47 +1906,8 @@ def dashboard_page():
     
     # EATING PATTERNS - Right side (replaced "Most Frequent Foods")
     with breakdown_col2:
-        st.markdown("""
-        <div class="dashboard-info-box" style="
-            background: linear-gradient(135deg, rgba(255, 107, 22, 0.1) 0%, rgba(16, 161, 157, 0.05) 100%);
-            border: 1px solid rgba(255, 107, 22, 0.3);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 16px;
-        ">
-            <h3 style="color: #e0f2f1; margin-top: 0; font-size: 18px;">🍽️ Today's Eating Patterns</h3>
-        """, unsafe_allow_html=True)
-        
-        # Calculate meal type distribution
-        time_pattern = {}
-        for meal in meals[:30]:
-            logged_at = meal.get('logged_at', '')
-            if logged_at:
-                hour = int(logged_at.split('T')[1].split(':')[0])
-                period = "Breakfast" if 6 <= hour < 10 else \
-                        "Lunch" if 10 <= hour < 15 else \
-                        "Dinner" if 15 <= hour < 21 else \
-                        "Snacks"
-                time_pattern[period] = time_pattern.get(period, 0) + 1
-        
-        # Ensure all meal types are shown, even with 0 count
-        period_order = ["Breakfast", "Lunch", "Dinner", "Snacks"]
-        pattern_cols = st.columns(4, gap="medium")
-        
-        for idx, period in enumerate(period_order):
-            with pattern_cols[idx]:
-                emoji = {"Breakfast": "🌅", "Lunch": "🍴", "Dinner": "🌙", "Snacks": "🍿"}.get(period, "📌")
-                count = time_pattern.get(period, 0)
-                
-                st.markdown(f"""
-                <div class="pattern-card" style="text-align: center; padding: 14px; background: rgba(16, 161, 157, 0.15); border-radius: 8px;">
-                    <div style="font-size: 28px; margin-bottom: 10px;">{emoji}</div>
-                    <div style="font-size: 22px; font-weight: bold; color: #e0f2f1; margin-bottom: 6px;">{count}</div>
-                    <div style="font-size: 13px; color: #a0a0a0; font-weight: 600;">{period}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+        # 🍽️ Today's Eating Patterns section removed to streamline the dashboard
+        pass
     
     # Remove duplicate EATING TIME PATTERNS section that was below
     
