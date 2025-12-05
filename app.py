@@ -4836,7 +4836,9 @@ def main():
                 try:
                     insight = recommender.get_nutrition_trivia()
                     st.markdown(f"<div class='insight-box' style='background: rgba(16, 161, 157, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid #10A19D; font-size: 13px; line-height: 1.4;'>{insight}</div>", unsafe_allow_html=True)
-                except:
+                except Exception as e:
+                    import logging
+                    logging.debug(f"Failed to fetch nutrition trivia: {e}")
                     st.markdown("<div class='insight-box' style='background: rgba(16, 161, 157, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid #10A19D; font-size: 13px;'>💭 Log meals to get personalized tips!</div>", unsafe_allow_html=True)
             
             # Clear the quick nav flag

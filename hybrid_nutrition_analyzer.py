@@ -6,8 +6,11 @@ Can be used standalone or alongside existing NutritionAnalyzer
 
 import json
 import re
+import logging
 from typing import Dict, Optional, List
 from nutrition_database import find_food_matches, get_nutrition_for_portion, validate_nutrition_data
+
+logger = logging.getLogger(__name__)
 
 
 class HybridNutritionAnalyzer:
@@ -18,7 +21,7 @@ class HybridNutritionAnalyzer:
     
     def __init__(self):
         """Initialize hybrid analyzer with database"""
-        pass
+        self.logger = logging.getLogger(__name__)
     
     def parse_ingredients_from_llm_response(self, llm_response: str) -> List[Dict]:
         """
@@ -40,8 +43,8 @@ class HybridNutritionAnalyzer:
                 data = json.loads(json_match.group())
                 if "items" in data:
                     return data["items"]
-        except:
-            pass
+        except json.JSONDecodeError as e:
+            self.logger.debug(f"Failed to parse JSON from LLM response: {e}")
         
         # Fallback: parse text format
         # Pattern: food_name (qty unit)

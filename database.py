@@ -1,9 +1,12 @@
 """Database module for EatWise"""
+import logging
 from supabase import create_client, Client
 from config import SUPABASE_URL, SUPABASE_KEY
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date
 import streamlit as st
+
+logger = logging.getLogger(__name__)
 
 
 class DatabaseManager:
@@ -93,7 +96,7 @@ class DatabaseManager:
                     self.supabase.table("food_history").insert(food_history_entry).execute()
                 except Exception as e:
                     # Food history save failed but meal saved, log warning but don't fail
-                    print(f"Warning: Food history save failed: {e}")
+                    logger.warning(f"Food history save failed: {e}")
                 
                 st.success("Meal saved successfully!")
                 return True
@@ -310,7 +313,7 @@ class DatabaseManager:
                     total_glasses += entry.get("glasses", 0)
             return total_glasses
         except Exception as e:
-            print(f"Error fetching water intake: {str(e)}")
+            logger.error(f"Error fetching water intake: {str(e)}")
             return 0
     
     # ==================== GAMIFICATION: XP & POINTS ====================
@@ -325,7 +328,7 @@ class DatabaseManager:
                 self.supabase.table("health_profiles").update({"total_xp": new_xp}).eq("user_id", user_id).execute()
                 return True
         except Exception as e:
-            print(f"Error adding XP: {str(e)}")
+            logger.error(f"Error adding XP: {str(e)}")
             return False
     
     def get_user_level(self, user_id: str) -> int:
@@ -362,7 +365,7 @@ class DatabaseManager:
             response = self.supabase.table("daily_challenges").select("*").eq("user_id", user_id).eq("challenge_date", date_str).execute()
             return response.data if response.data else []
         except Exception as e:
-            print(f"Error fetching daily challenges: {str(e)}")
+            logger.error(f"Error fetching daily challenges: {str(e)}")
             return []
     
     def create_daily_challenges(self, user_id: str, challenge_date: date, challenges: List[Dict]) -> bool:
@@ -390,7 +393,7 @@ class DatabaseManager:
             
             return True
         except Exception as e:
-            print(f"Error creating daily challenges: {str(e)}")
+            logger.error(f"Error creating daily challenges: {str(e)}")
             return False
     
     def update_challenge_progress(self, user_id: str, challenge_date: date, challenge_name: str, progress: int) -> bool:
@@ -400,7 +403,7 @@ class DatabaseManager:
             self.supabase.table("daily_challenges").update({"current_progress": progress}).eq("user_id", user_id).eq("challenge_date", date_str).eq("challenge_name", challenge_name).execute()
             return True
         except Exception as e:
-            print(f"Error updating challenge progress: {str(e)}")
+            logger.error(f"Error updating challenge progress: {str(e)}")
             return False
     
     def complete_challenge(self, user_id: str, challenge_date: date, challenge_name: str) -> bool:
@@ -417,7 +420,7 @@ class DatabaseManager:
             
             return True
         except Exception as e:
-            print(f"Error completing challenge: {str(e)}")
+            logger.error(f"Error completing challenge: {str(e)}")
             return False
     
     # ==================== GAMIFICATION: WEEKLY GOALS ====================
@@ -429,7 +432,7 @@ class DatabaseManager:
             response = self.supabase.table("weekly_goals").select("*").eq("user_id", user_id).eq("week_start_date", date_str).execute()
             return response.data[0] if response.data else None
         except Exception as e:
-            print(f"Error fetching weekly goals: {str(e)}")
+            logger.error(f"Error fetching weekly goals: {str(e)}")
             return None
     
     def create_weekly_goals(self, user_id: str, week_start_date: date) -> bool:
@@ -453,7 +456,7 @@ class DatabaseManager:
             self.supabase.table("weekly_goals").insert(weekly_goal).execute()
             return True
         except Exception as e:
-            print(f"Error creating weekly goals: {str(e)}")
+            logger.error(f"Error creating weekly goals: {str(e)}")
             return False
     
     def increment_weekly_days_completed(self, user_id: str, week_start_date: date) -> bool:
@@ -478,5 +481,5 @@ class DatabaseManager:
                 
                 return True
         except Exception as e:
-            print(f"Error updating weekly goal: {str(e)}")
+            logger.error(f"Error updating weekly goal: {str(e)}")
             return False

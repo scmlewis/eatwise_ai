@@ -1,8 +1,11 @@
 """Authentication module for EatWise"""
+import logging
 import streamlit as st
 from supabase import create_client, Client
 from config import SUPABASE_URL, SUPABASE_KEY
 from typing import Tuple, Optional, Dict, Any
+
+logger = logging.getLogger(__name__)
 
 
 class AuthManager:
@@ -79,7 +82,7 @@ class AuthManager:
                         }).execute()
                     except Exception as e:
                         # User might already exist (race condition), continue anyway
-                        pass
+                        logger.debug(f"User record creation skipped (may already exist): {e}")
                     
                     user_data = {
                         "user_id": user_id,
@@ -110,9 +113,7 @@ class AuthManager:
                         user_data.update(default_profile)
                     except Exception as e:
                         # If auto-create fails, log it but continue
-                        import sys
-                        print(f"Warning: Could not auto-create health profile: {str(e)}", file=sys.stderr)
-                        pass
+                        logger.warning(f"Could not auto-create health profile: {str(e)}")
                 
                 return True, "Login successful", user_data
             else:

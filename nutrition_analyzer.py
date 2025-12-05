@@ -1,11 +1,14 @@
 """Nutrition Analysis Module for EatWise"""
 import json
+import logging
 from typing import Dict, List, Tuple, Optional
 from openai import AzureOpenAI
 import streamlit as st
 from config import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 import base64
 from io import BytesIO
+
+logger = logging.getLogger(__name__)
 
 
 class NutritionAnalyzer:
@@ -221,7 +224,8 @@ Please provide the response in JSON format:
             try:
                 nutrition = json.loads(response.choices[0].message.content)
                 return {k: v * quantity for k, v in nutrition.items()}
-            except:
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse nutrition JSON for {food_name}: {e}")
                 return None
         
         except Exception as e:
