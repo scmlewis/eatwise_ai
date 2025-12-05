@@ -22,25 +22,30 @@ class DatabaseManager:
         try:
             profile_data["user_id"] = user_id
             
-            # Filter out fields that don't exist in the schema
-            # height_cm and weight_kg are optional fields that may not exist in all deployments
+            # Filter to only fields that actually exist in health_profiles table schema
+            # Core fields: user_id, full_name, age_group, health_conditions, dietary_preferences, health_goal
+            # Optional fields that may be added via migrations: height_cm, weight_kg, gender, timezone
+            # Note: water_goal_glasses is NOT stored in health_profiles - it's UI-only
             valid_fields = {
                 "user_id", "full_name", "age_group", "gender", "timezone", 
-                "health_conditions", "dietary_preferences", "health_goal", "water_goal_glasses",
-                "height_cm", "weight_kg"  # Optional fields
+                "health_conditions", "dietary_preferences", "health_goal",
+                "height_cm", "weight_kg"  # Optional fields that may not exist
             }
             
+            # Remove water_goal_glasses as it's not part of health_profiles
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
             
             try:
                 self.supabase.table("health_profiles").insert(filtered_data).execute()
                 return True
             except Exception as e:
-                # If schema cache error for height_cm/weight_kg, retry without them
-                if "height_cm" in str(e) or "weight_kg" in str(e):
-                    logger.warning(f"Schema cache issue with height/weight fields during creation: {e}. Retrying without optional fields.")
-                    filtered_data.pop("height_cm", None)
-                    filtered_data.pop("weight_kg", None)
+                # If schema cache errors for optional fields, retry without them
+                error_str = str(e)
+                if "height_cm" in error_str or "weight_kg" in error_str or "gender" in error_str or "timezone" in error_str:
+                    logger.warning(f"Schema cache issue with optional fields during creation: {e}. Retrying without them.")
+                    # Remove optional fields that may not exist
+                    for field in ["height_cm", "weight_kg", "gender", "timezone"]:
+                        filtered_data.pop(field, None)
                     
                     if filtered_data:
                         self.supabase.table("health_profiles").insert(filtered_data).execute()
@@ -66,33 +71,35 @@ class DatabaseManager:
     def update_health_profile(self, user_id: str, profile_data: Dict) -> bool:
         """Update user health profile"""
         try:
-            # Filter out fields that don't exist in the schema
-            # Only update fields that are known to exist in health_profiles table
-            # Note: height_cm and weight_kg are optional and may not exist in all deployments
-            # They will be silently skipped if not present in the schema
+            # Filter to only fields that actually exist in health_profiles table schema
+            # Core fields: full_name, age_group, health_conditions, dietary_preferences, health_goal
+            # Optional fields that may be added via migrations: height_cm, weight_kg, gender, timezone
+            # Note: water_goal_glasses is NOT stored in health_profiles - it's UI-only
             valid_fields = {
                 "full_name", "age_group", "gender", "timezone", 
-                "health_conditions", "dietary_preferences", "health_goal", "water_goal_glasses",
-                "height_cm", "weight_kg"  # Optional fields - may not exist in schema
+                "health_conditions", "dietary_preferences", "health_goal",
+                "height_cm", "weight_kg"  # Optional fields that may not exist in schema
             }
             
+            # Remove water_goal_glasses and other non-schema fields
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
             
             if not filtered_data:
                 st.error("No valid profile fields to update")
                 return False
             
-            # Attempt to update, but if height_cm/weight_kg cause schema errors, retry without them
+            # Attempt to update, but if fields cause schema errors, retry without them
             try:
                 self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
                 return True
             except Exception as e:
-                # If schema cache error for height_cm/weight_kg, remove them and retry
-                if "height_cm" in str(e) or "weight_kg" in str(e):
-                    logger.warning(f"Schema cache issue with height/weight fields: {e}. Retrying without optional fields.")
+                # If schema cache error for optional fields, remove them and retry
+                error_str = str(e)
+                if "height_cm" in error_str or "weight_kg" in error_str or "gender" in error_str or "timezone" in error_str:
+                    logger.warning(f"Schema cache issue with optional fields: {e}. Retrying without them.")
                     # Remove optional fields that may not exist
-                    filtered_data.pop("height_cm", None)
-                    filtered_data.pop("weight_kg", None)
+                    for field in ["height_cm", "weight_kg", "gender", "timezone"]:
+                        filtered_data.pop(field, None)
                     
                     if filtered_data:
                         self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
