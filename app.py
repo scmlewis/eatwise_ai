@@ -1856,7 +1856,7 @@ def dashboard_page():
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.markdown("")
-    st.markdown("## 📊 Nutrition Breakdown & Patterns")
+    st.markdown("## Nutrition Breakdown")
     
     # Create a responsive grid layout
     breakdown_col1, breakdown_col2 = st.columns([1.2, 1], gap="medium")
@@ -1939,11 +1939,12 @@ def dashboard_page():
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
+            # If there are no meals, render nothing on the right to avoid placeholder clutter
             else:
-                st.info("No meals logged today")
+                pass
         except Exception:
-            # Fallback to avoid breaking the dashboard
-            st.info("No meals logged yet. Start by logging a meal!")
+            # Swallow exceptions here to avoid breaking the dashboard layout
+            pass
     
     # Remove duplicate EATING TIME PATTERNS section that was below
     
