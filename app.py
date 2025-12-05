@@ -4788,9 +4788,16 @@ def main():
                 "Help": "question-circle-fill"
             }
             
+            # Add EatWise header above navigation menu
+            st.sidebar.markdown(f"""
+            <div style="text-align: center; margin-bottom: 16px;">
+                <h2 style="color: #10A19D; margin: 0; font-size: 1.6em;">🥗 EatWise</h2>
+            </div>
+            """, unsafe_allow_html=True)
+            
             with st.sidebar:
                 selected_page = option_menu(
-                    menu_title="🥗 EatWise",
+                    menu_title=None,
                     options=list(pages.keys()),
                     icons=[page_icons.get(page, "circle-fill") for page in pages.keys()],
                     menu_icon="cast",
