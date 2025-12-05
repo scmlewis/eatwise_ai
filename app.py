@@ -92,6 +92,83 @@ def normalize_profile(profile: dict) -> dict:
     return p
 
 
+def get_or_load_user_profile() -> dict:
+    """
+    Get user profile from session state, or load from database if missing.
+    Centralizes profile loading logic to prevent duplicate DB calls.
+    
+    Returns:
+        Normalized user profile dict
+    """
+    # Try to get from session state first
+    user_profile = st.session_state.get('user_profile')
+    
+    if user_profile:
+        return user_profile
+    
+    # Load from database if not in session
+    user_profile = db_manager.get_health_profile(st.session_state.user_id)
+    
+    # Normalize the profile
+    user_profile = normalize_profile(user_profile) if user_profile else None
+    
+    # If still missing, use sensible defaults
+    if not user_profile:
+        user_profile = {
+            "user_id": st.session_state.user_id,
+            "age_group": "26-35",
+            "health_goal": "general_health",
+            "timezone": "UTC",
+            "health_conditions": [],
+            "dietary_preferences": [],
+            "water_goal_glasses": 8
+        }
+    
+    # Cache in session state for subsequent calls
+    st.session_state.user_profile = user_profile
+    
+    return user_profile
+
+
+def render_stat_card(emoji: str, title: str, value: str, subtitle: str, 
+                     progress_value: float, status: str, color: str, 
+                     shadow_color: str, gradient_start: str, gradient_end: str):
+    """
+    Render a reusable nutrition stat card with consistent styling.
+    
+    Args:
+        emoji: Card emoji (e.g., "🔥", "🍽️")
+        title: Card title in uppercase (e.g., "Avg Calories")
+        value: Main value to display (e.g., "2500")
+        subtitle: Subtitle text (e.g., "of 2000")
+        progress_value: Float 0-100 for progress bar width
+        status: Status indicator (emoji + optional text)
+        color: Primary color for text/borders (e.g., "#FFB84D")
+        shadow_color: RGBA color for box-shadow
+        gradient_start: Gradient start color with alpha (e.g., "#FF6B1620")
+        gradient_end: Gradient end color with alpha (e.g., "#FF6B1640")
+    """
+    st.markdown(f"""
+    <div class="stat-card" style="
+        background: linear-gradient(135deg, {gradient_start} 0%, {gradient_end} 100%);
+        border: 1px solid {color};
+        border-left: 5px solid {color};
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        box-shadow: 0 4px 15px {shadow_color};
+        transition: transform 0.2s ease;
+    ">
+        <div style="font-size: 28px; margin-bottom: 6px;">{emoji}</div>
+        <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">{title}</div>
+        <div style="font-size: 28px; font-weight: 900; color: {color}; margin-bottom: 8px;">{value}</div>
+        <div style="font-size: 9px; color: {color}; font-weight: 700; margin-bottom: 6px;">{subtitle}</div>
+        <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, {color} 0%, {color}80 100%); height: 100%; width: {min(progress_value, 100)}%; border-radius: 4px;"></div></div>
+        <div style="font-size: 9px; color: {color}; font-weight: 600;">{status}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 def show_notification(message: str, notification_type: str = "success", use_toast: bool = True):
     """
     Unified notification helper for consistent UX across the app.
@@ -1255,25 +1332,8 @@ def login_page():
 
 def dashboard_page():
     """Dashboard/Home page"""
-    user_profile = st.session_state.user_profile
-    if not user_profile:
-        user_profile = db_manager.get_health_profile(st.session_state.user_id)
-        # normalize after fetch
-        user_profile = normalize_profile(user_profile) if user_profile else user_profile
-        # Update session state so other pages can access it
-        st.session_state.user_profile = user_profile
-    
-    # Use default profile if still missing or empty
-    if not user_profile:
-        user_profile = {
-            "user_id": st.session_state.user_id,
-            "age_group": "26-35",
-            "health_goal": "general_health",
-            "timezone": "UTC",
-            "health_conditions": [],
-            "dietary_preferences": []
-        }
-        st.session_state.user_profile = user_profile
+    # Get user profile (handles loading and caching automatically)
+    user_profile = get_or_load_user_profile()
     
     # Get user's timezone for greeting
     user_timezone = user_profile.get("timezone", "UTC")
@@ -2279,33 +2339,8 @@ def analytics_page():
     </div>
     """, unsafe_allow_html=True)
     
-    user_profile = st.session_state.user_profile
-    if not user_profile:
-        user_profile = db_manager.get_health_profile(st.session_state.user_id)
-        # normalize after fetch
-        user_profile = normalize_profile(user_profile) if user_profile else user_profile
-        # Update session state so other pages can access it
-        st.session_state.user_profile = user_profile
-    
-    # Use default profile if still missing or empty
-    if not user_profile:
-        user_profile = {
-            "user_id": st.session_state.user_id,
-            "age_group": "26-35",
-            "health_goal": "general_health",
-            "timezone": "UTC",
-            "health_conditions": [],
-            "dietary_preferences": []
-        }
-        st.session_state.user_profile = user_profile
-    else:
-        # Normalize profile structure to avoid mapping issues (strings vs lists etc.)
-        try:
-            user_profile = normalize_profile(user_profile)
-            st.session_state.user_profile = user_profile
-        except Exception:
-            # non-fatal - fall back to raw profile
-            pass
+    # Get user profile (handles loading and caching automatically)
+    user_profile = get_or_load_user_profile()
 
     # Initialize days from session state or use default
     if "analytics_days" not in st.session_state:
@@ -2316,19 +2351,16 @@ def analytics_page():
     col1, col2, col3 = st.columns(3, gap="small")
     
     with col1:
-        if st.button("Last 7 days", use_container_width=True):
+        if st.button("Last 7 days", use_container_width=True, key="btn_7days"):
             st.session_state.analytics_days = 7
-            st.rerun()
     
     with col2:
-        if st.button("Last 2 weeks", use_container_width=True):
+        if st.button("Last 2 weeks", use_container_width=True, key="btn_14days"):
             st.session_state.analytics_days = 14
-            st.rerun()
     
     with col3:
-        if st.button("Last 30 days", use_container_width=True):
+        if st.button("Last 30 days", use_container_width=True, key="btn_30days"):
             st.session_state.analytics_days = 30
-            st.rerun()
     
     # Get the selected number of days from session state
     days = st.session_state.analytics_days
@@ -2371,71 +2403,53 @@ def analytics_page():
         target_cal = targets['calories']
         cal_pct = (avg_cal / target_cal * 100) if target_cal > 0 else 0
         cal_status = "✅" if 80 <= cal_pct <= 120 else ("⚠️" if cal_pct < 80 else "⚡")
-        st.markdown(f"""
-        <div class="stat-card" style="
-            background: linear-gradient(135deg, #FF6B1620 0%, #FF6B1640 100%);
-            border: 1px solid #FF6B16;
-            border-left: 5px solid #FF6B16;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(255, 107, 22, 0.2);
-            transition: transform 0.2s ease;
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">🔥</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Calories</div>
-            <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{avg_cal:.0f}</div>
-            <div style="font-size: 9px; color: #FF6B16; font-weight: 700; margin-bottom: 6px;">of {target_cal}</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #FF6B16 0%, #FF8A4A 100%); height: 100%; width: {min(cal_pct, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #FF6B16; font-weight: 600;">{cal_status} {cal_pct:.0f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
+        render_stat_card(
+            emoji="🔥",
+            title="Avg Calories",
+            value=f"{avg_cal:.0f}",
+            subtitle=f"of {target_cal}",
+            progress_value=cal_pct,
+            status=f"{cal_status} {cal_pct:.0f}%",
+            color="#FFB84D",
+            shadow_color="rgba(255, 107, 22, 0.2)",
+            gradient_start="#FF6B1620",
+            gradient_end="#FF6B1640"
+        )
     
     # Total Meals Card
     with stats_cols[1]:
         total_meals = len(meals)
         meals_status = "🔥" if total_meals >= 14 else ("✅" if total_meals >= 7 else "⚠️")
-        st.markdown(f"""
-        <div class="stat-card" style="
-            background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-            border: 1px solid #10A19D;
-            border-left: 5px solid #10A19D;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(16, 161, 157, 0.2);
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">🍽️</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Total Meals</div>
-            <div style="font-size: 28px; font-weight: 900; color: #5DDCD6; margin-bottom: 8px;">{total_meals}</div>
-            <div style="font-size: 9px; color: #10A19D; font-weight: 700; margin-bottom: 6px;">{days} days</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #10A19D 0%, #52C4B8 100%); height: 100%; width: {min((total_meals/21)*100, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #10A19D; font-weight: 600;">{meals_status} {(total_meals/days):.1f}/day</div>
-        </div>
-        """, unsafe_allow_html=True)
+        meals_progress = min((total_meals / 21) * 100, 100)
+        render_stat_card(
+            emoji="🍽️",
+            title="Total Meals",
+            value=f"{total_meals}",
+            subtitle=f"{days} days",
+            progress_value=meals_progress,
+            status=f"{meals_status} {(total_meals/days):.1f}/day",
+            color="#5DDCD6",
+            shadow_color="rgba(16, 161, 157, 0.2)",
+            gradient_start="#10A19D20",
+            gradient_end="#52C4B840"
+        )
     
     # Avg Meals Per Day Card
     with stats_cols[2]:
         avg_meals_per_day = total_meals / days if days > 0 else 0
         meal_freq_status = "✅" if 2 <= avg_meals_per_day <= 4 else ("⚠️" if avg_meals_per_day < 2 else "⚡")
-        st.markdown(f"""
-        <div class="stat-card" style="
-            background: linear-gradient(135deg, #845EF720 0%, #BE80FF40 100%);
-            border: 1px solid #845EF7;
-            border-left: 5px solid #845EF7;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(132, 94, 247, 0.2);
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">📈</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Meals/Day</div>
-            <div style="font-size: 28px; font-weight: 900; color: #B89FFF; margin-bottom: 8px;">{avg_meals_per_day:.1f}</div>
-            <div style="font-size: 9px; color: #845EF7; font-weight: 700; margin-bottom: 6px;">avg</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #845EF7 0%, #BE80FF 100%); height: 100%; width: {min((avg_meals_per_day/5)*100, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #845EF7; font-weight: 600;">{meal_freq_status}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        render_stat_card(
+            emoji="📈",
+            title="Meals/Day",
+            value=f"{avg_meals_per_day:.1f}",
+            subtitle="avg",
+            progress_value=min((avg_meals_per_day / 5) * 100, 100),
+            status=meal_freq_status,
+            color="#B89FFF",
+            shadow_color="rgba(132, 94, 247, 0.2)",
+            gradient_start="#845EF720",
+            gradient_end="#BE80FF40"
+        )
     
     # Avg Protein Card
     with stats_cols[3]:
@@ -2443,24 +2457,18 @@ def analytics_page():
         target_protein = targets['protein']
         protein_pct = (avg_protein / target_protein * 100) if target_protein > 0 else 0
         protein_status = "✅" if 80 <= protein_pct <= 120 else ("⚠️" if protein_pct < 80 else "⚡")
-        st.markdown(f"""
-        <div class="stat-card" style="
-            background: linear-gradient(135deg, #51CF6620 0%, #80C34240 100%);
-            border: 1px solid #51CF66;
-            border-left: 5px solid #51CF66;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
-        ">
-            <div style="font-size: 28px; margin-bottom: 6px;">💪</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">Avg Protein</div>
-            <div style="font-size: 28px; font-weight: 900; color: #7FDB8F; margin-bottom: 8px;">{avg_protein:.1f}g</div>
-            <div style="font-size: 9px; color: #51CF66; font-weight: 700; margin-bottom: 6px;">of {target_protein}g</div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, #51CF66 0%, #80C342 100%); height: 100%; width: {min(protein_pct, 100)}%; border-radius: 4px;"></div></div>
-            <div style="font-size: 9px; color: #51CF66; font-weight: 600;">{protein_status} {protein_pct:.0f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
+        render_stat_card(
+            emoji="💪",
+            title="Avg Protein",
+            value=f"{avg_protein:.1f}g",
+            subtitle=f"of {target_protein}g",
+            progress_value=protein_pct,
+            status=f"{protein_status} {protein_pct:.0f}%",
+            color="#7FDB8F",
+            shadow_color="rgba(81, 207, 102, 0.2)",
+            gradient_start="#51CF6620",
+            gradient_end="#80C34240"
+        )
     
     # ===== Nutrition Trends =====
     st.markdown("## 📊 Nutrition Trends")
@@ -2530,25 +2538,8 @@ def insights_page():
     </div>
     """, unsafe_allow_html=True)
     
-    user_profile = st.session_state.user_profile
-    if not user_profile:
-        user_profile = db_manager.get_health_profile(st.session_state.user_id)
-        # normalize after fetch
-        user_profile = normalize_profile(user_profile) if user_profile else user_profile
-        # Update session state so other pages can access it
-        st.session_state.user_profile = user_profile
-    
-    # Use default profile if still missing or empty
-    if not user_profile:
-        user_profile = {
-            "user_id": st.session_state.user_id,
-            "age_group": "26-35",
-            "health_goal": "general_health",
-            "timezone": "UTC",
-            "health_conditions": [],
-            "dietary_preferences": []
-        }
-        st.session_state.user_profile = user_profile
+    # Get user profile (handles loading and caching automatically)
+    user_profile = get_or_load_user_profile()
     
     # Get recent meals
     meals = db_manager.get_recent_meals(st.session_state.user_id, limit=20)
@@ -3286,8 +3277,10 @@ def profile_page():
     tab1, tab2 = st.tabs(["Profile", "Security"])
     
     with tab1:
-        # Always fetch fresh profile from database
+        # Fetch profile from database (fresh for this page, not using cache)
+        # because users expect to see current profile data when they visit settings
         user_profile = db_manager.get_health_profile(st.session_state.user_id)
+        user_profile = normalize_profile(user_profile) if user_profile else None
         
         st.markdown(f"**Email:** {user_email}")
         
