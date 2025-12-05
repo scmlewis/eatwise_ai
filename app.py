@@ -4062,7 +4062,32 @@ def restaurant_analyzer_page():
                             
                             extracted_text = response.choices[0].message.content
                             st.session_state.extracted_menu_text = extracted_text
-                            st.success("✅ Text extracted!")
+                            st.success("✅ Text extracted! Auto-analyzing menu...")
+                            
+                            # Auto-analyze the extracted menu
+                            with st.spinner("🤖 Analyzing menu with AI..."):
+                                # Get today's nutrition
+                                today_nutrition = db_manager.get_daily_nutrition_summary(
+                                    st.session_state.user_id, date.today()
+                                )
+                                
+                                # Get targets
+                                age_group = user_profile.get("age_group", "26-35")
+                                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                                
+                                # Analyze menu
+                                analysis = menu_analyzer.analyze_menu(
+                                    extracted_text,
+                                    user_profile,
+                                    today_nutrition,
+                                    targets
+                                )
+                                
+                                if analysis:
+                                    st.session_state.menu_analysis = analysis
+                                    st.success("✅ Menu analyzed and ready for recommendations!")
+                                else:
+                                    st.error("Could not analyze menu. Please try again.")
                             
                         except Exception as e:
                             st.error(f"Error extracting text: {str(e)}")
@@ -4081,30 +4106,7 @@ def restaurant_analyzer_page():
                         label_visibility="collapsed"
                     )
                 
-                if st.button("✅ Analyze Extracted Menu", type="primary", use_container_width=True):
-                    with st.spinner("🤖 Analyzing menu with AI..."):
-                        # Get today's nutrition
-                        today_nutrition = db_manager.get_daily_nutrition_summary(
-                            st.session_state.user_id, date.today()
-                        )
-                        
-                        # Get targets
-                        age_group = user_profile.get("age_group", "26-35")
-                        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
-                        
-                        # Analyze menu
-                        analysis = menu_analyzer.analyze_menu(
-                            st.session_state.extracted_menu_text,
-                            user_profile,
-                            today_nutrition,
-                            targets
-                        )
-                        
-                        if analysis:
-                            st.session_state.menu_analysis = analysis
-                            st.success("✅ Menu analyzed!")
-                        else:
-                            st.error("Could not analyze menu. Please try again.")
+                st.info("ℹ️ Menu has been automatically analyzed and recommendations are ready below.")
     
     # Display analysis results (shared between both tabs)
     if "menu_analysis" in st.session_state:
