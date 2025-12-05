@@ -4753,33 +4753,7 @@ def main():
     if not is_authenticated():
         login_page()
     else:
-        # Sidebar navigation with modern active indicator
-        st.sidebar.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-            padding: 12px 20px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            text-align: center;
-            word-wrap: break-word;
-        ">
-            <h1 style="color: white; margin: 0; font-size: 1.5em; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4), 0 0 8px rgba(0, 0, 0, 0.3);">🥗 EatWise</h1>
-        </div>
-        """, unsafe_allow_html=True)
-        
         if st.session_state.user_email:
-            # User info - with word wrapping
-            st.sidebar.markdown(f"👤 **{st.session_state.user_email}**")
-            
-            # Logout button
-            if st.sidebar.button("🚪 Logout", key="logout_btn", use_container_width=True):
-                st.session_state.auth_manager.logout()
-                st.session_state.clear()
-                st.success("✅ Logged out!")
-                st.rerun()
-            
-            st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
-            
             # Navigation pages dictionary
             pages = {
                 "Dashboard": "📊",
@@ -4816,7 +4790,7 @@ def main():
             
             with st.sidebar:
                 selected_page = option_menu(
-                    menu_title=None,
+                    menu_title="🥗 EatWise",
                     options=list(pages.keys()),
                     icons=[page_icons.get(page, "circle-fill") for page in pages.keys()],
                     menu_icon="cast",
@@ -4827,7 +4801,7 @@ def main():
             st.session_state.nav_index = list(pages.keys()).index(selected_page)
             st.session_state.current_page = selected_page
             
-            st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
+            st.sidebar.markdown("<div style='margin: 12px 0;'></div>", unsafe_allow_html=True)
             
             # ===== QUICK STATS IN SIDEBAR - COMPACT SINGLE ROW =====
             # Get today's data for sidebar stats
@@ -4886,12 +4860,23 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             
+            st.sidebar.markdown("<div style='margin: 12px 0;'></div>", unsafe_allow_html=True)
+            
+            # User info - Below stats
+            st.sidebar.markdown(f"👤 **{st.session_state.user_email}**")
+            
+            # Logout button
+            if st.sidebar.button("🚪 Logout", key="logout_btn", use_container_width=True):
+                st.session_state.auth_manager.logout()
+                st.session_state.clear()
+                st.success("✅ Logged out!")
+                st.rerun()
+            
             st.sidebar.markdown("<div style='margin: 8px 0;'></div>", unsafe_allow_html=True)
             
             # Clear the quick nav flag
             if st.session_state.get("quick_nav_to_meal"):
                 st.session_state.quick_nav_to_meal = False
-            
             
             # Route to selected page
             if st.session_state.current_page == "Dashboard":
