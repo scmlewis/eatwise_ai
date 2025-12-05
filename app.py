@@ -205,6 +205,47 @@ def show_notification(message: str, notification_type: str = "success", use_toas
 # Production-grade card and component styling functions
 
 
+def validate_meal_data(meal_name: str, nutrition: dict, meal_date: datetime.date = None) -> tuple[bool, str]:
+    """
+    Validate meal data before saving to database.
+    
+    Args:
+        meal_name: Name of the meal
+        nutrition: Dictionary with nutrition values (calories, protein, carbs, fat, sodium, sugar, fiber)
+        meal_date: Date of the meal (optional, defaults to today)
+    
+    Returns:
+        Tuple of (is_valid: bool, error_message: str)
+    """
+    # Validate meal name
+    if not meal_name or not meal_name.strip():
+        return False, "Meal name cannot be empty"
+    
+    # Validate date is not in the future
+    if meal_date:
+        if meal_date > datetime.now().date():
+            return False, "Meal date cannot be in the future"
+    
+    # Validate nutrition values are in reasonable ranges
+    if not nutrition:
+        return False, "Nutrition information is required"
+    
+    calories = nutrition.get('calories', 0)
+    protein = nutrition.get('protein', 0)
+    carbs = nutrition.get('carbs', 0)
+    fat = nutrition.get('fat', 0)
+    
+    # Sanity check: calories should be 0-10000 for a single meal
+    if calories < 0 or calories > 10000:
+        return False, f"Calories must be between 0-10000 (got {calories})"
+    
+    # Sanity check: macros should be reasonable (0-2000g per macro)
+    for macro_name, macro_value in [("Protein", protein), ("Carbs", carbs), ("Fat", fat)]:
+        if macro_value < 0 or macro_value > 2000:
+            return False, f"{macro_name} must be between 0-2000g (got {macro_value}g)"
+    
+    return True, ""
+
 
 def error_state(title: str, message: str, suggestion: str = None, icon: str = "⚠️"):
     """
@@ -2104,7 +2145,16 @@ def meal_logging_page():
                     "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
                 }
                 
-                if db_manager.log_meal(meal_data):
+                # Validate meal data before saving
+                is_valid, error_msg = validate_meal_data(
+                    meal_data["meal_name"],
+                    meal_data["nutrition"],
+                    meal_date
+                )
+                
+                if not is_valid:
+                    st.error(f"⚠️ Validation Error: {error_msg}")
+                elif db_manager.log_meal(meal_data):
                     # Award XP for logging meal
                     db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
                     # Clear the analysis from session state
@@ -2195,7 +2245,16 @@ def meal_logging_page():
                     "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
                 }
                 
-                if db_manager.log_meal(meal_data):
+                # Validate meal data before saving
+                is_valid, error_msg = validate_meal_data(
+                    meal_data["meal_name"],
+                    meal_data["nutrition"],
+                    meal_date
+                )
+                
+                if not is_valid:
+                    st.error(f"⚠️ Validation Error: {error_msg}")
+                elif db_manager.log_meal(meal_data):
                     # Award XP for logging meal
                     db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
                     # Clear the analysis from session state
@@ -3258,7 +3317,16 @@ def meal_history_page():
                                 }
                             }
                             
-                            if db_manager.update_meal(meal['id'], updated_meal):
+                            # Validate meal data before updating
+                            is_valid, error_msg = validate_meal_data(
+                                meal_name,
+                                updated_meal["nutrition"],
+                                None  # Edit doesn't change the date
+                            )
+                            
+                            if not is_valid:
+                                st.error(f"⚠️ Validation Error: {error_msg}")
+                            elif db_manager.update_meal(meal['id'], updated_meal):
                                 st.toast("Meal updated!", icon="✅")
                                 st.session_state[f"edit_meal_id_{meal['id']}"] = False
                             else:
