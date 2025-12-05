@@ -3420,7 +3420,7 @@ def profile_page():
                         "health_conditions": health_conditions,
                         "dietary_preferences": dietary_preferences,
                         "health_goal": goal,
-                        "water_goal_glasses": water_goal,
+                        "water_goal_glasses": int(water_goal),
                         "badges_earned": [],
                     }
                     
@@ -3599,12 +3599,10 @@ def profile_page():
                         "health_conditions": health_conditions,
                         "dietary_preferences": dietary_preferences,
                         "health_goal": goal,
-                        "water_goal_glasses": water_goal,
+                        "water_goal_glasses": int(water_goal),
                     }
                     
                     if db_manager.update_health_profile(st.session_state.user_id, update_data):
-                        # Refresh the session profile so other pages reflect updated values immediately
-                        fetched = db_manager.get_health_profile(st.session_state.user_id) or {**user_profile, **update_data}
                         st.session_state.user_profile = normalize_profile(fetched)
                         show_notification("Profile updated!", "success", use_toast=False)
                         st.rerun()

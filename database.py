@@ -14,6 +14,9 @@ class DatabaseManager:
     
     def __init__(self):
         self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        # Clear schema cache to ensure fresh schema detection
+        if hasattr(self.supabase, '_schema_cache'):
+            self.supabase._schema_cache.clear()
     
     # ==================== HEALTH PROFILE ====================
     
@@ -23,16 +26,15 @@ class DatabaseManager:
             profile_data["user_id"] = user_id
             
             # Filter to only fields that actually exist in health_profiles table schema
-            # Core fields: user_id, full_name, age_group, health_conditions, dietary_preferences, health_goal
+            # Core fields: user_id, full_name, age_group, health_conditions, dietary_preferences, health_goal, water_goal_glasses
             # Optional fields that may be added via migrations: height_cm, weight_kg, gender, timezone
-            # Note: water_goal_glasses is NOT stored in health_profiles - it's UI-only
             valid_fields = {
                 "user_id", "full_name", "age_group", "gender", "timezone", 
                 "health_conditions", "dietary_preferences", "health_goal",
-                "height_cm", "weight_kg"  # Optional fields that may not exist
+                "height_cm", "weight_kg", "water_goal_glasses"  # Optional fields that may not exist
             }
             
-            # Remove water_goal_glasses as it's not part of health_profiles
+            # Include water_goal_glasses if provided
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
             
             try:
@@ -41,9 +43,10 @@ class DatabaseManager:
             except Exception as e:
                 # If schema cache errors for optional fields, retry without them
                 error_str = str(e)
+                # Only retry without optional fields (NOT water_goal_glasses which should exist)
                 if "height_cm" in error_str or "weight_kg" in error_str or "gender" in error_str or "timezone" in error_str:
                     logger.warning(f"Schema cache issue with optional fields during creation: {e}. Retrying without them.")
-                    # Remove optional fields that may not exist
+                    # Remove only the truly optional fields that may not exist
                     for field in ["height_cm", "weight_kg", "gender", "timezone"]:
                         filtered_data.pop(field, None)
                     
@@ -63,55 +66,99 @@ class DatabaseManager:
         """Get user health profile"""
         try:
             response = self.supabase.table("health_profiles").select("*").eq("user_id", user_id).execute()
-            return response.data[0] if response.data else None
+            profile = response.data[0] if response.data else None
+            if profile:
+                logger.info(f"Fetched profile for {user_id}: water_goal_glasses = {profile.get('water_goal_glasses')}")
+            return profile
         except Exception as e:
             st.error(f"Error fetching health profile: {str(e)}")
+            logger.error(f"Error fetching profile: {e}")
             return None
     
     def update_health_profile(self, user_id: str, profile_data: Dict) -> bool:
         """Update user health profile"""
         try:
             # Filter to only fields that actually exist in health_profiles table schema
-            # Core fields: full_name, age_group, health_conditions, dietary_preferences, health_goal
+            # Core fields: full_name, age_group, health_conditions, dietary_preferences, health_goal, water_goal_glasses
             # Optional fields that may be added via migrations: height_cm, weight_kg, gender, timezone
-            # Note: water_goal_glasses is NOT stored in health_profiles - it's UI-only
             valid_fields = {
                 "full_name", "age_group", "gender", "timezone", 
                 "health_conditions", "dietary_preferences", "health_goal",
-                "height_cm", "weight_kg"  # Optional fields that may not exist in schema
+                "height_cm", "weight_kg", "water_goal_glasses"  # Optional fields that may not exist in schema
             }
             
-            # Remove water_goal_glasses and other non-schema fields
+            # Include water_goal_glasses if provided
             filtered_data = {k: v for k, v in profile_data.items() if k in valid_fields}
             
+            logger.info(f"Profile update data before filtering: {profile_data}")
+            logger.info(f"Profile update data after filtering: {filtered_data}")
+            
             if not filtered_data:
+                logger.error("No valid profile fields to update")
                 st.error("No valid profile fields to update")
                 return False
             
             # Attempt to update, but if fields cause schema errors, retry without them
             try:
-                self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
+                logger.info(f"Attempting to update health_profiles for user {user_id} with data: {filtered_data}")
+                response = self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
+                logger.info(f"Update response successful: {response}")
                 return True
             except Exception as e:
                 # If schema cache error for optional fields, remove them and retry
                 error_str = str(e)
+                logger.error(f"Update attempt error: {error_str}")  # Log the error for debugging
+                logger.error(f"Full exception details: {repr(e)}")
+                
+                # Special handling: if water_goal_glasses is in filtered_data and we get an error,
+                # try updating other fields first, then update water_goal_glasses separately
+                if "water_goal_glasses" in filtered_data:
+                    logger.warning("water_goal_glasses is in filtered_data, attempting to handle separately")
+                    water_goal = filtered_data.pop("water_goal_glasses")
+                    
+                    # Try updating other fields first
+                    try:
+                        if filtered_data:
+                            logger.info(f"Updating other fields (without water_goal_glasses): {filtered_data}")
+                            self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
+                            logger.info("Updated other fields successfully")
+                        
+                        # Now try to update water_goal_glasses separately
+                        logger.info(f"Updating water_goal_glasses separately to {water_goal}")
+                        self.supabase.table("health_profiles").update({"water_goal_glasses": water_goal}).eq("user_id", user_id).execute()
+                        logger.info(f"Updated water_goal_glasses to {water_goal} successfully")
+                        return True
+                    except Exception as e2:
+                        logger.error(f"Failed to update water_goal_glasses separately: {e2}")
+                        logger.error(f"Full exception for water_goal_glasses update: {repr(e2)}")
+                        # If that fails too, restore water_goal to filtered_data and raise original error
+                        filtered_data["water_goal_glasses"] = water_goal
+                        raise
+                
+                # Only retry without optional fields (NOT water_goal_glasses which should exist)
                 if "height_cm" in error_str or "weight_kg" in error_str or "gender" in error_str or "timezone" in error_str:
                     logger.warning(f"Schema cache issue with optional fields: {e}. Retrying without them.")
-                    # Remove optional fields that may not exist
+                    # Remove only the truly optional fields that may not exist
                     for field in ["height_cm", "weight_kg", "gender", "timezone"]:
                         filtered_data.pop(field, None)
                     
                     if filtered_data:
+                        logger.info(f"Retrying update without optional fields: {filtered_data}")
                         self.supabase.table("health_profiles").update(filtered_data).eq("user_id", user_id).execute()
+                        logger.info("Update succeeded after removing optional fields")
                         return True
                     else:
+                        logger.error("No valid profile fields to update after removing optional fields")
                         st.error("No valid profile fields to update")
                         return False
                 else:
+                    logger.error(f"Unhandled error in profile update: {error_str}")
                     raise
         except Exception as e:
-            st.error(f"Error updating health profile: {str(e)}")
-            logger.error(f"Failed to update health profile for user {user_id}: {str(e)}")
+            error_msg = f"Error updating health profile: {str(e)}"
+            logger.error(error_msg)
+            logger.error(f"Full exception: {repr(e)}")
+            st.error(error_msg)
             return False
     
     # ==================== MEAL LOGGING ====================

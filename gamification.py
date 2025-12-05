@@ -48,8 +48,8 @@ class GamificationManager:
         {
             "type": "water_goal",
             "name": "Hydration Hero",
-            "description": "Drink 8 glasses of water",
-            "target": 8,
+            "description": "Drink your daily water goal",
+            "target": 8,  # Default, will be overridden by user's water_goal_glasses
             "xp_reward": 30,
         },
     ]
@@ -67,7 +67,15 @@ class GamificationManager:
         # Generate new challenges
         challenges = []
         for template in GamificationManager.CHALLENGE_TEMPLATES:
-            challenges.append(template)
+            challenge = template.copy()  # Create a copy so we don't modify the template
+            
+            # Adapt Hydration Hero target to user's water goal
+            if challenge.get("type") == "water_goal":
+                user_water_goal = profile.get("water_goal_glasses", 8)
+                challenge["target"] = int(user_water_goal)
+                challenge["description"] = f"Drink {user_water_goal} glasses of water"
+            
+            challenges.append(challenge)
         
         # Create challenges in database
         db_manager.create_daily_challenges(user_id, today, challenges)
