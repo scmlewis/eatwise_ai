@@ -4832,46 +4832,47 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Add floating back-to-top button (anchor-based)
-st.markdown("""
-<style>
-.floating-back-to-top {
-    position: fixed;
-    bottom: 100px;
-    right: 25px;
-    z-index: 999;
-}
+# Add floating back-to-top button (anchor-based) but only show when authenticated
+if is_authenticated():
+    st.markdown("""
+    <style>
+    .floating-back-to-top {
+        position: fixed;
+        bottom: 100px;
+        right: 25px;
+        z-index: 999;
+    }
 
-.floating-back-to-top a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-    color: white;
-    border-radius: 50%;
-    text-decoration: none;
-    font-size: 1.8em;
-    box-shadow: 0 6px 20px rgba(16, 161, 157, 0.5);
-    transition: all 0.3s ease;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    line-height: 1;
-    font-weight: bold;
-}
+    .floating-back-to-top a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        color: white;
+        border-radius: 50%;
+        text-decoration: none;
+        font-size: 1.8em;
+        box-shadow: 0 6px 20px rgba(16, 161, 157, 0.5);
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        line-height: 1;
+        font-weight: bold;
+    }
 
-.floating-back-to-top a:hover {
-    transform: translateY(-8px) scale(1.1);
-    box-shadow: 0 10px 30px rgba(16, 161, 157, 0.7);
-    border-color: rgba(255, 255, 255, 0.5);
-}
+    .floating-back-to-top a:hover {
+        transform: translateY(-8px) scale(1.1);
+        box-shadow: 0 10px 30px rgba(16, 161, 157, 0.7);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
 
-.floating-back-to-top a:active {
-    transform: translateY(-4px) scale(1.05);
-}
-</style>
+    .floating-back-to-top a:active {
+        transform: translateY(-4px) scale(1.05);
+    }
+    </style>
 
-<div class="floating-back-to-top">
-    <a href="#app-top" title="Back to top">↑</a>
-</div>
-""", unsafe_allow_html=True)
+    <div class="floating-back-to-top">
+        <a href="#app-top" title="Back to top">↑</a>
+    </div>
+    """, unsafe_allow_html=True)
