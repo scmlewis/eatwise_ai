@@ -2789,6 +2789,9 @@ def insights_page():
     st.markdown("## 🎯 Your Nutrition Targets")
     
     if user_profile:
+        # Set end_date for nutrition summary
+        end_date = date.today()
+        
         # ===== PERSONALIZATION CONTEXT =====
         # Only render the context boxes when meaningful profile values exist.
         age_group = user_profile.get('age_group', 'N/A')
