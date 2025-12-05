@@ -2541,20 +2541,52 @@ def show_meal_quality(meals):
     
     if sorted_meals:
         best_worst_col1, best_worst_col2 = st.columns(2)
-        
+
+        # Left: Healthiest Meals (styled container)
         with best_worst_col1:
-            st.markdown("### ✅ Healthiest Meals")
-            for idx, meal in enumerate(sorted_meals[:3], 1):
+            healthiest = sorted_meals[:3]
+            items_html = ""
+            for idx, meal in enumerate(highest := healthiest, 1):
+                name = meal.get('meal_name', 'Unknown')
                 score = meal.get('healthiness_score', 0)
-                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
-                st.caption(meal.get('description', 'N/A')[:100])
-        
+                desc = meal.get('description', 'N/A')
+                items_html += f"<li style='margin-bottom:12px;'>\n"
+                items_html += f"<div style='font-weight:700; font-size:16px; color:#e0f2f1;'>{idx}. {name} - <span style='font-weight:900;'>{score}/100</span></div>\n"
+                items_html += f"<div style='color:#97a7a3; font-size:13px; margin-top:6px;'>{desc}</div>\n"
+                items_html += "</li>\n"
+
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, rgba(16,161,157,0.03) 0%, rgba(81,207,102,0.015) 100%); border:1px solid rgba(16,161,157,0.08); border-radius:12px; padding:18px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <div style="font-size:20px;">✅</div>
+                    <div style="font-size:18px; font-weight:800; color:#e0f2f1;">Healthiest Meals</div>
+                </div>
+                <ol style="padding-left:18px; margin:0;">{items_html}</ol>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Right: Meals to Improve (styled container)
         with best_worst_col2:
-            st.markdown("### ⚠️ Meals to Improve")
-            for idx, meal in enumerate(reversed(sorted_meals[-3:]), 1):
+            to_improve = list(reversed(sorted_meals[-3:]))
+            items_html = ""
+            for idx, meal in enumerate(to_improve, 1):
+                name = meal.get('meal_name', 'Unknown')
                 score = meal.get('healthiness_score', 0)
-                st.write(f"{idx}. **{meal.get('meal_name')}** - Score: {score}/100")
-                st.caption(meal.get('description', 'N/A')[:100])
+                desc = meal.get('description', 'N/A')
+                items_html += f"<li style='margin-bottom:12px;'>\n"
+                items_html += f"<div style='font-weight:700; font-size:16px; color:#e0f2f1;'>{idx}. {name} - <span style='font-weight:900;'>{score}/100</span></div>\n"
+                items_html += f"<div style='color:#97a7a3; font-size:13px; margin-top:6px;'>{desc}</div>\n"
+                items_html += "</li>\n"
+
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, rgba(255,193,7,0.03) 0%, rgba(255,87,34,0.015) 100%); border:1px solid rgba(255,193,7,0.08); border-radius:12px; padding:18px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <div style="font-size:20px;">⚠️</div>
+                    <div style="font-size:18px; font-weight:800; color:#e0f2f1;">Meals to Improve</div>
+                </div>
+                <ol style="padding-left:18px; margin:0;">{items_html}</ol>
+            </div>
+            """, unsafe_allow_html=True)
 
 
 def show_meal_recommendations(user_profile, meals, today_nutrition, targets):
