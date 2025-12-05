@@ -2818,7 +2818,7 @@ def insights_page():
             with context_cols[1]:
                 st.markdown(f"""
                 <div style="
-                    background: linear-gradient(135deg, #EC4899 20 0%, #F472B620 100%);
+                    background: linear-gradient(135deg, #EC489920 0%, #F472B640 100%);
                     border: 1px solid #EC4899;
                     border-radius: 10px;
                     padding: 12px 16px;
@@ -2848,7 +2848,7 @@ def insights_page():
                 health_conditions = ', '.join(health_conditions_list) or 'None'
                 st.markdown(f"""
                 <div style="
-                    background: linear-gradient(135deg, #8B5CF620 0%, #D97706 40 100%);
+                    background: linear-gradient(135deg, #8B5CF620 0%, #A78BFA40 100%);
                     border: 1px solid #8B5CF6;
                     border-radius: 10px;
                     padding: 12px 16px;
