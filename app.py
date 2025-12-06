@@ -40,6 +40,9 @@ from utils import (
     get_earned_badges, build_nutrition_by_date, paginate_items,
     show_skeleton_loader, render_icon, get_nutrition_icon
 )
+from portion_estimation_disclaimer import (
+    assess_input_confidence, show_estimation_disclaimer, show_estimation_tips
+)
 
 
 def normalize_profile(profile: dict) -> dict:
@@ -2043,10 +2046,45 @@ def meal_logging_page():
     3. **Batch Log** - Log multiple meals for past days
     """)
     
+    # Quick reference help section
+    with st.expander("📖 Portion Estimation Guide - How We Estimate Meals", expanded=False):
+        st.markdown("""
+        ### Accuracy Levels
+        
+        **HIGH (±15%)** - You provide exact measurements
+        - "150g chicken, 200g rice, 1 tbsp oil"
+        
+        **MEDIUM (±20-25%)** - You describe portions generally  
+        - "A bowl of rice with some chicken"
+        
+        **MEDIUM-LOW (±30-35%)** - Vague descriptions
+        - "Some chicken and rice"
+        
+        **LOW (±40-50%)** - Photos without portion details
+        - Photo only, no text description
+        
+        ### How to Improve Accuracy
+        - **Use specific measurements:** grams, cups, tablespoons, not "some"
+        - **Specify cooking method:** "grilled" vs "fried" (huge calorie difference!)
+        - **Include condiments:** "2 tbsp olive oil dressing" not "with dressing"
+        - **For photos:** Include a reference object (coin, hand, utensil) for scale
+        - **List ingredients separately:** Not "stir fry" but "chicken + rice + vegetables"
+        
+        👉 See the full guide in Settings → Help → Portion Estimation Guide
+        """)
+    
     tab1, tab2, tab3 = st.tabs(["📝 Text", "📸 Photo", "📅 Batch Log"])
     
     with tab1:
         st.markdown("## Describe Your Meal")
+        
+        st.info("""
+        📝 **Tips for best results:**
+        - Be specific with portion sizes (e.g., "150g chicken" not "some chicken")
+        - Mention cooking methods (grilled vs fried affects calories)
+        - Include all components (protein, carbs, fats, condiments)
+        - Example: "Grilled 150g chicken breast, 200g brown rice, 100g broccoli, 1 tbsp olive oil"
+        """)
         
         meal_description = st.text_area(
             "What did you eat? (Be as detailed as you'd like)",
@@ -2062,6 +2100,8 @@ def meal_logging_page():
         
         if st.button("Analyze Meal", use_container_width=True):
             if meal_description:
+                # Store description for confidence assessment
+                st.session_state.meal_description = meal_description
                 with st.spinner("🤖 Analyzing your meal..."):
                     analysis = nutrition_analyzer.analyze_text_meal(meal_description, meal_type)
                     
@@ -2082,6 +2122,14 @@ def meal_logging_page():
             
             st.markdown(f"### {analysis.get('meal_name', 'Meal')}")
             st.write(analysis.get('description', ''))
+            
+            # Show confidence level and disclaimer for text input
+            if "meal_description" in st.session_state:
+                confidence_level = assess_input_confidence(st.session_state.get("meal_description", ""), has_photo=False)
+                st.session_state.text_confidence_level = confidence_level
+                show_estimation_disclaimer(st, confidence_level, input_type="text")
+            elif "text_confidence_level" in st.session_state:
+                show_estimation_disclaimer(st, st.session_state.text_confidence_level, input_type="text")
             
             col1, col2 = st.columns([3, 1])
             
@@ -2145,6 +2193,15 @@ def meal_logging_page():
     with tab2:
         st.markdown("## Upload Food Photo")
         
+        st.info("""
+        📸 **Photo tips for best results:**
+        - Include a reference object for scale (coin, utensil, hand)
+        - Photograph from above at ~45° angle
+        - Use natural lighting for clarity
+        - Include all food items in the frame
+        - Add text description of portions if possible for better accuracy
+        """)
+        
         uploaded_file = st.file_uploader(
             "Choose a food photo",
             type=["jpg", "jpeg", "png"],
@@ -2188,10 +2245,14 @@ def meal_logging_page():
             for food in analysis.get('detected_foods', []):
                 st.write(f"- {food['name']} ({food['quantity']})")
             
+            # Show confidence level and disclaimer for photo input
+            confidence_level = assess_input_confidence(text_description="", has_photo=True)
+            show_estimation_disclaimer(st, confidence_level, input_type="photo")
+            
             # Display nutrition
             show_nutrition_facts(analysis['total_nutrition'], show_label=True)
             
-            st.info(f"**Confidence:** {analysis.get('confidence', 0)}%")
+            st.info(f"**AI Confidence:** {analysis.get('confidence', 0)}%")
             st.info(f"**Notes:** {analysis.get('notes', 'N/A')}")
             
             # Date selector - ask RIGHT BEFORE saving
@@ -4261,7 +4322,7 @@ def help_page():
     """, unsafe_allow_html=True)
     
     # Create tabs for different sections
-    tab1, tab2, tab3, tab4 = st.tabs(["About", "Features", "How to Use", "FAQ"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["About", "Features", "How to Use", "Portion Estimation", "FAQ"])
     
     with tab1:
         st.markdown("## About EatWise")
@@ -4427,6 +4488,179 @@ def help_page():
         - 🎯 Special Recommendations: Lowest calorie, highest protein, etc.
         - 💡 Modification Tips: How to order healthier versions
         - 📊 Nutrition Cards: Beautiful breakdown of each meal option
+        """)
+    
+    with tab5:
+        st.markdown("## Portion Estimation Guide")
+        
+        st.markdown("""
+        EatWise uses AI to analyze your meals from text descriptions or photos. However, **the accuracy depends on how clearly you describe or photograph your food**.
+        
+        ### Confidence Levels
+        """)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            **HIGH CONFIDENCE (±15%)**
+            - You provide exact measurements
+            - Example: "150g chicken, 200g rice, 1 tbsp oil"
+            - Best accuracy
+            
+            **MEDIUM CONFIDENCE (±20-25%)**
+            - General portion descriptions
+            - Example: "A bowl of rice with chicken"
+            - Good accuracy
+            """)
+        
+        with col2:
+            st.markdown("""
+            **MEDIUM-LOW CONFIDENCE (±30-35%)**
+            - Vague descriptions
+            - Example: "Some rice and chicken"
+            - Fair accuracy
+            
+            **LOW CONFIDENCE (±40-50%)**
+            - Photos without portion details
+            - Example: Photo with no text
+            - Requires careful review
+            """)
+        
+        st.markdown("### How to Improve Accuracy")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            **For Text Descriptions:**
+            
+            ✓ Use specific measurements
+            - "150g chicken" not "some chicken"
+            - "2 tbsp olive oil" not "oil"
+            - "1 cup rice" not "rice"
+            
+            ✓ Specify cooking method
+            - "Grilled" vs "Fried" (huge calorie difference!)
+            - "Pan-sautéed in 1 tbsp oil"
+            
+            ✓ Include all ingredients
+            - List each separately
+            - Don't forget sauces/dressings
+            
+            ✓ Example good input:
+            "Grilled 150g chicken breast, 200g brown rice, 100g broccoli, 1 tbsp olive oil"
+            """)
+        
+        with col2:
+            st.markdown("""
+            **For Food Photos:**
+            
+            ✓ Include a size reference
+            - Coin, credit card, or hand in photo
+            - Helps estimate actual portions
+            
+            ✓ Use good lighting
+            - Natural light works best
+            - Clear visibility of all items
+            
+            ✓ Take from 45° angle
+            - Can see both area and depth
+            - Better than top-down or side view
+            
+            ✓ Add text description
+            - "150g chicken, 1 cup rice"
+            - Much more accurate than photo alone
+            
+            ✓ Example good photo:
+            Photo of plate with coin/hand for scale + text "150g grilled chicken, 200g brown rice"
+            """)
+        
+        st.markdown("### Estimation Rules")
+        
+        with st.expander("📝 Text Input Rules", expanded=True):
+            st.markdown("""
+            **Specific Measurements = HIGH Accuracy**
+            - Weight: 150g, 400g, 2 oz, 1 lb
+            - Volume: 1 cup, 200ml, 2 tbsp, 1 L
+            - Count: 2 eggs, 3 slices, 1 piece
+            - Size: "medium apple", "large banana"
+            
+            **Portion Descriptors = MEDIUM Accuracy**
+            - "A bowl of" → ~250-350g
+            - "A plate of" → ~300-400g
+            - "A serving" → standard USDA serving
+            - "A handful" → ~50-100g
+            
+            **Cooking Methods MATTER**
+            - Grilled/Baked: baseline
+            - Boiled/Steamed: -10% calories
+            - Pan-fried: +20% calories
+            - Deep-fried: +50-100% calories
+            - With oil/butter: specify amount!
+            
+            **Common Mistakes to Avoid**
+            - ✗ Saying "with dressing" instead of "2 tbsp dressing"
+            - ✗ Describing mixed dishes without listing components
+            - ✗ Forgetting cooking fats (oil, butter)
+            - ✗ Using "some" instead of specific amounts
+            """)
+        
+        with st.expander("📷 Photo Input Rules", expanded=False):
+            st.markdown("""
+            **Size References Help Most**
+            - Plate diameter: ~25cm (standard)
+            - Utensils: fork ~17cm
+            - Coin: quarter ~17mm
+            - Hand: ~8-10cm wide
+            
+            **Best Photo Angles**
+            - 45° angle: Best (see area + depth)
+            - Top-down: Okay but tends to under-estimate
+            - Side view: Can see depth but not area
+            
+            **What Affects Accuracy**
+            - Lighting: Bright is better than shadows
+            - Focus: Sharp photo > blurry photo
+            - Timing: Before eating > after eating
+            - Components: Clear separation > mixed/blended
+            
+            **Photo Quality Checklist**
+            - [ ] All food items visible
+            - [ ] Reference object included (coin/hand)
+            - [ ] Good natural lighting
+            - [ ] Sharp focus
+            - [ ] 45° angle
+            - [ ] Text description added if possible
+            """)
+        
+        st.markdown("### Why Accuracy Matters")
+        
+        st.markdown("""
+        **Single Meal:** Variation of ±30-40% is normal and acceptable
+        
+        **Weekly Average:** Variation reduces to ±15% - very reliable
+        
+        **Monthly Patterns:** Variation reduces to ±5-10% - highly reliable
+        
+        **Why?** Random overestimates and underestimates cancel out over time!
+        
+        ### Key Takeaway
+        
+        Even with uncertainty in individual meals, **tracking patterns over weeks and months reveals reliable trends**. The most important thing is to log consistently!
+        """)
+        
+        # Link to full guide
+        st.info("""
+        📖 **Want more details?**
+        
+        See the full Portion Estimation Guide for:
+        - Detailed estimation rules
+        - Examples for each confidence level
+        - Tips and best practices
+        - Food-specific guidance
+        
+        The guide is included in the app repository.
         """)
     
     with tab4:
