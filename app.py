@@ -2142,8 +2142,21 @@ def meal_logging_page():
             - Sauce: 2-3 tbsp = 30-45g
             """)
         
+        # Add prominent warning box right before text input
+        st.warning("""
+        ⚠️ **IMPORTANT - Accuracy depends on how detailed you are:**
+        
+        **SPECIFIC (±15% accurate):** "150g grilled chicken breast, 200g brown rice, 100g broccoli"
+        
+        **GENERAL (±25% accurate):** "chicken with rice and vegetables"
+        
+        **VAGUE (±40-50% accurate):** "some chicken and rice"
+        
+        📌 **Tip:** Include weights, portion sizes, and cooking methods for best results!
+        """)
+        
         meal_description = st.text_area(
-            "What did you eat? (Be as detailed as you'd like)",
+            "What did you eat? (Be as detailed as you'd like) 📝",
             placeholder="E.g., 150g grilled chicken breast, 200g brown rice, 100g steamed broccoli, 1 tbsp olive oil, 1 glass of milk",
             height=150
         )
