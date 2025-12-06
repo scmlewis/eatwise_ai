@@ -3272,12 +3272,10 @@ def meal_history_page():
             with pag_col1:
                 if st.button(f"⬅️ Previous ({current_page}/{total_pages})", key="prev_bottom", disabled=(st.session_state.pagination_page == 0), use_container_width=True):
                     st.session_state.pagination_page -= 1
-                    st.rerun()
             
             with pag_col2:
                 if st.button(f"Next ({current_page}/{total_pages}) ➡️", key="next_bottom", disabled=(st.session_state.pagination_page >= total_pages - 1), use_container_width=True):
                     st.session_state.pagination_page += 1
-                    st.rerun()
 
 
 def profile_page():
@@ -3895,7 +3893,6 @@ def coaching_assistant_page():
                 clear_button = st.form_submit_button("🔄 Clear", key="clear_coaching_btn", use_container_width=True)
                 if clear_button:
                     st.session_state.coaching_conversation = []
-                    st.rerun()
         
         # Handle message sending
         if send_button and user_input.strip():
