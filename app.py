@@ -2078,86 +2078,70 @@ def meal_logging_page():
     with tab1:
         st.markdown("## Describe Your Meal")
         
-        # Enhanced instructions with detailed guidance - collapsible
-        with st.expander("📋 How to describe your meal for best accuracy", expanded=False):
-            st.markdown("""
-            **What to include:**
-            - Main ingredients (proteins, carbs, vegetables)
-            - Specific portion sizes or weights if you know them
-            - Cooking method (grilled, fried, boiled, baked, steamed)
-            - Any sauces, oils, or seasonings used
-            - Beverages consumed with the meal
-            
-            **Be specific about portions:**
-            - ✅ Good: "150g grilled chicken breast, 200g white rice, 100g mixed vegetables"
-            - ❌ Avoid: "Some chicken with rice" (too vague)
-            - If you don't know the weight: "medium chicken breast" or "2 cups rice"
-            
-            **How accuracy affects your nutrition tracking:**
-            - High accuracy: Exact measurements (grams/cups/ml) → ±15% estimation range
-            - Good accuracy: Descriptive portions (medium, large) → ±25% estimation range
-            - Lower accuracy: Very vague descriptions → ±40-50% estimation range
-            """)
-        
-        st.info("""
-        📝 **Quick Tips:**
-        - Be specific with portion sizes (e.g., "150g chicken" not "some chicken")
-        - Mention cooking methods (grilled vs fried affects calories)
-        - Include all components (protein, carbs, fats, condiments)
-        - **Example:** "Grilled 150g chicken breast, 200g brown rice, 100g broccoli, 1 tbsp olive oil"
-        
-        💡 **Not sure about portion size?** Don't worry! You can estimate using:
-        - Your hand/fist for serving sizes
-        - Household items (cup, spoon, plate)
-        - Visual comparison with common objects
+        # CRITICAL: Warning box first to set expectations
+        st.warning("""
+        ⚠️ **How detailed you are = How accurate the results are:**
+        - **SPECIFIC** (±15%): "150g grilled chicken, 200g brown rice, 100g broccoli"
+        - **GENERAL** (±25%): "chicken with rice and vegetables"  
+        - **VAGUE** (±40-50%): "some chicken and rice"
         """)
         
-        # Add collapsible section with common portion examples
-        with st.expander("📚 **Common Portion Size Examples**", expanded=False):
+        # Quick reference section (always visible, concise)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("""
+            **📝 What to include:**
+            - Main ingredients & portions
+            - Cooking method
+            - Sauces/oils/seasonings
+            """)
+        with col2:
+            st.markdown("""
+            **💡 Quick Tips:**
+            - Use grams/cups when possible
+            - "medium chicken" better than "some chicken"
+            - Don't forget drinks & extras
+            """)
+        
+        # Expandable detailed guidance
+        with st.expander("📚 Common Portion Size Examples", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("""
-                **Protein Sources:**
-                - Chicken breast: 100-200g per serving
-                - Fish fillet: 100-150g per serving
-                - Egg: 1 large = 50g
-                - Cheese: 30-50g per serving
-                - Tofu: 150-200g per serving
+                **Proteins:**
+                - Chicken breast: 100-200g
+                - Fish: 100-150g
+                - Egg: 50g
+                - Cheese: 30-50g
                 """)
             with col2:
                 st.markdown("""
-                **Grains & Carbs:**
-                - Rice (cooked): 150-200g per serving
-                - Bread: 1 slice = 30-35g
-                - Pasta (cooked): 150-200g per serving
+                **Grains:**
+                - Rice (cooked): 150-200g
+                - Bread: 1 slice = 30g
+                - Pasta: 150-200g
                 - Potato: 1 medium = 150g
-                - Oats (dry): 40-50g per serving
                 """)
+        
+        with st.expander("🎯 Detailed Guidelines", expanded=False):
             st.markdown("""
-            **Vegetables & Sides:**
-            - Broccoli: 100-150g per serving
-            - Salad: 2 cups = ~100g
-            - Oil/Butter: 1 tbsp = 15g
-            - Sauce: 2-3 tbsp = 30-45g
+            **Be specific about portions:**
+            - ✅ Good: "150g grilled chicken breast, 200g white rice, 100g mixed vegetables"
+            - ❌ Avoid: "Some chicken with rice" (too vague)
+            - Unsure? Use: "medium chicken breast" or "2 cups rice"
+            
+            **If you don't know exact weight:**
+            - Use your hand/fist for serving sizes
+            - Household items: cup, spoon, plate
+            - Visual comparison with common objects
             """)
         
-        # Add prominent warning box right before text input
-        st.warning("""
-        ⚠️ **IMPORTANT - Accuracy depends on how detailed you are:**
-        
-        **SPECIFIC (±15% accurate):** "150g grilled chicken breast, 200g brown rice, 100g broccoli"
-        
-        **GENERAL (±25% accurate):** "chicken with rice and vegetables"
-        
-        **VAGUE (±40-50% accurate):** "some chicken and rice"
-        
-        📌 **Tip:** Include weights, portion sizes, and cooking methods for best results!
-        """)
+        st.markdown("---")
         
         meal_description = st.text_area(
             "What did you eat? (Be as detailed as you'd like) 📝",
-            placeholder="E.g., 150g grilled chicken breast, 200g brown rice, 100g steamed broccoli, 1 tbsp olive oil, 1 glass of milk",
-            height=150
+            placeholder="E.g., 150g grilled chicken breast, 200g brown rice, 100g steamed broccoli, 1 tbsp olive oil",
+            height=120
         )
         
         meal_type = st.selectbox(
@@ -2165,16 +2149,6 @@ def meal_logging_page():
             options=list(MEAL_TYPES.keys()),
             format_func=lambda x: MEAL_TYPES.get(x, x)
         )
-        
-        # Disclaimer before analysis
-        st.markdown("""
-        ---
-        ⚠️ **Accuracy Disclaimer:**
-        - More specific descriptions = More accurate nutrition estimates
-        - Vague descriptions may have ±40-50% accuracy variance
-        - Use exact weights/measurements when possible for best results
-        - If unsure, make your best estimate - we'll show you the confidence level after analysis
-        """)
         
         if st.button("Analyze Meal", use_container_width=True):
             if meal_description:
