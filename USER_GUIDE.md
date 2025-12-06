@@ -2,6 +2,8 @@
 
 Welcome to EatWise! This guide covers all features and how to use them effectively.
 
+**Last Updated:** December 06, 2025 (v2.6.2)
+
 ## Table of Contents
 1. [Getting Started](#getting-started)
 2. [Dashboard Overview](#dashboard-overview)
@@ -107,6 +109,11 @@ Four rotating daily challenges with progress tracking:
 - Quick view of nutrition per meal
 - Meal type indicator (breakfast, lunch, dinner, snack)
 
+#### 7. Nutrition Breakdown & Insights
+- Single-column Nutrition Breakdown: Today's macro balance and nutrition targets are shown in a single full-width section for easier reading.
+- Most Frequent Meal: A compact insight shows the meal you've logged most often today (if any).
+- Meal Quality: Ranked lists of your healthiest meals and meals to improve are presented as styled cards.
+
 ---
 
 ## Meal Logging
@@ -134,6 +141,13 @@ Four rotating daily challenges with progress tracking:
 - Mention sauces and dressings
 - Log as soon as you can remember details
 - For packaged foods, include the brand name
+
+### Validation & Error Handling
+
+The app validates common nutrition inputs to prevent incorrect entries. When you save a meal:
+- If required nutrition fields are missing or values look implausible (negative numbers, extremely large values), the app will show a validation message and highlight the problematic fields.
+- Correct the highlighted fields and re-submit. This prevents bad data from impacting your analytics and streaks.
+- If you see unexpected behavior, check the Help page (❓) or open a GitHub issue with a reproducible example.
 
 ### Method 2: Photo Recognition 📸
 
@@ -195,6 +209,10 @@ Four rotating daily challenges with progress tracking:
   - Dinner
   - Snacks
 - Visual pie chart
+
+#### Meal Quality & Nutrition Breakdown
+- Meal Quality: Ranked lists of your healthiest meals and items to improve are available in the Insights/Analytics sections and shown as styled cards for quick scanning.
+- Nutrition Breakdown: A single-column Nutrition Breakdown section shows today's macro balance and targets in a full-width view for clarity.
 
 #### Statistics
 - Average daily calories
