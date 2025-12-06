@@ -28,53 +28,40 @@ All detailed documentation has been organized in the `docs/` folder for better m
 - `docs/guides/` - Developer guides and component documentation
 - `docs/setup/` - Deployment and setup instructions
 
-## 🎯 Key Features
+## 🎯 Key Features (Updated)
 
-### 1. **Smart Meal Logging**
-Log meals using text descriptions or food photos with AI-powered nutritional analysis.
+- Smart Meal Logging: text descriptions or food photos with AI-powered ingredient detection and hybrid nutrition estimation.
+- Nutrition Tracking: calories, macronutrients and micronutrient tracking with daily summaries and targets.
+- AI Health Insights: personalized recommendations, strengths/areas-to-improve, and weekly pattern analysis.
+- Personalized Coaching: context-aware AI coach with multi-turn conversations and on-demand guidance.
+- Restaurant Menu Analyzer: paste or upload menus (OCR supported) with tailored ordering suggestions.
+- Visual Analytics: responsive, single-column nutrition breakdown, macro pie charts, and historical trends.
+- Meal Quality & Insights: ranked healthiest meals and items to improve, presented as compact, styled cards.
+- Gamification: XP, badges, daily streaks and lightweight challenges to boost engagement.
 
-### 2. **Nutrition Tracking**
-Track calories, protein, carbs, fats, and other nutrients with instant feedback.
-
-### 3. **AI Health Insights**
-Get personalized recommendations based on your eating patterns and health profile.
-
-### 4. **Personalized Coaching** 🎯
-Chat with your AI nutrition coach for real-time guidance, pattern analysis, and daily tips.
-
-### 5. **Restaurant Menu Analyzer** 🍽️
-Paste or upload restaurant menus to get personalized healthy meal recommendations before dining out.
-
-### 6. **Analytics & Trends**
-Visualize your nutrition data with interactive charts and detailed insights.
-
-### 7. **Gamification**
-Earn badges and track streaks to stay motivated on your health journey.
+Note: This documentation focuses on the current stable features and recent UI/UX improvements — older experimental or deprecated features have been removed.
 
 ## 🚀 Getting Started
 
 1. **Read** [README.md](README.md) for installation and basic setup
 2. **Run** `streamlit run app.py` to start the application
 3. **Create** your profile in the app
-4. **Log** your first meal
-5. **Check** the Help page (❓) in the app for detailed usage instructions
-6. **Use** the Coaching feature (🎯) for personalized guidance
+4. **Log** your first meal (text or photo)
+5. **Open** the in-app Help page (❓) for quick tips and FAQ
+6. **Use** the Coaching feature (🎯) for on-demand personalized guidance
 
 ## 📊 Project Status
 
-**Current Version**: v2.6.0  
-**Latest Update**: November 25, 2025
+**Current Version**: v2.6.2  
+**Latest Update**: December 06, 2025
 
-### Recent Features (November 2025)
-- ✅ Gamification System (XP, levels, daily challenges, weekly goals)
-- ✅ Streamlit 1.40+ compatibility (updated deprecated parameters)
-- ✅ Restaurant Menu Analyzer with OCR photo upload
-- ✅ Nutrition cards with gradient styling
-- ✅ AI Nutrition Coaching System
-- ✅ Responsive chat interface
-- ✅ 7-day pattern analysis
-- ✅ Real-time meal guidance
-- ✅ Daily coaching tips
+### Recent Changes (Dec 2025)
+- UI/UX improvements: single-column Nutrition Breakdown, compact Most-Frequent-Meal insight, Meal Quality cards
+- Performance: reduced unnecessary full-app reruns (`st.rerun()` minimization) and session-state optimizations
+- Validation: added server-side and client-side meal validation to prevent bad entries
+- Code refactor: extracted common helpers (`show_nutrition_facts`, `validate_meal_data`, stat cards)
+- Bug fixes: profile-update UnboundLocalError fix, back-to-top hidden on login, sidebar reorganization
+- Existing: OCR menu analyzer, AI coaching, gamification, nutrition analytics remain supported
 
 ### Verified Features
 - ✅ Meal logging (text & photo)
@@ -116,7 +103,7 @@ Once logged in, you'll see these pages:
 
 ---
 
-**Last Updated**: November 25, 2025  
-**Documentation Version**: v2.0
+**Last Updated**: December 06, 2025  
+**Documentation Version**: v2.1
 
 For the most up-to-date information, see [docs/INDEX.md](docs/INDEX.md) or visit our GitHub repository.

@@ -4284,7 +4284,7 @@ def help_page():
         - **Deployment**: Streamlit Cloud
         
         ### Version
-        **v1.0.0** - Initial Release
+        **v2.6.2** - Latest stable release (Dec 06, 2025)
         """)
     
     with tab2:
@@ -4624,7 +4624,7 @@ def help_page():
     - **Report Issues**: Create an issue on GitHub
     
     ---
-    **Last Updated**: November 21, 2025 (v1.1.0 - Added AI Nutrition Coaching)
+    **Last Updated**: December 06, 2025 (v2.6.2)
     """)
 
 
