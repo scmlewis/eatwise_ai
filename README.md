@@ -2,105 +2,394 @@
 
 A Streamlit-based personalized nutrition assistant that helps busy professionals track, understand, and optimize their daily meals using AI.
 
-## 🌟 Features
+**Status**: ✅ **Active Development** | Latest: Portion Estimation System & UX Improvements
 
-### 1. **Smart Meal Logging**
-- **Text-based logging**: Describe your meal in natural language
-- **Photo-based logging**: Upload photos for automatic food recognition
-- AI-powered meal analysis using OpenAI
+---
 
-### 2. **Nutritional Analysis**
+## 🌟 Key Features
+
+### 1. **Smart Meal Logging** 📝
+- **Text-based logging**: Describe your meal in natural language with accuracy guidance
+- **Photo-based logging**: Upload food photos for automatic recognition
+- **Portion estimation system**: Clear accuracy ranges (±15% to ±50%) based on description detail
+- **Hybrid Nutrition System**: AI detection + USDA database for maximum accuracy
+
+### 2. **Nutritional Analysis** 📊
 - Instant nutritional breakdown (calories, protein, carbs, fats, sodium, sugar, fiber)
-- Healthiness scoring
-- Health recommendations for each meal
-- **Hybrid Nutrition System**: Combines AI ingredient detection with USDA-based food database for maximum accuracy
-  - Database lookup ensures precise nutrition values for 100+ common foods
-  - Intelligent fallback estimation for less common ingredients
-  - Real-time coverage reporting showing database vs. estimated foods
-  - USDA-validated nutrition data for complete accuracy
+- Healthiness scoring (0-100) with health recommendations
+- Confidence levels for estimation accuracy
+- USDA-validated nutrition data
 
-### 3. **Habit Tracking**
-- Daily nutrition summary
-- Weekly and monthly trends
-- Meal type distribution analysis
-- Logging streaks and statistics
+### 3. **Habit Tracking** 📈
+- Daily nutrition summary & progress bars
+- Weekly and monthly trend analysis
+- Meal type distribution insights
+- Logging streaks & statistics
 
-### 4. **Personalized Suggestions**
-- AI-powered meal recommendations based on:
-  - Recent eating habits
-  - Age group
-  - Health conditions
-  - Dietary preferences
-  - Health goals
-- 7-day personalized meal plans
+### 4. **AI-Powered Coaching** 🎯
+- Multi-turn conversational coaching
+- Real-time meal feedback & suggestions
+- 7-day eating pattern analysis with insights
+- Personalized nutrition Q&A
 
-### 5. **Health Insights**
-- Pattern analysis of eating habits
-- Red-flag detection for concerning patterns
-- Strength and improvement area identification
-- Motivational coaching
+### 5. **Restaurant Menu Analyzer** 🍽️
+- Paste menu text or upload menu photos (OCR)
+- AI-powered personalized recommendations
+- Flags items to avoid based on health profile
+- Modification suggestions for healthier ordering
 
-### 6. **AI Nutrition Coaching** 🎯
-- **Multi-turn conversational coaching** with your AI nutrition coach
-- **Real-time meal guidance** - Get feedback on meals as you log them
-- **Pattern analysis** - 7-day eating pattern insights with strengths and improvement areas
-- **Personalized Q&A** - Ask nutrition questions tailored to your health profile
-- **Daily coaching tips** - Motivational, actionable nutrition advice
-- **Meal alternatives** - Discover healthier swaps for your favorite foods
-- All coaching is personalized based on your health conditions, goals, and dietary preferences
+### 6. **Gamification System** 🎮
+- XP & leveling system
+- 4 daily challenges (Meal Logger, Calorie Control, Protein Power, Hydration Hero)
+- Streaks & achievement badges
+- Weekly nutrition goals
 
-### 7. **Restaurant Menu Analyzer** 🍽️
-- **Menu Text Analysis** - Paste restaurant menus for personalized recommendations
-- **Photo Upload & OCR** - Upload menu photos and extract text automatically
-- **Healthy Recommendations** - AI identifies best options based on your profile
-- **Items to Avoid** - Flags problematic items for your health goals
-- **Special Recommendations** - Highlights lowest-calorie, highest-protein, etc. options
-- **Modification Suggestions** - Get tips on how to order healthier versions
-- **Nutrition Cards** - Beautiful visual breakdown of each meal option
+### 7. **Health Insights** 💡
+- Personalized meal recommendations
+- 7-day meal plan generation
+- Pattern analysis with strengths & improvement areas
+- Motivational coaching messages
 
-### 8. **Gamification System** 🎮
-- **XP & Leveling** - Earn XP with every meal, progress through levels
-- **Daily Challenges** (4 types) - Meal Logger, Calorie Control, Protein Power, Hydration Hero
-- **Weekly Goals** - Complete 5 days of nutrition goals for 200 XP bonus
-- **Streaks** - Track current & longest consecutive logging days
-- **Achievement Badges** - Unlock badges for milestones (Early Bird, Night Owl, Streak Warrior, etc.)
-- **Progress Tracking** - Real-time challenge progress bars and goal completion
-- **Motivational Notifications** - Celebrate milestones and encourage continued engagement
+---
 
 ## 📋 Project Structure
 
 ```
 eatwise_ai/
-├── app.py                      # Main Streamlit application
-├── auth.py                     # Authentication module
-├── database.py                 # Supabase database operations
-├── nutrition_analyzer.py       # AI-powered food analysis & recognition
-├── nutrition_database.py       # USDA-based food nutrition database (100+ foods)
-├── hybrid_nutrition_analyzer.py # Hybrid system: AI detection + database accuracy
-├── recommender.py              # AI recommendation engine
-├── coaching_assistant.py       # AI nutrition coaching
-├── restaurant_analyzer.py      # Restaurant menu analysis
-├── gamification.py             # Gamification system (XP, challenges, streaks)
-├── config.py                   # Configuration & nutrition targets
-├── constants.py                # App constants & translations
-├── utils.py                    # Utility functions
-├── nutrition_components.py     # UI components for nutrition
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-├── DOCUMENTATION.md            # Detailed feature documentation
-├── GAMIFICATION_SUMMARY.md     # Gamification implementation details
-├── PRESENTATION_OUTLINE.md     # Presentation slides outline
-├── .env.example                # Environment variables template
-├── .gitignore                  # Git ignore file
-├── assets/                     # Images and static files
-├── docs/                       # Documentation and guides
-│   ├── guides/                 # User guides and tutorials
-│   └── setup/                  # Deployment and setup guides
-└── scripts/                    # Database and setup scripts
-    ├── database_setup.sql      # Supabase schema setup
-    ├── gamification_migration.sql # Gamification tables migration
-    └── create_missing_profiles.py # Profile creation script
+├── Core Application
+│   ├── app.py                           # Main Streamlit app
+│   ├── auth.py                          # Authentication
+│   ├── database.py                      # Supabase operations
+│   └── config.py                        # Configuration & targets
+│
+├── Nutrition & Analysis
+│   ├── nutrition_analyzer.py            # AI-powered meal analysis
+│   ├── hybrid_nutrition_analyzer.py     # Hybrid: AI + DB lookup
+│   ├── nutrition_database.py            # USDA food database (100+ foods)
+│   ├── portion_estimation_disclaimer.py # Portion confidence system
+│   ├── restaurant_analyzer.py           # Restaurant menu analysis
+│   ├── recommender.py                   # Meal recommendation engine
+│   └── nutrition_components.py          # UI components
+│
+├── Features
+│   ├── gamification.py                  # XP, challenges, streaks, badges
+│   ├── coaching_assistant.py            # AI nutrition coach
+│   └── utils.py                         # Utility functions
+│
+├── Documentation
+│   ├── README.md                        # This file
+│   ├── ARCHITECTURE.md                  # System design & architecture
+│   ├── CHANGELOG.md                     # Recent changes & updates
+│   ├── DOCUMENTATION.md                 # Feature documentation
+│   ├── PORTION_ESTIMATION_GUIDE.md      # Portion estimation methodology
+│   └── docs/                            # Guides, setup, & archives
+│       ├── guides/                      # User guides & tutorials
+│       ├── setup/                       # Deployment guides
+│       └── archive/                     # Intermediate reports
+│
+├── Configuration
+│   ├── requirements.txt                 # Python dependencies
+│   ├── .env.example                     # Environment template
+│   ├── constants.py                     # App constants
+│   └── .gitignore
+│
+├── Database
+│   └── scripts/
+│       ├── database_setup.sql           # Schema setup
+│       ├── gamification_migration.sql   # Gamification tables
+│       └── create_missing_profiles.py   # Profile utilities
+│
+├── Testing
+│   ├── test_hybrid_analyzer.py          # Hybrid analyzer tests (9 tests)
+│   └── (see docs/archive for older tests)
+│
+└── Assets
+    └── assets/                          # Images & static files
 ```
+
+---
+
+## ✨ Recent Updates
+
+### **v2.3.0 - Portion Estimation & UX Redesign** (Dec 2025)
+- ✅ **Portion Estimation System**: 4 confidence levels with accuracy ranges (±15%-50%)
+- ✅ **Prominent Disclaimers**: Warning boxes show accuracy expectations
+- ✅ **Streamlined Meal Input**: Reorganized layout reduces information overload
+- ✅ **UX Improvements**: Better visual hierarchy, grouped related content
+- ✅ **TDD Test Suite**: 9 comprehensive hybrid analyzer tests
+- 📝 See [CHANGELOG.md](CHANGELOG.md) for detailed updates
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend & Data
+- **Supabase**: PostgreSQL database & authentication
+- **PostgreSQL**: Data storage with Row Level Security
+
+### AI & ML
+- **Azure OpenAI GPT-4**: Natural language processing
+- **Azure OpenAI Vision**: Food image recognition & OCR
+
+### Frontend
+- **Streamlit**: Web application framework
+- **Plotly**: Interactive visualizations
+- **Pandas**: Data manipulation
+
+### Python Libraries
+- `supabase-py`: Supabase SDK
+- `python-dotenv`: Configuration management
+- `pillow`: Image handling
+- `requests`: HTTP requests
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.8+
+- Supabase account (free at supabase.com)
+- OpenAI API key (openai.com)
+
+### Installation
+
+```bash
+# 1. Clone repository
+git clone <repo-url>
+cd eatwise_ai
+
+# 2. Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Setup Supabase
+# - Create project at supabase.com
+# - Run database_setup.sql in SQL Editor
+# - Copy URL & key from Settings > API
+# - Configure Authentication > URL Configuration
+
+# 5. Configure environment
+cp .env.example .env
+# Edit .env with your credentials:
+# SUPABASE_URL=your_url
+# SUPABASE_KEY=your_key
+# OPENAI_API_KEY=your_key
+
+# 6. Run application
+streamlit run app.py
+```
+
+Open http://localhost:8501
+
+For detailed setup instructions, see [docs/setup/](docs/setup/)
+
+---
+
+## 📱 Features Overview
+
+### **Dashboard** 📊
+Daily nutrition summary with progress bars, quick meal access, and today's logged meals.
+
+### **Log Meal** 📝
+- **Text**: Describe meal with accuracy guidance (SPECIFIC ±15%, GENERAL ±25%, VAGUE ±40-50%)
+- **Photo**: Upload food photos for recognition
+- Real-time confidence level display
+- Quick save to database
+
+### **Analytics** 📈
+- Customizable date range (1-30 days)
+- Calorie & macronutrient trend charts
+- Meal distribution analysis
+- Statistics & achievements
+
+### **Insights** 💡
+- AI-powered meal recommendations
+- 7-day meal plan generation
+- Health pattern analysis with recommendations
+
+### **Coaching** 🎯
+- Chat with AI nutrition coach
+- Pattern analysis from meal history
+- Personalized Q&A & daily tips
+
+### **Eating Out** 🍽️
+- Menu analysis (text or photo with OCR)
+- Personalized recommendations
+- Items to avoid based on health profile
+- Healthy modification suggestions
+
+### **My Profile** 👤
+- Health profile setup
+- Age, health conditions, dietary preferences
+- Nutrition targets configuration
+
+---
+
+## 🎯 Portion Estimation System
+
+The app now includes an intelligent portion estimation system to help users understand nutrition accuracy:
+
+### **Accuracy Levels**
+| Level | Accuracy Range | Description | Example |
+|-------|---|---|---|
+| **SPECIFIC** | ±15% | Exact measurements given | "150g grilled chicken, 200g brown rice" |
+| **GENERAL** | ±25% | Portion descriptors used | "chicken with rice and vegetables" |
+| **MEDIUM-LOW** | ±30-35% | Vague but some details | "some chicken, rice, and broccoli" |
+| **VAGUE** | ±40-50% | Minimal detail | "some chicken and rice" |
+
+### **How It Works**
+1. User provides meal description
+2. System assesses input detail level using pattern matching
+3. Confidence level & accuracy range displayed
+4. Common portion sizes available for reference
+5. Users understand estimation accuracy before saving
+
+For complete methodology, see [PORTION_ESTIMATION_GUIDE.md](PORTION_ESTIMATION_GUIDE.md)
+
+---
+
+## 🔐 Security & Privacy
+
+- ✅ **Secure Authentication**: Supabase email/password auth
+- ✅ **Row Level Security**: Users access only their own data
+- ✅ **Secure Sessions**: Automatic logout & session management
+- ✅ **Password Security**: Bcrypt hashing
+- ✅ **Data Isolation**: Database-level access control
+
+---
+
+## 📊 Database Schema
+
+### Core Tables
+- **users** - Authentication & profiles
+- **health_profiles** - Health data & preferences
+- **meals** - Meal entries with nutrition
+
+### Gamification
+- **daily_challenges** - Challenge tracking
+- **weekly_goals** - Weekly goal progress
+- **water_intake** - Hydration tracking
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for full schema details.
+
+---
+
+## 🤖 AI Capabilities
+
+```python
+# Meal analysis from text
+analyzer = NutritionAnalyzer()
+result = analyzer.analyze_text_meal("Grilled chicken with rice")
+# → meal name, nutrition, healthiness score, health notes
+
+# Image recognition
+result = analyzer.analyze_food_image(image_bytes)
+# → detected foods, nutrition, confidence
+
+# Personalized recommendations
+recommender = RecommendationEngine()
+meals = recommender.get_personalized_recommendations(user_profile, meals)
+# → 5 meal suggestions with reasons
+```
+
+---
+
+## 🎮 Gamification
+
+### XP System
+- Log meal: +25 XP
+- Meet nutrition targets: +50 XP
+- Daily challenges: +50 XP
+- Weekly goal: +200 XP
+- Streaks (3/7/30-day): +100/200/500 XP
+
+### Daily Challenges
+1. **Meal Logger** 📝 - Log 3 meals
+2. **Calorie Control** 🎯 - Stay under target
+3. **Protein Power** 💪 - Hit protein goal
+4. **Hydration Hero** 💧 - Drink 8 glasses
+
+### Achievements
+- Early Bird, Night Owl
+- Streak Warrior
+- Health Champion
+- Foodie
+- Sodium Watchdog
+
+---
+
+## 🐛 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Invalid Credentials | Check Supabase URL/key, verify .env |
+| OpenAI API Error | Verify API key active & has credits |
+| Module Not Found | Run `pip install -r requirements.txt` |
+| Database Connection | Check Supabase active, verify RLS policies |
+
+---
+
+## 📚 Documentation
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design & architecture
+- **[CHANGELOG.md](CHANGELOG.md)** - Recent updates & improvements
+- **[PORTION_ESTIMATION_GUIDE.md](PORTION_ESTIMATION_GUIDE.md)** - Methodology & examples
+- **[DOCUMENTATION.md](DOCUMENTATION.md)** - Feature documentation
+- **[docs/guides/](docs/guides/)** - User guides & tutorials
+- **[docs/setup/](docs/setup/)** - Deployment & setup guides
+
+---
+
+## 📈 Future Roadmap
+
+- [ ] Mobile app (React Native)
+- [ ] Voice input for logging
+- [ ] Fitness tracker integration (Apple Health, Google Fit)
+- [ ] Barcode scanning for packaged foods
+- [ ] Recipe suggestions based on ingredients
+- [ ] Family/group nutrition tracking
+- [ ] Nutritionist consultation booking
+- [ ] Real-time USDA FoodData API integration
+
+---
+
+## 📝 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for complete version history.
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push and submit pull request
+
+---
+
+## 📄 License
+
+MIT License - see LICENSE file
+
+---
+
+## 🙏 Acknowledgments
+
+- OpenAI for GPT-4 & Vision APIs
+- Supabase for backend infrastructure
+- Streamlit for web framework
+- Python community for libraries
+
+---
+
+**Made with ❤️ for health-conscious professionals**
+
+Start optimizing your nutrition with EatWise today! 🥗
 
 ## 🛠️ Tech Stack
 
