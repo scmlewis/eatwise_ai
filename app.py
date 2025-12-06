@@ -2076,72 +2076,35 @@ def meal_logging_page():
     tab1, tab2, tab3 = st.tabs(["📝 Text", "📸 Photo", "📅 Batch Log"])
     
     with tab1:
-        st.markdown("## Describe Your Meal")
+        st.markdown("## 📝 Describe Your Meal")
         
         # CRITICAL: Warning box first to set expectations
         st.warning("""
-        ⚠️ **How detailed you are = How accurate the results are:**
+        ⚠️ **Accuracy depends on detail level:**
         - **SPECIFIC** (±15%): "150g grilled chicken, 200g brown rice, 100g broccoli"
         - **GENERAL** (±25%): "chicken with rice and vegetables"  
         - **VAGUE** (±40-50%): "some chicken and rice"
         """)
         
-        # Quick reference section (always visible, concise)
+        # Quick reference section - minimal and actionable
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("""
-            **📝 What to include:**
-            - Main ingredients & portions
-            - Cooking method
-            - Sauces/oils/seasonings
-            """)
+            st.markdown("""**Include:**
+- Main ingredients
+- Portion size/weight
+- Cooking method""")
         with col2:
-            st.markdown("""
-            **💡 Quick Tips:**
-            - Use grams/cups when possible
-            - "medium chicken" better than "some chicken"
-            - Don't forget drinks & extras
-            """)
-        
-        # Expandable detailed guidance
-        with st.expander("📚 Common Portion Size Examples", expanded=False):
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("""
-                **Proteins:**
-                - Chicken breast: 100-200g
-                - Fish: 100-150g
-                - Egg: 50g
-                - Cheese: 30-50g
-                """)
-            with col2:
-                st.markdown("""
-                **Grains:**
-                - Rice (cooked): 150-200g
-                - Bread: 1 slice = 30g
-                - Pasta: 150-200g
-                - Potato: 1 medium = 150g
-                """)
-        
-        with st.expander("🎯 Detailed Guidelines", expanded=False):
-            st.markdown("""
-            **Be specific about portions:**
-            - ✅ Good: "150g grilled chicken breast, 200g white rice, 100g mixed vegetables"
-            - ❌ Avoid: "Some chicken with rice" (too vague)
-            - Unsure? Use: "medium chicken breast" or "2 cups rice"
-            
-            **If you don't know exact weight:**
-            - Use your hand/fist for serving sizes
-            - Household items: cup, spoon, plate
-            - Visual comparison with common objects
-            """)
+            st.markdown("""**Pro Tips:**
+- Use grams/cups if possible
+- Be specific, not vague
+- Don't skip drinks/extras""")
         
         st.markdown("---")
         
         meal_description = st.text_area(
-            "What did you eat? (Be as detailed as you'd like) 📝",
-            placeholder="E.g., 150g grilled chicken breast, 200g brown rice, 100g steamed broccoli, 1 tbsp olive oil",
-            height=120
+            "What did you eat?",
+            placeholder="E.g., 150g grilled chicken breast, 200g brown rice, 100g broccoli, 1 tbsp olive oil",
+            height=100
         )
         
         meal_type = st.selectbox(
@@ -2182,6 +2145,22 @@ def meal_logging_page():
                 show_estimation_disclaimer(st, confidence_level, input_type="text")
             elif "text_confidence_level" in st.session_state:
                 show_estimation_disclaimer(st, st.session_state.text_confidence_level, input_type="text")
+            
+            # Portion estimation reference (grouped with confidence section)
+            with st.expander("📚 Common Portion Sizes", expanded=False):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("""**Proteins:**
+- Chicken breast: 100-200g
+- Fish: 100-150g
+- Egg: 50g
+- Cheese: 30-50g""")
+                with col2:
+                    st.markdown("""**Grains & Carbs:**
+- Rice (cooked): 150-200g
+- Bread: 1 slice = 30g
+- Pasta: 150-200g
+- Potato: 150g""")
             
             col1, col2 = st.columns([3, 1])
             
