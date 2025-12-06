@@ -2078,27 +2078,26 @@ def meal_logging_page():
     with tab1:
         st.markdown("## Describe Your Meal")
         
-        # Enhanced instructions with detailed guidance
-        st.markdown("""
-        ### 📋 How to describe your meal for best accuracy:
-        
-        **What to include:**
-        - Main ingredients (proteins, carbs, vegetables)
-        - Specific portion sizes or weights if you know them
-        - Cooking method (grilled, fried, boiled, baked, steamed)
-        - Any sauces, oils, or seasonings used
-        - Beverages consumed with the meal
-        
-        **Be specific about portions:**
-        - ✅ Good: "150g grilled chicken breast, 200g white rice, 100g mixed vegetables"
-        - ❌ Avoid: "Some chicken with rice" (too vague)
-        - If you don't know the weight: "medium chicken breast" or "2 cups rice"
-        
-        **How accuracy affects your nutrition tracking:**
-        - High accuracy: Exact measurements (grams/cups/ml) → ±15% estimation range
-        - Good accuracy: Descriptive portions (medium, large) → ±25% estimation range
-        - Lower accuracy: Very vague descriptions → ±40-50% estimation range
-        """)
+        # Enhanced instructions with detailed guidance - collapsible
+        with st.expander("📋 How to describe your meal for best accuracy", expanded=False):
+            st.markdown("""
+            **What to include:**
+            - Main ingredients (proteins, carbs, vegetables)
+            - Specific portion sizes or weights if you know them
+            - Cooking method (grilled, fried, boiled, baked, steamed)
+            - Any sauces, oils, or seasonings used
+            - Beverages consumed with the meal
+            
+            **Be specific about portions:**
+            - ✅ Good: "150g grilled chicken breast, 200g white rice, 100g mixed vegetables"
+            - ❌ Avoid: "Some chicken with rice" (too vague)
+            - If you don't know the weight: "medium chicken breast" or "2 cups rice"
+            
+            **How accuracy affects your nutrition tracking:**
+            - High accuracy: Exact measurements (grams/cups/ml) → ±15% estimation range
+            - Good accuracy: Descriptive portions (medium, large) → ±25% estimation range
+            - Lower accuracy: Very vague descriptions → ±40-50% estimation range
+            """)
         
         st.info("""
         📝 **Quick Tips:**
