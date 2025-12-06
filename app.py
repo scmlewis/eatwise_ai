@@ -2222,7 +2222,7 @@ def meal_logging_page():
                     )
     
     with tab2:
-        st.markdown("## Upload Food Photo")
+        st.markdown("## 📸 Upload Food Photo")
         
         st.info("""
         📸 **Photo tips for best results:**
@@ -2246,6 +2246,13 @@ def meal_logging_page():
             key="photo_meal_type"
         )
         
+        # Add text description for portions to improve accuracy
+        portion_description = st.text_input(
+            "Add text description of portions (optional)",
+            placeholder="e.g., '150g chicken, 1 cup rice, medium apple'",
+            help="Providing portion sizes or weights significantly improves accuracy"
+        )
+        
         if uploaded_file:
             st.image(uploaded_file, caption="Your meal", use_column_width=True)
             
@@ -2255,8 +2262,9 @@ def meal_logging_page():
                     analysis = nutrition_analyzer.analyze_food_image(image_data)
                     
                     if analysis:
-                        # Store analysis in session state (meal_type is already in session via selectbox key)
+                        # Store analysis and portion description in session state
                         st.session_state.photo_analysis = analysis
+                        st.session_state.photo_portion_description = portion_description
                         success_state("Photo Analyzed Successfully", "Your meal has been analyzed and is ready to save!")
                     else:
                         error_state(
@@ -2277,7 +2285,9 @@ def meal_logging_page():
                 st.write(f"- {food['name']} ({food['quantity']})")
             
             # Show confidence level and disclaimer for photo input
-            confidence_level = assess_input_confidence(text_description="", has_photo=True)
+            # Include portion description if provided
+            photo_text_description = st.session_state.get("photo_portion_description", "")
+            confidence_level = assess_input_confidence(text_description=photo_text_description, has_photo=True)
             show_estimation_disclaimer(st, confidence_level, input_type="photo")
             
             # Display nutrition
