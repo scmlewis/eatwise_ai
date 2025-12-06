@@ -44,6 +44,18 @@ class CoachingAssistant:
             health_conditions = user_profile.get("health_conditions", [])
             age_group = user_profile.get("age_group", "26-35")
             health_goal = user_profile.get("health_goal", "general_health")
+            height_cm = user_profile.get("height_cm")
+            weight_kg = user_profile.get("weight_kg")
+            
+            # Calculate BMI if available
+            bmi_info = ""
+            if height_cm and weight_kg:
+                try:
+                    height_m = height_cm / 100
+                    bmi = weight_kg / (height_m ** 2)
+                    bmi_info = f"\n- Height: {height_cm}cm, Weight: {weight_kg}kg, BMI: {bmi:.1f}"
+                except:
+                    pass
             
             # Calculate how this meal affects daily totals
             projected_daily = {
@@ -66,7 +78,7 @@ MEAL BEING EVALUATED:
 USER CONTEXT:
 - Age Group: {age_group}
 - Health Goal: {health_goal}
-- Health Conditions: {', '.join(health_conditions) if health_conditions else 'None'}
+- Health Conditions: {', '.join(health_conditions) if health_conditions else 'None'}{bmi_info}
 
 TODAY'S NUTRITION SO FAR:
 - Calories: {daily_nutrition.get('calories', 0):.0f} / {daily_targets.get('calories', 2000)}
@@ -394,6 +406,19 @@ Suggest a meal that:
         try:
             health_conditions = user_profile.get("health_conditions", [])
             health_goal = user_profile.get("health_goal", "general_health")
+            age_group = user_profile.get("age_group", "26-35")
+            height_cm = user_profile.get("height_cm")
+            weight_kg = user_profile.get("weight_kg")
+            
+            # Calculate BMI if height and weight are available
+            bmi_info = ""
+            if height_cm and weight_kg:
+                try:
+                    height_m = height_cm / 100
+                    bmi = weight_kg / (height_m ** 2)
+                    bmi_info = f"- Height: {height_cm}cm, Weight: {weight_kg}kg, BMI: {bmi:.1f}\n"
+                except:
+                    pass
             
             # Build system context
             system_prompt = f"""You are a friendly, supportive nutrition coach for an app called EatWise. 
@@ -404,9 +429,11 @@ Your role is to:
 4. Offer practical, actionable advice
 5. Be encouraging and non-judgmental
 
-USER CONTEXT:
+USER PROFILE:
+- Age Group: {age_group}
 - Health Goal: {health_goal}
 - Health Conditions: {', '.join(health_conditions) if health_conditions else 'None'}
+{bmi_info}
 
 CURRENT NUTRITION STATUS:
 - Calories: {daily_nutrition.get('calories', 0):.0f} / {daily_targets.get('calories', 2000)}
