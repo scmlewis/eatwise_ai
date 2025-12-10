@@ -1,16 +1,62 @@
+# Environment & Virtual Environments
 .env
 .env.local
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
 .Python
 env/
 venv/
 ENV/
+.venv/
+
+# Python Cache & Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# IDE & Editor Files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 .DS_Store
+
+# Database Files
 *.db
 *.sqlite
+*.sqlite3
+
+# Streamlit
 .streamlit/secrets.toml
+streamlit.log
+.streamlit/cache/
+
+# Intermediate/Development Documentation (NOT needed by users)
+docs/
+archive/
+scripts/
+
+# Project Planning & Internal Docs (keep README.md, requirements.txt, core app files)
+ARCHITECTURE.md
+CHANGELOG.md
+DOCUMENTATION.md
+PRESENTATION_OUTLINE.md
+PORTION_ESTIMATION_GUIDE.md
+PORTION_ESTIMATION_IMPLEMENTATION.md
+PORTION_ESTIMATION_QUICK_SUMMARY.md
+USER_GUIDE.md
+CODE_QUALITY_ANALYSIS.md
+
+# Experimental/Alternative Modules (not used by main app)
+hybrid_nutrition_analyzer.py
+nutrition_database.py
+
+# Test Files (Optional - remove if you want tests in repo)
+test_*.py
+*_test.py
+
+# Logs
+*.log
