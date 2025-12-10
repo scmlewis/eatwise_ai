@@ -107,72 +107,6 @@ eatwise_ai/
 
 ## 🛠️ Tech Stack
 
-### Backend & Data
-- **Supabase**: PostgreSQL database & authentication
-- **PostgreSQL**: Data storage with Row Level Security
-
-### AI & ML
-- **Azure OpenAI GPT-4**: Natural language processing
-- **Azure OpenAI Vision**: Food image recognition & OCR
-
-### Frontend
-- **Streamlit**: Web application framework
-- **Plotly**: Interactive visualizations
-- **Pandas**: Data manipulation
-
-### Python Libraries
-- `supabase-py`: Supabase SDK
-- `python-dotenv`: Configuration management
-- `pillow`: Image handling
-- `requests`: HTTP requests
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.8+
-- Supabase account (free at supabase.com)
-- OpenAI API key (openai.com)
-
-### Installation
-
-```bash
-# 1. Clone repository
-git clone <repo-url>
-cd eatwise_ai
-
-# 2. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Setup Supabase
-# - Create project at supabase.com
-# - Copy URL & key from Settings > API
-# - (Optional) Run database_setup.sql in SQL Editor for custom schema
-
-# 5. Configure environment
-cp .env.example .env
-# Edit .env with your credentials:
-# SUPABASE_URL=your_url
-# SUPABASE_KEY=your_key
-# AZURE_OPENAI_API_KEY=your_key
-# AZURE_OPENAI_ENDPOINT=your_endpoint
-# AZURE_OPENAI_DEPLOYMENT=your_deployment
-
-# 6. Run application
-streamlit run app.py
-```
-
-Open http://localhost:8501
-
----
-
-## 📱 Features Overview
-
 ### **Dashboard** 📊
 Daily nutrition summary with progress bars, quick meal access, and today's logged meals.
 
@@ -230,7 +164,10 @@ The app now includes an intelligent portion estimation system to help users unde
 4. Common portion sizes available for reference
 5. Users understand estimation accuracy before saving
 
-For complete methodology, see [PORTION_ESTIMATION_GUIDE.md](PORTION_ESTIMATION_GUIDE.md)
+### **Hybrid Nutrition System**
+The app uses AI for ingredient detection combined with a comprehensive nutrition database for maximum accuracy. Portion estimation includes confidence levels (±15% to ±50%) based on description detail.
+
+For more details on methodology, see the features section below.
 
 ---
 
@@ -255,8 +192,6 @@ For complete methodology, see [PORTION_ESTIMATION_GUIDE.md](PORTION_ESTIMATION_G
 - **daily_challenges** - Challenge tracking
 - **weekly_goals** - Weekly goal progress
 - **water_intake** - Hydration tracking
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for full schema details.
 
 ---
 
@@ -315,17 +250,6 @@ meals = recommender.get_personalized_recommendations(user_profile, meals)
 
 ---
 
-## 📚 Documentation
-
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design & architecture
-- **[CHANGELOG.md](CHANGELOG.md)** - Recent updates & improvements
-- **[PORTION_ESTIMATION_GUIDE.md](PORTION_ESTIMATION_GUIDE.md)** - Methodology & examples
-- **[DOCUMENTATION.md](DOCUMENTATION.md)** - Feature documentation
-- **[docs/guides/](docs/guides/)** - User guides & tutorials
-- **[docs/setup/](docs/setup/)** - Deployment & setup guides
-
----
-
 ## 📈 Future Roadmap
 
 - [ ] Mobile app (React Native)
@@ -336,12 +260,6 @@ meals = recommender.get_personalized_recommendations(user_profile, meals)
 - [ ] Family/group nutrition tracking
 - [ ] Nutritionist consultation booking
 - [ ] Real-time USDA FoodData API integration
-
----
-
-## 📝 Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
 ---
 
@@ -437,7 +355,9 @@ Edit `.env` with your credentials:
 ```
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_anon_key
-OPENAI_API_KEY=your_openai_api_key
+AZURE_OPENAI_API_KEY=your_azure_openai_key
+AZURE_OPENAI_ENDPOINT=your_azure_endpoint
+AZURE_OPENAI_DEPLOYMENT=your_deployment_name
 ```
 
 6. **Run the app**
@@ -447,199 +367,39 @@ streamlit run app.py
 
 The app will open at `http://localhost:8501`
 
-## 📱 User Interface
+---
 
-### Pages
+## 🔐 Security & Privacy
 
-#### 1. **Dashboard** 📊
-- Daily nutrition summary at a glance
-- Progress bars for each nutrition target
-- Today's logged meals
-- Quick access to meal logging
-- Daily nutrition insight/trivia
+- ✅ **Secure Authentication**: Supabase email/password auth
+- ✅ **Row Level Security**: Users access only their own data
+- ✅ **Secure Sessions**: Automatic logout & session management
+- ✅ **Password Security**: Bcrypt hashing
+- ✅ **Data Isolation**: Database-level access control
 
-#### 2. **Log Meal** 📝
-- **Text Input**: Describe your meal naturally
-- **Photo Upload**: Upload food photos for recognition
-- AI analyzes and displays:
-  - Detected foods
-  - Nutritional breakdown
-  - Healthiness score
-  - Health notes
-- Quick save to database
+---
 
-#### 3. **Analytics** 📈
-- Customizable date range (1-30 days)
-- Charts:
-  - Daily calorie intake trends
-  - Macronutrient distribution
-  - Meal type pie chart
-- Statistics:
-  - Average daily calories
-  - Total meals logged
-  - Meals per day
-  - Average protein intake
-- Achievements:
-  - Current & longest streaks
-  - Earned badges
+## 🎯 Key Capabilities
 
-#### 5. **Insights** 💡
-- Personalized meal recommendations
-- 7-day meal plan generation
-- Health pattern analysis:
-  - Strengths
-  - Areas for improvement
-  - Specific recommendations
-  - Red flags & motivational messages
+### AI-Powered Analysis
+- **Text Analysis**: Describe meals in natural language
+- **Image Recognition**: Automatic food detection from photos
+- **Nutrition Calculation**: Instant macro & micronutrient breakdown
+- **Health Scoring**: 0-100 healthiness rating with recommendations
 
-#### 6. **Eating Out** 🍽️
-- **Menu Text Input**: Paste restaurant menus for analysis
-- **Photo Upload**: Upload menu photos with automatic OCR text extraction
-- **Personalized Recommendations**: AI identifies best options for you
-- **Nutrition Cards**: Beautiful visual breakdown of each meal
-- **Items to Avoid**: Flagged dishes that don't align with your health goals
-- **Special Recommendations**: Highlights best options (lowest calorie, highest protein, etc.)
-- **Modification Tips**: Suggestions on how to order healthier versions
-- **Smart Filtering**: Only shows recommendations based on your dietary preferences and health conditions
+### Personalization
+- **User Profiles**: Age, health conditions, dietary preferences
+- **Custom Targets**: Nutrition goals adjusted by health profile
+- **Smart Recommendations**: Meals tailored to your profile
+- **7-Day Analysis**: Eating pattern insights with actionable advice
 
-#### 6. **Coaching** 🎯
-- **Chat with Coach**: Multi-turn conversational interface with your AI nutrition coach
-  - Ask questions about nutrition, meals, and health goals
-  - Get personalized guidance based on your profile
-  - Maintain conversation history during the session
-- **Pattern Analysis**: Automatic 7-day eating habit analysis
-  - Key eating pattern identification
-  - Strengths recognition
-  - Areas for improvement
-  - Top recommendations
-  - Motivational messages
-- **Ask Questions**: Direct Q&A with daily tips
-  - Get personalized nutrition answers
-  - Receive daily coaching tips
-  - Tips are tailored to your current nutrition status and goals
+### Engagement Features
+- **XP & Leveling**: Earn points for logging meals and hitting targets
+- **Daily Challenges**: 4 rotating missions (Meal Logger, Calorie Control, Protein Power, Hydration Hero)
+- **Streaks**: Track consecutive days of meal logging
+- **Badges**: Unlock achievements for consistency and progress
 
-#### 7. **My Profile** 👤
-- User information
-- Health profile setup/update:
-  - Age group
-  - Health conditions
-  - Dietary preferences
-  - Health goals
-
-## 🔐 Authentication & Security
-
-- **Secure Authentication**: Supabase Auth with email/password
-- **Session Management**: Secure session handling with automatic logout
-- **Supabase Auth**: Secure user authentication
-- **Row Level Security (RLS)**: Database-level data isolation
-- Users can only access their own data
-- Secure password storage with bcrypt
-
-## 📊 Database Schema
-
-### Core Tables
-- **users** - User authentication and profile
-- **health_profiles** - Age, health conditions, dietary preferences, goals, XP progress, timezone
-- **meals** - Meal entries with nutrition data
-- **food_history** - Cached food items with nutrition
-
-### Gamification Tables
-- **daily_challenges** - Daily challenges (4 types: Meal Logger, Calorie Control, Protein Power, Hydration Hero)
-  - Columns: id, user_id, challenge_date, challenge_type, challenge_name, description, target, current_progress, xp_reward, completed
-- **weekly_goals** - Weekly nutrition goal tracking
-  - Columns: id, user_id, week_start_date, target_days_with_nutrition_goals, days_completed, completed, xp_reward
-- **water_intake** - Daily water tracking (linked to Hydration Hero challenge)
-  - Columns: id, user_id, logged_date, glasses, created_at
-
-## 🤖 AI Capabilities
-
-### Text Analysis
-```python
-analyzer = NutritionAnalyzer()
-analysis = analyzer.analyze_text_meal("Grilled chicken with rice and broccoli")
-```
-
-Returns:
-- Meal name and description
-- Nutrition facts (calories, macros, micros)
-- Healthiness score
-- Health notes
-
-### Image Recognition
-```python
-analysis = analyzer.analyze_food_image(image_bytes)
-```
-
-Detects:
-- Food items and quantities
-- Total nutrition
-- Confidence score
-- Relevant notes
-
-### Recommendations
-```python
-recommender = RecommendationEngine()
-recommendations = recommender.get_personalized_recommendations(
-    user_profile, recent_meals, daily_nutrition, targets
-)
-```
-
-Provides:
-- 5 meal suggestions for next meal
-- Why each meal is recommended
-- Health benefits
-- Preparation time
-
-## 🎮 Gamification System
-
-### XP & Leveling
-- **Earn XP** for various actions:
-  - Logging a meal: +25 XP
-  - Meeting nutrition targets: +50 XP
-  - Completing daily challenges: +50 XP
-  - Completing weekly goals: +200 XP
-  - Streak milestones (3-day, 7-day, 30-day): +100/200/500 XP
-- **Leveling System**: Progress through levels (Level = Total XP ÷ 100)
-- **Real-time Tracking**: Dashboard displays current level and XP progress
-
-### Daily Challenges (4 Types)
-- **Meal Logger** 📝 - Log 3 meals today (+50 XP)
-- **Calorie Control** 🎯 - Stay under calorie target (+50 XP)
-- **Protein Power** 💪 - Hit daily protein goal (+40 XP)
-- **Hydration Hero** 💧 - Drink 8 glasses of water (+30 XP)
-
-**Features:**
-- Progress bars showing completion percentage
-- Real-time progress updates as you log meals
-- Color-coded indicators (blue=in progress, yellow=75%+ complete, green=completed)
-- Refresh daily with new challenges
-
-### Weekly Goals
-- **Objective**: Complete nutrition logging goals for 5 days
-- **Reward**: 200 XP upon completion
-- **Tracking**: Visual progress bar and day counter
-- **Reset**: New goal starts each week (Sunday-Saturday)
-
-### Streaks
-- **Current Streak** 🔥 - Consecutive days of meal logging
-- **Longest Streak** 🏅 - Personal record for streak length
-- **Milestone Bonuses**: Special notifications at 3-day, 7-day, 14-day, 30-day marks
-- **Motivation**: Streaks drive habit formation through psychological commitment
-
-### Achievement Badges
-- **Early Bird**: Logged 5 breakfasts
-- **Night Owl**: Logged 5 dinners
-- **Streak Warrior**: Achieved 7-day logging streak
-- **Health Champion**: Met nutrition targets for 7 consecutive days
-- **Foodie**: Logged 50+ meals total
-- **Sodium Watchdog**: Stayed under sodium target for 5 days
-
-### Dashboard Integration
-- **XP & Level Display**: Shows current level and progress to next level
-- **Daily Challenges Section**: All 4 challenges with progress tracking
-- **Weekly Goal Card**: Visual progress and days completed
-- **Streak Counter**: Current streak with motivational messages
-- **Hydration Tracker**: Integrated water intake logging with quick buttons
+---
 
 ## 🌍 Nutrition Targets
 
@@ -663,91 +423,52 @@ Provides:
 - **Weight Loss**: Reduced calories, higher protein
 - **Weight Gain**: Increased calories, higher protein
 
-## 🔌 API Integration
+---
 
-### OpenAI
-- **Model**: GPT-3.5-turbo
-- **Capabilities**: Text analysis, meal recommendations, insights
-- **Vision (Optional)**: GPT-4V for image analysis (requires upgrade)
+## 🎮 Gamification Features
 
-### Supabase
-- Authentication via email/password
-- PostgreSQL database with real-time updates
-- File storage (optional for meal photos)
+### XP System
+- Log meal: +25 XP
+- Meet nutrition targets: +50 XP
+- Complete daily challenges: +50 XP
+- Complete weekly goal: +200 XP
+- Streak milestones (3/7/30-day): +100/200/500 XP
 
-## 📈 Future Enhancements
+### Daily Challenges
+1. **Meal Logger** 📝 - Log 3 meals
+2. **Calorie Control** 🎯 - Stay under target
+3. **Protein Power** 💪 - Hit protein goal
+4. **Hydration Hero** 💧 - Drink 8 glasses
 
-- [ ] Mobile app (React Native)
-- [ ] Voice input for meal logging
-- [ ] Social features (sharing meals, competing streaks)
-- [ ] Integration with fitness trackers (Apple Health, Google Fit)
-- [ ] Advanced meal planning with restaurant menus
-- [ ] Barcode scanning for packaged foods
-- [ ] Recipe suggestions based on available ingredients
-- [ ] Family/group nutrition tracking
-- [ ] Nutritionist consultation booking
-- [ ] Real-time nutrition API (USDA FoodData Central)
+### Achievements
+- Early Bird & Night Owl
+- Streak Warrior
+- Health Champion
+- Foodie
+- Sodium Watchdog
 
-## 📝 Changelog
-
-### v1.0.0 (Initial Release)
-- 🌟 Core meal logging features (text and photo)
-- 📊 Nutrition tracking and analytics
-- 💡 AI-powered insights and recommendations
-- 🎮 Gamification system with badges and streaks
-- 🔐 Secure authentication with Supabase
+---
 
 ## 🐛 Troubleshooting
 
-### "Invalid Credentials" Error
-- Check your Supabase URL and key are correct
-- Ensure .env file is in project root
-- Restart the Streamlit app
+| Issue | Solution |
+|-------|----------|
+| Invalid Credentials | Check Supabase URL/key in .env |
+| Azure OpenAI Error | Verify API key active & endpoint correct |
+| Module Not Found | Run `pip install -r requirements.txt` |
+| Database Connection | Check Supabase project active & RLS policies |
 
-### "OpenAI API Error"
-- Verify your API key is active
-- Check your OpenAI account has credits
-- Ensure OPENAI_API_KEY is set correctly
-
-### "No module named 'supabase'"
-- Run `pip install -r requirements.txt` again
-- Activate your virtual environment
-
-### Database Connection Issues
-- Verify Supabase project is active
-- Check internet connection
-- Ensure RLS policies are correctly set up
-
-## 📝 Usage Tips
-
-### For Best Results
-1. Be detailed when describing meals
-2. Take clear, well-lit food photos
-3. Complete your health profile for personalized recommendations
-4. Log meals consistently for accurate trends
-5. Review insights regularly for pattern identification
-
-### Meal Logging Best Practices
-- Log meals shortly after eating (recall accuracy)
-- Be specific about portions
-- Include cooking methods (fried vs. baked)
-- Log beverages as separate entries
-- Update meal description if more details remembered
+---
 
 ## 📄 License
 
-This project is open source and available under the MIT License.
+MIT License - see LICENSE file
 
-## 👨‍💻 Support
-
-For issues, questions, or suggestions:
-1. Check existing issues in repository
-2. Create a new issue with detailed description
-3. Contact development team
+---
 
 ## 🙏 Acknowledgments
 
-- OpenAI for GPT and Vision APIs
+- OpenAI for GPT-4 & Vision APIs
 - Supabase for backend infrastructure
 - Streamlit for web framework
 - Python community for amazing libraries
@@ -756,4 +477,4 @@ For issues, questions, or suggestions:
 
 **Made with ❤️ for health-conscious professionals**
 
-Start your journey to better nutrition today with EatWise! 🥗
+Start optimizing your nutrition with EatWise today! 🥗
