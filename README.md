@@ -64,8 +64,6 @@ eatwise_ai/
 │
 ├── Nutrition & Analysis
 │   ├── nutrition_analyzer.py            # AI-powered meal analysis
-│   ├── hybrid_nutrition_analyzer.py     # Hybrid: AI + DB lookup
-│   ├── nutrition_database.py            # USDA food database (100+ foods)
 │   ├── portion_estimation_disclaimer.py # Portion confidence system
 │   ├── restaurant_analyzer.py           # Restaurant menu analysis
 │   ├── recommender.py                   # Meal recommendation engine
@@ -76,40 +74,27 @@ eatwise_ai/
 │   ├── coaching_assistant.py            # AI nutrition coach
 │   └── utils.py                         # Utility functions
 │
-├── Documentation
-│   ├── README.md                        # This file
-│   ├── ARCHITECTURE.md                  # System design & architecture
-│   ├── CHANGELOG.md                     # Recent changes & updates
-│   ├── DOCUMENTATION.md                 # Feature documentation
-│   ├── PORTION_ESTIMATION_GUIDE.md      # Portion estimation methodology
-│   └── docs/                            # Guides, setup, & archives
-│       ├── guides/                      # User guides & tutorials
-│       ├── setup/                       # Deployment guides
-│       └── archive/                     # Intermediate reports
-│
 ├── Configuration
 │   ├── requirements.txt                 # Python dependencies
 │   ├── .env.example                     # Environment template
 │   ├── constants.py                     # App constants
 │   └── .gitignore
 │
-├── Database
-│   └── scripts/
-│       ├── database_setup.sql           # Schema setup
-│       ├── gamification_migration.sql   # Gamification tables
-│       └── create_missing_profiles.py   # Profile utilities
-│
-├── Testing
-│   ├── test_hybrid_analyzer.py          # Hybrid analyzer tests (9 tests)
-│   └── (see docs/archive for older tests)
-│
 └── Assets
     └── assets/                          # Images & static files
 ```
 
+> **Note**: This repository contains only production code. Development documentation, database scripts, and test files are maintained locally but not tracked in Git.
+
 ---
 
 ## ✨ Recent Updates
+
+### **v2.5.1 - Clean Repository Release** (Dec 2025)
+- ✅ **Production-Ready Codebase**: Removed 60+ internal documentation files
+- ✅ **Clean Git History**: Streamlined repository for users
+- ✅ **Maintained Locally**: Development docs, scripts, and tests available locally
+- ✅ **Focus on Code**: Repository showcases core functionality
 
 ### **v2.3.0 - Portion Estimation & UX Redesign** (Dec 2025)
 - ✅ **Portion Estimation System**: 4 confidence levels with accuracy ranges (±15%-50%)
@@ -117,7 +102,6 @@ eatwise_ai/
 - ✅ **Streamlined Meal Input**: Reorganized layout reduces information overload
 - ✅ **UX Improvements**: Better visual hierarchy, grouped related content
 - ✅ **TDD Test Suite**: 9 comprehensive hybrid analyzer tests
-- 📝 See [CHANGELOG.md](CHANGELOG.md) for detailed updates
 
 ---
 
@@ -167,24 +151,23 @@ pip install -r requirements.txt
 
 # 4. Setup Supabase
 # - Create project at supabase.com
-# - Run database_setup.sql in SQL Editor
 # - Copy URL & key from Settings > API
-# - Configure Authentication > URL Configuration
+# - (Optional) Run database_setup.sql in SQL Editor for custom schema
 
 # 5. Configure environment
 cp .env.example .env
 # Edit .env with your credentials:
 # SUPABASE_URL=your_url
 # SUPABASE_KEY=your_key
-# OPENAI_API_KEY=your_key
+# AZURE_OPENAI_API_KEY=your_key
+# AZURE_OPENAI_ENDPOINT=your_endpoint
+# AZURE_OPENAI_DEPLOYMENT=your_deployment
 
 # 6. Run application
 streamlit run app.py
 ```
 
 Open http://localhost:8501
-
-For detailed setup instructions, see [docs/setup/](docs/setup/)
 
 ---
 
