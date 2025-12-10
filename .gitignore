@@ -60,3 +60,4 @@ test_*.py
 
 # Logs
 *.log
+streamlit.log
