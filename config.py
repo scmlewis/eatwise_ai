@@ -3,13 +3,28 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Validate critical environment variables
+REQUIRED_ENV_VARS = {
+    "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+    "SUPABASE_KEY": os.getenv("SUPABASE_KEY"),
+    "AZURE_OPENAI_API_KEY": os.getenv("AZURE_OPENAI_API_KEY"),
+    "AZURE_OPENAI_ENDPOINT": os.getenv("AZURE_OPENAI_ENDPOINT"),
+}
+
+missing_vars = [k for k, v in REQUIRED_ENV_VARS.items() if not v]
+if missing_vars:
+    raise EnvironmentError(
+        f"Missing required environment variables: {', '.join(missing_vars)}. "
+        f"Please create a .env file with these values."
+    )
+
 # Supabase Configuration
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_URL = REQUIRED_ENV_VARS["SUPABASE_URL"]
+SUPABASE_KEY = REQUIRED_ENV_VARS["SUPABASE_KEY"]
 
 # Azure OpenAI Configuration
-AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_API_KEY = REQUIRED_ENV_VARS["AZURE_OPENAI_API_KEY"]
+AZURE_OPENAI_ENDPOINT = REQUIRED_ENV_VARS["AZURE_OPENAI_ENDPOINT"]
 AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-35-turbo")
 
 # App Configuration

@@ -4,6 +4,7 @@ from openai import AzureOpenAI
 import json
 from config import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AGE_GROUP_TARGETS, HEALTH_CONDITION_TARGETS, HEALTH_GOAL_TARGETS
 import streamlit as st
+from utils import sanitize_user_input
 
 
 class RecommendationEngine:

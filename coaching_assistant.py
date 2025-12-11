@@ -5,6 +5,7 @@ from openai import AzureOpenAI
 import streamlit as st
 from config import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 from datetime import datetime, timedelta
+from utils import sanitize_user_input
 
 
 class CoachingAssistant:

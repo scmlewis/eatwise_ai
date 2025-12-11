@@ -5,6 +5,7 @@ from config import SUPABASE_URL, SUPABASE_KEY
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date
 import streamlit as st
+from utils import get_user_friendly_error, retry_on_failure
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +58,15 @@ class DatabaseManager:
                         raise
                 else:
                     raise
+        except ConnectionError as e:
+            error_msg = "Connection error while creating profile. Please check your internet connection."
+            st.error(error_msg)
+            logger.error(f"Network error creating profile for {user_id}: {e}")
+            return False
         except Exception as e:
-            st.error(f"Error creating health profile: {str(e)}")
-            logger.error(f"Failed to create health profile for user {user_id}: {str(e)}")
+            error_msg = get_user_friendly_error(e)
+            st.error(f"Error creating health profile: {error_msg}")
+            logger.error(f"Failed to create health profile for user {user_id}: {type(e).__name__}: {e}")
             return False
     
     def get_health_profile(self, user_id: str) -> Optional[Dict]:
@@ -70,9 +77,14 @@ class DatabaseManager:
             if profile:
                 logger.info(f"Fetched profile for {user_id}: water_goal_glasses = {profile.get('water_goal_glasses')}")
             return profile
+        except ConnectionError as e:
+            st.error("Connection error. Please check your internet connection.")
+            logger.error(f"Network error fetching profile for {user_id}: {e}")
+            return None
         except Exception as e:
-            st.error(f"Error fetching health profile: {str(e)}")
-            logger.error(f"Error fetching profile: {e}")
+            error_msg = get_user_friendly_error(e)
+            st.error(f"Error fetching health profile: {error_msg}")
+            logger.error(f"Error fetching profile for {user_id}: {type(e).__name__}: {e}")
             return None
     
     def update_health_profile(self, user_id: str, profile_data: Dict) -> bool:

@@ -4,6 +4,7 @@ import streamlit as st
 from supabase import create_client, Client
 from config import SUPABASE_URL, SUPABASE_KEY
 from typing import Tuple, Optional, Dict, Any
+from utils import get_user_friendly_error
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +47,13 @@ class AuthManager:
             else:
                 return False, "Sign up failed"
                 
+        except ConnectionError as e:
+            logger.error(f"Network error during sign up: {e}")
+            return False, "Connection error. Please check your internet connection."
         except Exception as e:
-            return False, f"Sign up error: {str(e)}"
+            logger.error(f"Sign up error: {type(e).__name__}: {e}")
+            error_msg = get_user_friendly_error(e)
+            return False, error_msg
     
     def login(self, email: str, password: str) -> Tuple[bool, str, Optional[Dict]]:
         """
@@ -119,8 +125,13 @@ class AuthManager:
             else:
                 return False, "Invalid credentials", None
                 
+        except ConnectionError as e:
+            logger.error(f"Network error during login: {e}")
+            return False, "Connection error. Please check your internet connection.", None
         except Exception as e:
-            return False, f"Login error: {str(e)}", None
+            logger.error(f"Login error: {type(e).__name__}: {e}")
+            error_msg = get_user_friendly_error(e)
+            return False, error_msg, None
     
     def logout(self):
         """Logout user"""

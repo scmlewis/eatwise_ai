@@ -1,9 +1,15 @@
 """Utility functions for EatWise"""
 import json
+import html
+import time
+import logging
+from functools import wraps
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import streamlit as st
 import pytz
+
+logger = logging.getLogger(__name__)
 
 
 def get_greeting(timezone_str: str = "UTC") -> str:
@@ -302,4 +308,116 @@ def get_nutrition_icon(nutrition_type: str) -> str:
         "trending": "trending-up"
     }
     return icon_map.get(nutrition_type, "circle")
+
+
+def retry_on_failure(max_retries: int = 3, delay: float = 1.0, backoff: float = 2.0, exceptions: tuple = (ConnectionError, TimeoutError)):
+    """
+    Decorator to retry failed operations with exponential backoff.
+    
+    Args:
+        max_retries: Maximum number of retry attempts
+        delay: Initial delay between retries in seconds
+        backoff: Multiplier for delay after each retry
+        exceptions: Tuple of exception types to catch and retry
+        
+    Returns:
+        Decorated function that retries on failure
+        
+    Example:
+        @retry_on_failure(max_retries=3)
+        def fetch_data():
+            # ... code that might fail
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            retries = 0
+            current_delay = delay
+            
+            while retries <= max_retries:
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    retries += 1
+                    if retries > max_retries:
+                        logger.error(f"Max retries ({max_retries}) reached for {func.__name__}: {e}")
+                        raise
+                    
+                    logger.warning(
+                        f"Retry {retries}/{max_retries} for {func.__name__} "
+                        f"after {current_delay:.1f}s due to: {type(e).__name__}"
+                    )
+                    time.sleep(current_delay)
+                    current_delay *= backoff
+                except Exception as e:
+                    # Don't retry on other exception types
+                    logger.error(f"Non-retryable error in {func.__name__}: {type(e).__name__}: {e}")
+                    raise
+                    
+            return None
+        return wrapper
+    return decorator
+
+
+def sanitize_user_input(text: str, max_length: int = 1000) -> str:
+    """
+    Sanitize user input for AI prompts and database storage.
+    
+    Args:
+        text: User input text to sanitize
+        max_length: Maximum allowed length
+        
+    Returns:
+        Sanitized text safe for processing
+        
+    Example:
+        meal_desc = sanitize_user_input(user_input, max_length=500)
+    """
+    if not text or not isinstance(text, str):
+        return ""
+    
+    # Remove excessive whitespace
+    text = " ".join(text.split())
+    
+    # Truncate to max length
+    if len(text) > max_length:
+        logger.warning(f"Input truncated from {len(text)} to {max_length} characters")
+        text = text[:max_length]
+    
+    # Escape HTML to prevent injection
+    text = html.escape(text)
+    
+    return text
+
+
+def get_user_friendly_error(error: Exception) -> str:
+    """
+    Convert technical errors to user-friendly messages.
+    
+    Args:
+        error: Exception object
+        
+    Returns:
+        User-friendly error message
+    """
+    ERROR_MESSAGES = {
+        "user_id": "Your session has expired. Please log in again.",
+        "row level security": "You don't have permission to access this data.",
+        "permission denied": "You don't have permission to perform this action.",
+        "network": "Connection error. Please check your internet connection.",
+        "timeout": "Request timed out. Please try again.",
+        "rate limit": "Too many requests. Please wait a moment and try again.",
+        "authentication": "Authentication error. Please log in again.",
+        "not found": "The requested resource was not found.",
+    }
+    
+    error_str = str(error).lower()
+    
+    for key, message in ERROR_MESSAGES.items():
+        if key in error_str:
+            return message
+    
+    # Default message for unknown errors
+    return "An unexpected error occurred. Please try again or contact support if the issue persists."
+
 

@@ -3,10 +3,12 @@ import json
 import logging
 from typing import Dict, List, Tuple, Optional
 from openai import AzureOpenAI
+from openai import APIError, RateLimitError, APIConnectionError
 import streamlit as st
 from config import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 import base64
 from io import BytesIO
+from utils import sanitize_user_input, get_user_friendly_error
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +52,10 @@ class NutritionAnalyzer:
             Dictionary with meal info and nutrition data
         """
         try:
+            # Sanitize user input before sending to OpenAI
+            meal_description = sanitize_user_input(meal_description, max_length=500)
+            meal_type = sanitize_user_input(meal_type, max_length=50)
+            
             prompt = f"""Analyze the following meal description and provide nutritional information.
             
 Meal: {meal_description}
@@ -101,8 +107,25 @@ Provide realistic estimates based on typical portion sizes."""
                     return analysis
                 return None
         
+        except RateLimitError as e:
+            logger.error(f"OpenAI rate limit exceeded: {e}")
+            st.error("Too many requests. Please wait a moment and try again.")
+            return None
+        except APIConnectionError as e:
+            logger.error(f"OpenAI connection error: {e}")
+            st.error("Connection error with AI service. Please check your internet connection.")
+            return None
+        except APIError as e:
+            logger.error(f"OpenAI API error: {e}")
+            st.error(f"AI service error: {get_user_friendly_error(e)}")
+            return None
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse AI response: {e}")
+            st.error("Failed to parse nutrition data. Please try again.")
+            return None
         except Exception as e:
-            st.error(f"Error analyzing meal: {str(e)}")
+            logger.error(f"Unexpected error analyzing meal: {type(e).__name__}: {e}")
+            st.error(f"Error analyzing meal: {get_user_friendly_error(e)}")
             return None
     
     def analyze_food_image(self, image_data: bytes) -> Optional[Dict]:
