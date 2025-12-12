@@ -4363,30 +4363,16 @@ def help_page():
     """, unsafe_allow_html=True)
     
     # Create tabs for different sections
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["About", "Features", "How to Use", "FAQ", "Portion Estimation"])
+    tab1, tab2, tab3 = st.tabs(["About & Features", "How to Use", "FAQ & Tips"])
     
     with tab1:
         st.markdown("## About EatWise")
         st.markdown("""
-        **EatWise** is an AI-powered nutrition tracking and health insights application designed to help you:
+        **EatWise** is an AI-powered nutrition tracker that helps you log meals, understand your eating patterns, and achieve your health goals. Log with text or photos, get personalized coaching, and dine out confidently with smart restaurant recommendations.
         
-        - 🍎 Log meals using text descriptions or food photos
-        - 📊 Track nutrition intake and analyze eating patterns
-        - 💡 Receive personalized meal recommendations
-        - 📈 Monitor health progress with detailed analytics
-        - 🎯 Achieve your health and fitness goals
-        
-        ### Technology Stack
-        - **Frontend**: Streamlit (Python)
-        - **Backend**: Supabase (PostgreSQL)
-        - **AI/ML**: Azure OpenAI (GPT-4)
-        - **Deployment**: Streamlit Cloud
-        
-        ### Version
-        **v2.6.2** - Latest stable release (Dec 06, 2025)
+        **v2.6.2** | December 2025
         """)
-    
-    with tab2:
+        
         st.markdown("## Key Features")
         
         col1, col2 = st.columns(2)
@@ -4394,56 +4380,36 @@ def help_page():
         with col1:
             st.markdown("### 📝 Meal Logging")
             st.markdown("""
-            - Text-based meal descriptions
-            - Food photo recognition
-            - Nutritional analysis
-            - Multiple meal types (breakfast, lunch, dinner, snack, beverage)
+            Text-based meal descriptions, food photo recognition, and nutritional analysis across multiple meal types.
             """)
             
             st.markdown("### 📊 Analytics Dashboard")
             st.markdown("""
-            - Daily nutrition trends
-            - Macronutrient distribution
-            - Meal type breakdown
-            - Calorie tracking progress
+            Daily nutrition trends, macronutrient distribution, and calorie tracking progress.
             """)
             
             st.markdown("### 💡 Smart Insights")
             st.markdown("""
-            - AI-powered health analysis
-            - Personalized recommendations
-            - Strength identification
-            - Areas for improvement
+            AI-powered health analysis with personalized recommendations tailored to your profile.
             """)
         
         with col2:
             st.markdown("### 📋 Meal History")
             st.markdown("""
-            - Browse all logged meals
-            - Edit meal details
-            - Delete meals
-            - Date range filtering
+            Browse, edit, and delete logged meals with date range filtering.
             """)
             
             st.markdown("### 🎯 AI Nutrition Coaching")
             st.markdown("""
-            - Chat with AI coach about nutrition
-            - Ask personalized nutrition questions
-            - Receive guidance based on your profile
-            - Multi-turn conversations with context awareness
-            - Clear chat to start fresh anytime
+            Chat with your AI coach for personalized nutrition guidance based on your profile and goals.
             """)
             
             st.markdown("### 🍽️ Restaurant Menu Analyzer")
             st.markdown("""
-            - Paste restaurant menus for analysis
-            - Upload menu photos with OCR
-            - Get personalized recommendations
-            - See items to avoid
-            - Modification suggestions for healthier ordering
+            Get personalized recommendations, healthier modifications, and item suggestions for dining out.
             """)
     
-    with tab3:
+    with tab2:
         st.markdown("## How to Use EatWise")
         
         st.markdown("### Step 1: Create Your Profile")
@@ -4531,361 +4497,128 @@ def help_page():
         - 📊 Nutrition Cards: Beautiful breakdown of each meal option
         """)
     
-    with tab4:
+    with tab3:
         st.markdown("## Frequently Asked Questions")
         
         with st.expander("❓ How accurate is the nutrition analysis?"):
             st.markdown("""
-            Our **Hybrid Nutrition System** ensures maximum accuracy:
+            Our **Hybrid Nutrition System** combines USDA database accuracy with AI intelligence:
             
-            **How It Works:**
-            1. **AI Ingredient Detection**: GPT-4 analyzes your text or photo to identify specific foods
-            2. **Database Lookup**: For 100+ common foods, we use USDA-validated nutrition data
-            3. **Intelligent Estimation**: For less common ingredients, AI applies smart heuristics based on food category
-            4. **Coverage Reporting**: You see which foods came from the database vs. estimated
-            
-            **Database Coverage:**
-            - 100+ common foods with exact USDA values
-            - All vegetables, fruits, proteins, grains, dairy
-            - Restaurant chains and prepared foods
-            
-            **Accuracy Level:**
-            - Database foods: 99%+ accurate (USDA-validated)
-            - Estimated foods: 85-95% accurate (AI-based category estimation)
-            - For medical or precise nutritional needs, consult a nutritionist
-            
-            **What This Means:**
-            - Common meals (chicken + rice): Near-exact values
-            - Specialty dishes: Realistic estimates within 5-10%
-            - You always know which values are from database vs. estimated
+            - **100+ common foods**: USDA-validated data (99%+ accurate)
+            - **All other foods**: AI estimates (85-95% accurate)
+            - Common meals (e.g., chicken + rice): Near-exact values
+            - You always see which foods came from database vs. estimated
             """)
         
         with st.expander("❓ What foods are in your nutrition database?"):
             st.markdown("""
-            Our database includes 100+ common foods with precise USDA nutrition values:
+            **100+ common foods** with precise USDA values:
             
-            **Proteins:**
-            - Chicken breast, ground beef, salmon, tuna, tofu, eggs, beans
+            Proteins (chicken, beef, salmon, eggs, beans), Vegetables (broccoli, spinach, carrots, peppers), Fruits (apples, bananas, berries, avocado), Grains (rice, pasta, bread, oats), Dairy (milk, yogurt, cheese), and common restaurant items.
             
-            **Vegetables:**
-            - Broccoli, spinach, carrots, tomatoes, lettuce, bell peppers, zucchini, mushrooms, and more
-            
-            **Fruits:**
-            - Apples, bananas, oranges, berries, avocado, grapes, peaches
-            
-            **Grains & Carbs:**
-            - Brown rice, white rice, pasta, bread, oats, quinoa, sweet potatoes
-            
-            **Dairy:**
-            - Milk, yogurt, cheese (cheddar, mozzarella), cottage cheese
-            
-            **Prepared Foods:**
-            - Common restaurant items, fast food chains, packaged meals
-            
-            **Missing a Food?**
-            - If your food isn't in the database, AI estimates based on similar foods
-            - The coverage report shows which values are database-backed vs. estimated
-            - Estimates are typically 85-95% accurate for similar food categories
+            Missing a food? AI estimates based on similar foods—typically 85-95% accurate.
             """)
         
+        with st.expander("❓ Can I edit or delete meals?"):
             st.markdown("""
-            Yes! Go to **Meal History** and:
-            1. Find the meal you want to edit
-            2. Click the "Edit" button
-            3. Modify any details or nutrition values
-            4. Click "Save Changes"
-            """)
-        
-        with st.expander("❓ What if a meal was logged incorrectly?"):
-            st.markdown("""
-            You can either:
-            1. **Edit it**: Go to **Meal History**, click Edit, and update the information
-            2. **Delete it**: Click Delete to remove it completely
-            
-            Then log it again with the correct information.
+            Yes! Go to **Meal History**, click Edit to modify details, or Delete to remove completely. Then log the correct information.
             """)
         
         with st.expander("❓ How do recommendations work?"):
             st.markdown("""
-            Our AI analyzes:
-            - Your recent meal history
-            - Your health profile and goals
-            - Your current nutrition levels
-            - Your dietary preferences
-            
-            Then generates personalized meal suggestions to help you meet your goals.
-            """)
-        
-        with st.expander("❓ Can I access the app on mobile?"):
-            st.markdown("""
-            Yes! EatWise is fully responsive and works on:
-            - Smartphones (iOS & Android)
-            - Tablets
-            - Desktops
-            
-            Just use your browser to access https://eatwise-ai.streamlit.app/
-            """)
-        
-        with st.expander("❓ How does the restaurant menu analyzer work?"):
-            st.markdown("""
-            The **Eating Out** feature helps you make healthy choices when dining:
-            
-            **Text Menu Option:**
-            1. Paste the restaurant menu
-            2. AI analyzes it against your health profile and goals
-            3. Get personalized recommendations
-            
-            **Photo Menu Option:**
-            1. Upload a menu photo
-            2. AI reads the text automatically (OCR)
-            3. Same analysis and recommendations as text
-            
-            The analyzer considers:
-            - Your health conditions
-            - Your dietary preferences
-            - Your nutrition goals
-            - Your remaining daily nutrition budget
-            """)
-        
-        with st.expander("❓ What do the nutrition cards show?"):
-            st.markdown("""
-            Each recommended meal option displays:
-            - **Calories**: Total energy content
-            - **Protein**: Important for muscle and satiety
-            - **Carbs**: Carbohydrates for energy
-            - **Sodium**: Salt content (important if you monitor sodium)
-            
-            All nutrition estimates are realistic approximations based on:
-            - Typical portions
-            - Cooking methods mentioned
-            - Standard food composition data
-            """)
-        
-        with st.expander("❓ Can I trust the restaurant recommendations?"):
-            st.markdown("""
-            Our AI provides intelligent recommendations, but remember:
-            
-            **Accuracy factors:**
-            - AI estimates nutrition from descriptions
-            - Actual values may vary by restaurant
-            - Portion sizes can differ
-            
-            **Best practices:**
-            - Use recommendations as guidance, not exact values
-            - When unsure, ask the restaurant for nutrition info
-            - Check modification tips (like "sauce on the side")
-            - Trust your body and adjust as needed
+            Our AI analyzes your meal history, health profile, current nutrition levels, and dietary preferences—then generates personalized meal suggestions tailored to your goals.
             """)
         
         with st.expander("❓ How is my data stored?"):
             st.markdown("""
-            Your data is securely stored in **Supabase** (PostgreSQL database):
+            Your data is securely stored in **Supabase** (PostgreSQL):
             - Encrypted in transit and at rest
-            - Regular backups
             - GDPR compliant
-            - Only your meals and profile are stored (no photos)
+            - Only meals and profile stored (no photos)
             """)
         
-        with st.expander("❓ Is there a way to export my data?"):
+        with st.expander("❓ Can I trust the restaurant recommendations?"):
             st.markdown("""
-            Currently, you can view all your meals in the **Meal History** section.
-            Export functionality is coming in future updates!
+            Our AI provides intelligent guidance, but remember:
+            - Use recommendations as guidance, not exact values
+            - Ask restaurants for nutrition info when available
+            - Check modification tips (e.g., "sauce on the side")
+            - Actual values may vary by restaurant and portion
             """)
         
-        with st.expander("❓ What can I ask the AI Coaching feature?"):
+        with st.expander("❓ What can I ask the AI Coach?"):
             st.markdown("""
-            You can ask your AI nutrition coach many things:
-            - "What should I eat for dinner?" → Gets personalized meal suggestions
-            - "Is pasta healthy?" → Gets advice considering your health conditions
-            - "How can I improve my diet?" → Gets strategies based on your profile
-            - "What nutrients am I missing?" → Analysis of your recent meals
-            - "How much protein should I eat?" → Recommendations based on your age and goals
+            "What should I eat for dinner?" | "Is pasta healthy?" | "How can I improve my diet?" | "What nutrients am I missing?" | "How much protein should I eat?"
             
-            The coach provides personalized guidance considering your health conditions, 
-            age, dietary preferences, and nutrition goals.
+            Your coach provides personalized guidance based on your health conditions, age, dietary preferences, and nutrition goals.
             """)
         
-        with st.expander("❓ How often should I use the Coaching feature?"):
-            st.markdown("""
-            - **Anytime**: Ask your coach whenever you need nutrition guidance
-            - **After meals**: Get feedback on what you just logged
-            - **When deciding**: Get suggestions when choosing what to eat
-            - **For tips**: Ask for personalized nutrition advice
-            
-            The more you interact with your coach, the better it understands your goals!
-            """)
-    
-    with tab5:
-        st.markdown("## Portion Estimation Guide")
+        st.markdown("## Portion Estimation Tips")
         
         st.markdown("""
-        EatWise uses AI to analyze your meals from text descriptions or photos. However, **the accuracy depends on how clearly you describe or photograph your food**.
-        
-        ### Confidence Levels
+        **Accuracy depends on how clearly you describe your food:**
         """)
         
         col1, col2 = st.columns(2)
         
         with col1:
             st.markdown("""
-            **HIGH CONFIDENCE (±15%)**
-            - You provide exact measurements
-            - Example: "150g chicken, 200g rice, 1 tbsp oil"
-            - Best accuracy
+            **HIGH (±15%)**
+            - "150g chicken, 200g rice, 1 tbsp oil"
             
-            **MEDIUM CONFIDENCE (±20-25%)**
-            - General portion descriptions
-            - Example: "A bowl of rice with chicken"
-            - Good accuracy
+            **MEDIUM (±20-25%)**
+            - "A bowl of rice with chicken"
+            
+            **MEDIUM-LOW (±30-35%)**
+            - "Some rice and chicken"
+            
+            **LOW (±40-50%)**
+            - Photo with no text
             """)
         
         with col2:
             st.markdown("""
-            **MEDIUM-LOW CONFIDENCE (±30-35%)**
-            - Vague descriptions
-            - Example: "Some rice and chicken"
-            - Fair accuracy
+            **🎯 Improve Accuracy:**
             
-            **LOW CONFIDENCE (±40-50%)**
-            - Photos without portion details
-            - Example: Photo with no text
-            - Requires careful review
+            **Text:**
+            - Use exact measurements (grams, cups, tbsp)
+            - Specify cooking method
+            - List all ingredients separately
+            
+            **Photo:**
+            - Include size reference (coin, hand)
+            - Good lighting & 45° angle
+            - Add text description
             """)
         
-        st.markdown("### How to Improve Accuracy")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
+        with st.expander("📝 Text Input Rules", expanded=False):
             st.markdown("""
-            **For Text Descriptions:**
+            **Specific Measurements** = HIGH Accuracy
+            - Weight: 150g, 400g, 2 oz
+            - Volume: 1 cup, 200ml, 2 tbsp
+            - Count: 2 eggs, 3 slices
             
-            ✓ Use specific measurements
-            - "150g chicken" not "some chicken"
-            - "2 tbsp olive oil" not "oil"
-            - "1 cup rice" not "rice"
-            
-            ✓ Specify cooking method
-            - "Grilled" vs "Fried" (huge calorie difference!)
-            - "Pan-sautéed in 1 tbsp oil"
-            
-            ✓ Include all ingredients
-            - List each separately
-            - Don't forget sauces/dressings
-            
-            ✓ Example good input:
-            "Grilled 150g chicken breast, 200g brown rice, 100g broccoli, 1 tbsp olive oil"
-            """)
-        
-        with col2:
-            st.markdown("""
-            **For Food Photos:**
-            
-            ✓ Include a size reference
-            - Coin, credit card, or hand in photo
-            - Helps estimate actual portions
-            
-            ✓ Use good lighting
-            - Natural light works best
-            - Clear visibility of all items
-            
-            ✓ Take from 45° angle
-            - Can see both area and depth
-            - Better than top-down or side view
-            
-            ✓ Add text description
-            - "150g chicken, 1 cup rice"
-            - Much more accurate than photo alone
-            
-            ✓ Example good photo:
-            Photo of plate with coin/hand for scale + text "150g grilled chicken, 200g brown rice"
-            """)
-        
-        st.markdown("### Estimation Rules")
-        
-        with st.expander("📝 Text Input Rules", expanded=True):
-            st.markdown("""
-            **Specific Measurements = HIGH Accuracy**
-            - Weight: 150g, 400g, 2 oz, 1 lb
-            - Volume: 1 cup, 200ml, 2 tbsp, 1 L
-            - Count: 2 eggs, 3 slices, 1 piece
-            - Size: "medium apple", "large banana"
-            
-            **Portion Descriptors = MEDIUM Accuracy**
+            **Portion Descriptors** = MEDIUM Accuracy
             - "A bowl of" → ~250-350g
             - "A plate of" → ~300-400g
-            - "A serving" → standard USDA serving
             - "A handful" → ~50-100g
             
-            **Cooking Methods MATTER**
+            **Cooking Methods Matter**
             - Grilled/Baked: baseline
             - Boiled/Steamed: -10% calories
             - Pan-fried: +20% calories
             - Deep-fried: +50-100% calories
-            - With oil/butter: specify amount!
             
-            **Common Mistakes to Avoid**
-            - ✗ Saying "with dressing" instead of "2 tbsp dressing"
-            - ✗ Describing mixed dishes without listing components
-            - ✗ Forgetting cooking fats (oil, butter)
-            - ✗ Using "some" instead of specific amounts
+            **Common Mistakes**
+            - Saying "with dressing" instead of "2 tbsp dressing"
+            - Forgetting cooking fats (oil, butter)
+            - Using "some" instead of specific amounts
             """)
-        
-        with st.expander("📷 Photo Input Rules", expanded=False):
-            st.markdown("""
-            **Size References Help Most**
-            - Plate diameter: ~25cm (standard)
-            - Utensils: fork ~17cm
-            - Coin: quarter ~17mm
-            - Hand: ~8-10cm wide
-            
-            **Best Photo Angles**
-            - 45° angle: Best (see area + depth)
-            - Top-down: Okay but tends to under-estimate
-            - Side view: Can see depth but not area
-            
-            **What Affects Accuracy**
-            - Lighting: Bright is better than shadows
-            - Focus: Sharp photo > blurry photo
-            - Timing: Before eating > after eating
-            - Components: Clear separation > mixed/blended
-            
-            **Photo Quality Checklist**
-            - [ ] All food items visible
-            - [ ] Reference object included (coin/hand)
-            - [ ] Good natural lighting
-            - [ ] Sharp focus
-            - [ ] 45° angle
-            - [ ] Text description added if possible
-            """)
-        
-        st.markdown("### Why Accuracy Matters")
         
         st.markdown("""
-        **Single Meal:** Variation of ±30-40% is normal and acceptable
+        ### Key Insight
         
-        **Weekly Average:** Variation reduces to ±15% - very reliable
-        
-        **Monthly Patterns:** Variation reduces to ±5-10% - highly reliable
-        
-        **Why?** Random overestimates and underestimates cancel out over time!
-        
-        ### Key Takeaway
-        
-        Even with uncertainty in individual meals, **tracking patterns over weeks and months reveals reliable trends**. The most important thing is to log consistently!
-        """)
-        
-        # Link to full guide
-        st.info("""
-        📖 **Want more details?**
-        
-        See the full Portion Estimation Guide for:
-        - Detailed estimation rules
-        - Examples for each confidence level
-        - Tips and best practices
-        - Food-specific guidance
-        
-        The guide is included in the app repository.
+        Even with ±30-40% variation in single meals, **weekly averages show only ±15% variation, and monthly patterns show ±5-10%**. Random errors cancel out over time! The most important thing is to log consistently.
         """)
     
     st.divider()
