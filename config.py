@@ -69,3 +69,11 @@ HEALTH_GOAL_TARGETS = {
     "muscle_gain": {"calories": 2800, "protein": 120},
     "performance": {"calories": 2600, "protein": 100, "carbs": 400},
 }
+
+# Gender-Based Targets (Adjustments for biological differences in metabolism)
+GENDER_ADJUSTMENTS = {
+    "Male": {"calories": 200, "protein": 5},          # Slightly higher due to greater muscle mass
+    "Female": {"calories": -200, "protein": -5},      # Slightly lower due to different metabolism
+    "Other": {},                                       # No adjustment for non-binary
+    "Prefer not to say": {},                          # No adjustment when not specified
+}

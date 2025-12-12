@@ -20,7 +20,7 @@ from config import (
     APP_NAME, APP_DESCRIPTION, SUPABASE_URL, SUPABASE_KEY,
     DAILY_CALORIE_TARGET, DAILY_PROTEIN_TARGET, DAILY_CARBS_TARGET,
     DAILY_FAT_TARGET, DAILY_SODIUM_TARGET, DAILY_SUGAR_TARGET, 
-    DAILY_FIBER_TARGET, AGE_GROUP_TARGETS, HEALTH_CONDITION_TARGETS, HEALTH_GOAL_TARGETS,
+    DAILY_FIBER_TARGET, AGE_GROUP_TARGETS, HEALTH_CONDITION_TARGETS, HEALTH_GOAL_TARGETS, GENDER_ADJUSTMENTS,
     AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 )
 from constants import MEAL_TYPES, HEALTH_CONDITIONS, DIETARY_PREFERENCES, BADGES, COLORS
@@ -1281,7 +1281,7 @@ def dashboard_page():
     
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
     
     # Apply health condition adjustments
     health_conditions = user_profile.get("health_conditions", [])
@@ -1293,6 +1293,13 @@ def dashboard_page():
     health_goal = user_profile.get("health_goal", "general_health")
     if health_goal in HEALTH_GOAL_TARGETS:
         targets.update(HEALTH_GOAL_TARGETS[health_goal])
+    
+    # Apply gender adjustments
+    gender = user_profile.get("gender", "Prefer not to say")
+    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+        for key, value in GENDER_ADJUSTMENTS[gender].items():
+            if key in targets:
+                targets[key] += value
     
     # ===== Statistics & Achievements (Top Section) =====
     # Get data for the last 7 days for statistics
@@ -2345,6 +2352,13 @@ def analytics_page():
     if health_goal in HEALTH_GOAL_TARGETS:
         targets.update(HEALTH_GOAL_TARGETS[health_goal])
     
+    # Apply gender adjustments
+    gender = user_profile.get("gender", "Prefer not to say")
+    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+        for key, value in GENDER_ADJUSTMENTS[gender].items():
+            if key in targets:
+                targets[key] += value
+    
     # ===== STATISTICS CARDS =====
     st.markdown("## 📊 Statistics")
     
@@ -2673,6 +2687,13 @@ def insights_page():
     health_goal = user_profile.get("health_goal", "general_health")
     if health_goal in HEALTH_GOAL_TARGETS:
         targets.update(HEALTH_GOAL_TARGETS[health_goal])
+    
+    # Apply gender adjustments
+    gender = user_profile.get("gender", "Prefer not to say")
+    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+        for key, value in GENDER_ADJUSTMENTS[gender].items():
+            if key in targets:
+                targets[key] += value
     
     # Today's summary
     today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
@@ -3713,6 +3734,13 @@ def coaching_assistant_page():
         if health_goal in HEALTH_GOAL_TARGETS:
             targets.update(HEALTH_GOAL_TARGETS[health_goal])
         
+        # Apply gender adjustments
+        gender = user_profile.get("gender", "Prefer not to say")
+        if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+            for key, value in GENDER_ADJUSTMENTS[gender].items():
+                if key in targets:
+                    targets[key] += value
+        
         # Initialize conversation history in session state
         if "coaching_conversation" not in st.session_state:
             st.session_state.coaching_conversation = []
@@ -3864,6 +3892,11 @@ def restaurant_analyzer_page():
                     health_goal = user_profile.get("health_goal", "general_health")
                     if health_goal in HEALTH_GOAL_TARGETS:
                         targets.update(HEALTH_GOAL_TARGETS[health_goal])
+                    gender = user_profile.get("gender", "Prefer not to say")
+                    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+                        for key, value in GENDER_ADJUSTMENTS[gender].items():
+                            if key in targets:
+                                targets[key] += value
                     
                     # Analyze menu
                     analysis = menu_analyzer.analyze_menu(
@@ -3955,6 +3988,11 @@ def restaurant_analyzer_page():
                                 health_goal = user_profile.get("health_goal", "general_health")
                                 if health_goal in HEALTH_GOAL_TARGETS:
                                     targets.update(HEALTH_GOAL_TARGETS[health_goal])
+                                gender = user_profile.get("gender", "Prefer not to say")
+                                if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+                                    for key, value in GENDER_ADJUSTMENTS[gender].items():
+                                        if key in targets:
+                                            targets[key] += value
                                 
                                 # Analyze menu
                                 analysis = menu_analyzer.analyze_menu(
@@ -4551,6 +4589,11 @@ def main():
                 health_goal = user_profile.get("health_goal", "general_health")
                 if health_goal in HEALTH_GOAL_TARGETS:
                     targets.update(HEALTH_GOAL_TARGETS[health_goal])
+                gender = user_profile.get("gender", "Prefer not to say")
+                if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+                    for key, value in GENDER_ADJUSTMENTS[gender].items():
+                        if key in targets:
+                            targets[key] += value
                 cal_display = int(today_nutrition['calories'])
             else:
                 cal_display = int(today_nutrition['calories'])
