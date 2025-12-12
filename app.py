@@ -264,104 +264,10 @@ def show_nutrition_facts(nutrition: dict, show_label: bool = False):
     st.markdown(nutrition_analyzer.get_nutrition_facts_html(nutrition), unsafe_allow_html=True)
 
 
-def error_state(title: str, message: str, suggestion: str = None, icon: str = "⚠️"):
-    """
-    Display a professional error state with helpful suggestions.
-    
-    Args:
-        title: Error title
-        message: Error description
-        suggestion: Helpful suggestion to resolve the issue
-        icon: Error icon emoji
-    """
-    html_content = f"""
-    <div style="
-        background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 138, 138, 0.05) 100%);
-        border: 1px solid rgba(255, 107, 107, 0.3);
-        border-left: 4px solid #FF6B6B;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 16px 0;
-    ">
-        <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <div style="font-size: 24px; margin-top: 2px;">{icon}</div>
-            <div style="flex: 1;">
-                <div style="
-                    font-size: 16px;
-                    font-weight: bold;
-                    color: #FF6B6B;
-                    margin-bottom: 8px;
-                ">{title}</div>
-                <div style="
-                    font-size: 14px;
-                    color: #a0a0a0;
-                    margin-bottom: 12px;
-                    line-height: 1.5;
-                ">{message}</div>
-    """
-    
-    if suggestion:
-        html_content += f"""
-                <div style="
-                    background: rgba(16, 161, 157, 0.1);
-                    border-left: 2px solid #10A19D;
-                    padding: 12px;
-                    border-radius: 6px;
-                    font-size: 13px;
-                    color: #10A19D;
-                    margin-top: 12px;
-                ">
-                    💡 <strong>Suggestion:</strong> {suggestion}
-                </div>
-        """
-    
-    html_content += """
-            </div>
-        </div>
-    </div>
-    """
-    
-    st.markdown(html_content, unsafe_allow_html=True)
 
 
-def success_state(title: str, message: str, icon: str = "✅"):
-    """
-    Display a professional success state.
-    
-    Args:
-        title: Success title
-        message: Success description
-        icon: Success icon emoji
-    """
-    html_content = f"""
-    <div style="
-        background: linear-gradient(135deg, rgba(81, 207, 102, 0.1) 0%, rgba(128, 195, 66, 0.05) 100%);
-        border: 1px solid rgba(81, 207, 102, 0.3);
-        border-left: 4px solid #51CF66;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 16px 0;
-    ">
-        <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <div style="font-size: 24px; margin-top: 2px;">{icon}</div>
-            <div style="flex: 1;">
-                <div style="
-                    font-size: 16px;
-                    font-weight: bold;
-                    color: #51CF66;
-                    margin-bottom: 8px;
-                ">{title}</div>
-                <div style="
-                    font-size: 14px;
-                    color: #a0a0a0;
-                    line-height: 1.5;
-                ">{message}</div>
-            </div>
-        </div>
-    </div>
-    """
-    
-    st.markdown(html_content, unsafe_allow_html=True)
+
+
 
 
 # ==================== PAGE CONFIG ====================
@@ -2214,12 +2120,7 @@ def meal_logging_page():
                     st.toast("Meal saved! +25 XP", icon="✅")
                     st.rerun()
                 else:
-                    error_state(
-                        "Failed to Save Meal",
-                        "We couldn't save your meal to the database. This might be a temporary connection issue.",
-                        suggestion="Please check your internet connection and try again.",
-                        icon="💾"
-                    )
+                    show_notification("Failed to save meal. Please check your internet connection and try again.", "error", use_toast=False)
     
     with tab2:
         st.markdown("## 📸 Upload Food Photo")
@@ -2265,14 +2166,9 @@ def meal_logging_page():
                         # Store analysis and portion description in session state
                         st.session_state.photo_analysis = analysis
                         st.session_state.photo_portion_description = portion_description
-                        success_state("Photo Analyzed Successfully", "Your meal has been analyzed and is ready to save!")
+                        show_notification("Photo analyzed! Ready to save.", "success", use_toast=False)
                     else:
-                        error_state(
-                            "Analysis Failed",
-                            "We couldn't analyze your photo. This might happen if the image is unclear or doesn't show food.",
-                            suggestion="Try uploading a clearer photo with better lighting and focus on the food.",
-                            icon="🔍"
-                        )
+                        show_notification("Couldn't analyze photo. Try a clearer image with better lighting.", "error", use_toast=False)
         
         # Display analysis if it exists in session state
         if "photo_analysis" in st.session_state:
@@ -2338,12 +2234,7 @@ def meal_logging_page():
                     st.toast("Meal saved! +25 XP", icon="✅")
                     st.rerun()
                 else:
-                    error_state(
-                        "Failed to Save Meal",
-                        "We couldn't save your meal to the database. This might be a temporary connection issue.",
-                        suggestion="Please check your internet connection and try again.",
-                        icon="💾"
-                    )
+                    show_notification("Failed to save meal. Please check your internet connection and try again.", "error", use_toast=False)
     
     with tab3:
         st.markdown("## 📅 Batch Log Meals")
