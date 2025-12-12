@@ -59,13 +59,9 @@ class DatabaseManager:
                 else:
                     raise
         except ConnectionError as e:
-            error_msg = "Connection error while creating profile. Please check your internet connection."
-            st.error(error_msg)
             logger.error(f"Network error creating profile for {user_id}: {e}")
             return False
         except Exception as e:
-            error_msg = get_user_friendly_error(e)
-            st.error(f"Error creating health profile: {error_msg}")
             logger.error(f"Failed to create health profile for user {user_id}: {type(e).__name__}: {e}")
             return False
     
@@ -78,12 +74,9 @@ class DatabaseManager:
                 logger.info(f"Fetched profile for {user_id}: water_goal_glasses = {profile.get('water_goal_glasses')}")
             return profile
         except ConnectionError as e:
-            st.error("Connection error. Please check your internet connection.")
             logger.error(f"Network error fetching profile for {user_id}: {e}")
             return None
         except Exception as e:
-            error_msg = get_user_friendly_error(e)
-            st.error(f"Error fetching health profile: {error_msg}")
             logger.error(f"Error fetching profile for {user_id}: {type(e).__name__}: {e}")
             return None
     
@@ -107,7 +100,6 @@ class DatabaseManager:
             
             if not filtered_data:
                 logger.error("No valid profile fields to update")
-                st.error("No valid profile fields to update")
                 return False
             
             # Attempt to update, but if fields cause schema errors, retry without them
@@ -161,7 +153,6 @@ class DatabaseManager:
                         return True
                     else:
                         logger.error("No valid profile fields to update after removing optional fields")
-                        st.error("No valid profile fields to update")
                         return False
                 else:
                     logger.error(f"Unhandled error in profile update: {error_str}")
@@ -170,7 +161,6 @@ class DatabaseManager:
             error_msg = f"Error updating health profile: {str(e)}"
             logger.error(error_msg)
             logger.error(f"Full exception: {repr(e)}")
-            st.error(error_msg)
             return False
     
     # ==================== MEAL LOGGING ====================
