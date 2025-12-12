@@ -970,64 +970,6 @@ db_manager = DatabaseManager()
 nutrition_analyzer = NutritionAnalyzer()
 recommender = RecommendationEngine()
 
-# ==================== EXPORT & SHARE FUNCTIONS ====================
-
-def generate_nutrition_report(meals: List, daily_nutrition: Dict, targets: Dict, report_type: str = "weekly") -> str:
-    """Generate a text-based nutrition report"""
-    report = f"🥗 EatWise Nutrition Report ({report_type.title()})\n"
-    report += "=" * 50 + "\n\n"
-    
-    report += "📊 SUMMARY\n"
-    report += "-" * 50 + "\n"
-    report += f"Total Meals Logged: {len(meals)}\n"
-    report += f"Average Daily Calories: {daily_nutrition.get('calories', 0):.0f} / {targets.get('calories', 2000)}\n"
-    report += f"Average Daily Protein: {daily_nutrition.get('protein', 0):.1f}g / {targets.get('protein', 50)}g\n"
-    report += f"Average Daily Carbs: {daily_nutrition.get('carbs', 0):.1f}g / {targets.get('carbs', 300)}g\n"
-    report += f"Average Daily Fat: {daily_nutrition.get('fat', 0):.1f}g / {targets.get('fat', 65)}g\n\n"
-    
-    report += "📋 MEAL LIST\n"
-    report += "-" * 50 + "\n"
-    for meal in meals[:20]:  # Last 20 meals
-        report += f"• {meal.get('meal_name')} ({meal.get('meal_type')})\n"
-        report += f"  {meal.get('description', 'N/A')}\n"
-        nutrition = meal.get('nutrition', {})
-        report += f"  Calories: {nutrition.get('calories', 0):.0f} | Protein: {nutrition.get('protein', 0):.1f}g\n\n"
-    
-    report += "=" * 50 + "\n"
-    report += f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n"
-    
-    return report
-
-
-def generate_csv_export(meals: List) -> str:
-    """Generate a CSV export of meals"""
-    output = io.StringIO()
-    writer = csv.writer(output)
-    
-    # Write header
-    writer.writerow(['Date', 'Meal Name', 'Type', 'Calories', 'Protein (g)', 'Carbs (g)', 'Fat (g)', 'Sodium (mg)', 'Sugar (g)', 'Fiber (g)', 'Description'])
-    
-    # Write meal data
-    for meal in meals:
-        nutrition = meal.get('nutrition', {})
-        logged_at = meal.get('logged_at', '').split('T')[0] if meal.get('logged_at') else ''
-        
-        writer.writerow([
-            logged_at,
-            meal.get('meal_name', ''),
-            meal.get('meal_type', ''),
-            f"{nutrition.get('calories', 0):.0f}",
-            f"{nutrition.get('protein', 0):.1f}",
-            f"{nutrition.get('carbs', 0):.1f}",
-            f"{nutrition.get('fat', 0):.1f}",
-            f"{nutrition.get('sodium', 0):.0f}",
-            f"{nutrition.get('sugar', 0):.1f}",
-            f"{nutrition.get('fiber', 0):.1f}",
-            meal.get('description', '')
-        ])
-    
-    return output.getvalue()
-
 
 # ==================== AUTHENTICATION PAGES ====================
 
@@ -2964,59 +2906,6 @@ def insights_page():
             sugar_current = today_nutrition.get('sugar', 0)
             st.metric("Sugar", f"{sugar_current:.0f}g", f"Limit: {sugar_target}g")
     
-    # ===== Export Data =====
-    st.divider()
-    st.markdown("## 📥 Export Your Data")
-    
-    export_col1, export_col2, export_col3 = st.columns(3)
-    
-    with export_col1:
-        if st.button("📄 Export as CSV", use_container_width=True):
-            csv_data = generate_csv_export(meals)
-            st.download_button(
-                label="📥 Download CSV",
-                data=csv_data,
-                file_name=f"eatwise_meals_{date.today()}.csv",
-                mime="text/csv",
-                key="csv_download"
-            )
-    
-    with export_col2:
-        if st.button("📋 Export Report", use_container_width=True):
-            report = generate_nutrition_report(meals, today_nutrition, targets, "recent")
-            st.download_button(
-                label="📥 Download Report",
-                data=report,
-                file_name=f"eatwise_report_{date.today()}.txt",
-                mime="text/plain",
-                key="report_download"
-            )
-    
-    with export_col3:
-        if st.button("📊 Share Weekly Summary", use_container_width=True):
-            end_date = date.today()
-            start_date = end_date - timedelta(days=7)
-            weekly_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
-            
-            if weekly_meals:
-                weekly_nutrition = {
-                    "calories": sum(m.get('nutrition', {}).get('calories', 0) for m in weekly_meals) / 7,
-                    "protein": sum(m.get('nutrition', {}).get('protein', 0) for m in weekly_meals) / 7,
-                    "carbs": sum(m.get('nutrition', {}).get('carbs', 0) for m in weekly_meals) / 7,
-                    "fat": sum(m.get('nutrition', {}).get('fat', 0) for m in weekly_meals) / 7,
-                }
-                
-                summary = generate_nutrition_report(weekly_meals, weekly_nutrition, targets, "weekly")
-                with st.expander("📊 Weekly Summary Preview", expanded=True):
-                    st.text_area("Copy your weekly summary:", value=summary, height=250, disabled=True, key="weekly_summary_share")
-                
-                st.download_button(
-                    label="📥 Download Weekly Summary",
-                    data=summary,
-                    file_name=f"eatwise_weekly_summary_{date.today()}.txt",
-                    mime="text/plain",
-                    key="summary_download"
-                )
 
 
 def meal_history_page():
