@@ -26,18 +26,103 @@ class NutritionAnalyzer:
         self.food_database = self._load_food_database()
     
     def _load_food_database(self) -> Dict:
-        """Load common food nutrition data"""
+        """Load common food nutrition data (per 100g serving, USDA-based)"""
         return {
-            "rice": {"calories": 130, "protein": 2.7, "carbs": 28, "fat": 0.3, "sodium": 2, "sugar": 0, "fiber": 0.4},
+            # Proteins
             "chicken breast": {"calories": 165, "protein": 31, "carbs": 0, "fat": 3.6, "sodium": 74, "sugar": 0, "fiber": 0},
-            "egg": {"calories": 78, "protein": 6.3, "carbs": 0.6, "fat": 5.3, "sodium": 70, "sugar": 0.4, "fiber": 0},
-            "apple": {"calories": 52, "protein": 0.3, "carbs": 14, "fat": 0.2, "sodium": 1, "sugar": 10, "fiber": 2.4},
-            "bread": {"calories": 80, "protein": 3, "carbs": 14, "fat": 1, "sodium": 140, "sugar": 2, "fiber": 2},
-            "milk": {"calories": 61, "protein": 3.2, "carbs": 4.8, "fat": 3.3, "sodium": 44, "sugar": 4.8, "fiber": 0},
-            "salad": {"calories": 15, "protein": 1.2, "carbs": 3, "fat": 0.3, "sodium": 23, "sugar": 0.5, "fiber": 0.6},
-            "pasta": {"calories": 131, "protein": 5, "carbs": 25, "fat": 1.1, "sodium": 1, "sugar": 1, "fiber": 1.5},
+            "chicken thigh": {"calories": 209, "protein": 26, "carbs": 0, "fat": 11, "sodium": 81, "sugar": 0, "fiber": 0},
+            "ground beef": {"calories": 250, "protein": 26, "carbs": 0, "fat": 15, "sodium": 75, "sugar": 0, "fiber": 0},
             "salmon": {"calories": 280, "protein": 25, "carbs": 0, "fat": 20, "sodium": 75, "sugar": 0, "fiber": 0},
+            "tuna": {"calories": 132, "protein": 29, "carbs": 0, "fat": 1.3, "sodium": 41, "sugar": 0, "fiber": 0},
+            "tilapia": {"calories": 96, "protein": 20, "carbs": 0, "fat": 1.7, "sodium": 81, "sugar": 0, "fiber": 0},
+            "egg": {"calories": 78, "protein": 6.3, "carbs": 0.6, "fat": 5.3, "sodium": 70, "sugar": 0.4, "fiber": 0},
+            "tofu": {"calories": 76, "protein": 8.1, "carbs": 1.9, "fat": 4.8, "sodium": 7, "sugar": 0.3, "fiber": 1.2},
+            "greek yogurt": {"calories": 59, "protein": 10, "carbs": 3.3, "fat": 0.4, "sodium": 41, "sugar": 0.7, "fiber": 0},
+            "cottage cheese": {"calories": 98, "protein": 11, "carbs": 3.4, "fat": 5, "sodium": 390, "sugar": 0.3, "fiber": 0},
+            "turkey": {"calories": 135, "protein": 29, "carbs": 0, "fat": 1, "sodium": 50, "sugar": 0, "fiber": 0},
+            "pork chops": {"calories": 242, "protein": 27, "carbs": 0, "fat": 14, "sodium": 70, "sugar": 0, "fiber": 0},
+            "beef steak": {"calories": 271, "protein": 26, "carbs": 0, "fat": 18, "sodium": 59, "sugar": 0, "fiber": 0},
+            "shrimp": {"calories": 99, "protein": 24, "carbs": 0.2, "fat": 0.3, "sodium": 148, "sugar": 0, "fiber": 0},
+            "lentils": {"calories": 116, "protein": 9, "carbs": 20, "fat": 0.4, "sodium": 2, "sugar": 2, "fiber": 7.9},
+            "chickpeas": {"calories": 164, "protein": 8.9, "carbs": 27, "fat": 2.6, "sodium": 7, "sugar": 5.2, "fiber": 6.4},
+            "black beans": {"calories": 132, "protein": 8.9, "carbs": 24, "fat": 0.5, "sodium": 2, "sugar": 0.3, "fiber": 8.7},
+            
+            # Grains & Carbs
+            "white rice": {"calories": 130, "protein": 2.7, "carbs": 28, "fat": 0.3, "sodium": 2, "sugar": 0, "fiber": 0.4},
+            "brown rice": {"calories": 111, "protein": 2.6, "carbs": 23, "fat": 0.9, "sodium": 10, "sugar": 0.3, "fiber": 1.8},
+            "pasta": {"calories": 131, "protein": 5, "carbs": 25, "fat": 1.1, "sodium": 1, "sugar": 1, "fiber": 1.5},
+            "oats": {"calories": 389, "protein": 16.9, "carbs": 66.3, "fat": 6.9, "sodium": 30, "sugar": 0, "fiber": 10.6},
+            "bread": {"calories": 80, "protein": 3, "carbs": 14, "fat": 1, "sodium": 140, "sugar": 2, "fiber": 2},
+            "whole wheat bread": {"calories": 81, "protein": 4, "carbs": 14, "fat": 1.5, "sodium": 380, "sugar": 1.5, "fiber": 2.4},
+            "cereal": {"calories": 150, "protein": 3, "carbs": 30, "fat": 2, "sodium": 190, "sugar": 12, "fiber": 2},
+            "quinoa": {"calories": 120, "protein": 4.4, "carbs": 21.3, "fat": 1.9, "sodium": 7, "sugar": 1.6, "fiber": 2.8},
+            "sweet potato": {"calories": 86, "protein": 1.6, "carbs": 20, "fat": 0.1, "sodium": 55, "sugar": 4.2, "fiber": 3},
+            "white potato": {"calories": 77, "protein": 2.1, "carbs": 17, "fat": 0.1, "sodium": 6, "sugar": 0.8, "fiber": 2.1},
+            "corn": {"calories": 86, "protein": 3.3, "carbs": 19, "fat": 1.2, "sodium": 15, "sugar": 3, "fiber": 2.4},
+            
+            # Vegetables
             "broccoli": {"calories": 34, "protein": 2.8, "carbs": 7, "fat": 0.4, "sodium": 64, "sugar": 1.4, "fiber": 2.4},
+            "spinach": {"calories": 23, "protein": 2.9, "carbs": 3.6, "fat": 0.4, "sodium": 79, "sugar": 0.4, "fiber": 2.2},
+            "kale": {"calories": 49, "protein": 4.3, "carbs": 9, "fat": 0.9, "sodium": 90, "sugar": 0.9, "fiber": 3.6},
+            "carrots": {"calories": 41, "protein": 0.9, "carbs": 10, "fat": 0.2, "sodium": 69, "sugar": 4.7, "fiber": 2.8},
+            "tomato": {"calories": 18, "protein": 0.9, "carbs": 3.9, "fat": 0.2, "sodium": 5, "sugar": 2.6, "fiber": 1.2},
+            "cucumber": {"calories": 16, "protein": 0.7, "carbs": 3.6, "fat": 0.1, "sodium": 2, "sugar": 1.7, "fiber": 0.5},
+            "lettuce": {"calories": 15, "protein": 1.2, "carbs": 3, "fat": 0.3, "sodium": 23, "sugar": 0.5, "fiber": 0.6},
+            "bell pepper": {"calories": 31, "protein": 1, "carbs": 6, "fat": 0.3, "sodium": 2, "sugar": 3.2, "fiber": 2.2},
+            "onion": {"calories": 40, "protein": 1.1, "carbs": 9, "fat": 0.1, "sodium": 4, "sugar": 4.2, "fiber": 1.7},
+            "garlic": {"calories": 149, "protein": 6.4, "carbs": 33, "fat": 0.5, "sodium": 17, "sugar": 1, "fiber": 2.1},
+            "peas": {"calories": 81, "protein": 5.4, "carbs": 14, "fat": 0.4, "sodium": 5, "sugar": 5.7, "fiber": 2.8},
+            "beans": {"calories": 127, "protein": 8.7, "carbs": 23, "fat": 0.4, "sodium": 6, "sugar": 3.5, "fiber": 6.4},
+            "salad": {"calories": 15, "protein": 1.2, "carbs": 3, "fat": 0.3, "sodium": 23, "sugar": 0.5, "fiber": 0.6},
+            
+            # Fruits
+            "apple": {"calories": 52, "protein": 0.3, "carbs": 14, "fat": 0.2, "sodium": 1, "sugar": 10, "fiber": 2.4},
+            "banana": {"calories": 89, "protein": 1.1, "carbs": 23, "fat": 0.3, "sodium": 1, "sugar": 12, "fiber": 2.6},
+            "orange": {"calories": 47, "protein": 0.9, "carbs": 12, "fat": 0.3, "sodium": 0, "sugar": 9.4, "fiber": 2.4},
+            "strawberry": {"calories": 32, "protein": 0.8, "carbs": 8, "fat": 0.3, "sodium": 2, "sugar": 4.9, "fiber": 2},
+            "blueberry": {"calories": 57, "protein": 0.7, "carbs": 14, "fat": 0.3, "sodium": 1, "sugar": 10, "fiber": 2.4},
+            "watermelon": {"calories": 30, "protein": 0.6, "carbs": 8, "fat": 0.2, "sodium": 1, "sugar": 6, "fiber": 0.4},
+            "grape": {"calories": 67, "protein": 0.7, "carbs": 17, "fat": 0.2, "sodium": 2, "sugar": 16, "fiber": 0.9},
+            "mango": {"calories": 60, "protein": 0.8, "carbs": 15, "fat": 0.4, "sodium": 11, "sugar": 13.7, "fiber": 1.6},
+            "pineapple": {"calories": 50, "protein": 0.5, "carbs": 13, "fat": 0.1, "sodium": 1, "sugar": 9.9, "fiber": 1.4},
+            "peach": {"calories": 39, "protein": 0.9, "carbs": 10, "fat": 0.3, "sodium": 0, "sugar": 8.4, "fiber": 1.5},
+            "pear": {"calories": 57, "protein": 0.4, "carbs": 15, "fat": 0.1, "sodium": 1, "sugar": 9.8, "fiber": 3.1},
+            "avocado": {"calories": 160, "protein": 2, "carbs": 9, "fat": 15, "sodium": 7, "sugar": 0.7, "fiber": 7},
+            
+            # Dairy
+            "milk": {"calories": 61, "protein": 3.2, "carbs": 4.8, "fat": 3.3, "sodium": 44, "sugar": 4.8, "fiber": 0},
+            "skim milk": {"calories": 35, "protein": 3.6, "carbs": 5, "fat": 0.1, "sodium": 50, "sugar": 5, "fiber": 0},
+            "cheese": {"calories": 402, "protein": 25, "carbs": 1.3, "fat": 33, "sodium": 621, "sugar": 0, "fiber": 0},
+            "cheddar cheese": {"calories": 403, "protein": 23, "carbs": 3.6, "fat": 33, "sodium": 620, "sugar": 0.7, "fiber": 0},
+            "butter": {"calories": 717, "protein": 0.9, "carbs": 0.1, "fat": 81, "sodium": 11, "sugar": 0, "fiber": 0},
+            "yogurt": {"calories": 59, "protein": 10, "carbs": 3.3, "fat": 0.4, "sodium": 41, "sugar": 0.7, "fiber": 0},
+            
+            # Oils & Fats
+            "olive oil": {"calories": 884, "protein": 0, "carbs": 0, "fat": 100, "sodium": 0, "sugar": 0, "fiber": 0},
+            "coconut oil": {"calories": 892, "protein": 0, "carbs": 0, "fat": 99.1, "sodium": 0, "sugar": 0, "fiber": 0},
+            "peanut butter": {"calories": 588, "protein": 25, "carbs": 20, "fat": 50, "sodium": 421, "sugar": 5.9, "fiber": 6},
+            
+            # Nuts & Seeds
+            "almonds": {"calories": 579, "protein": 21, "carbs": 22, "fat": 50, "sodium": 1, "sugar": 4.4, "fiber": 12.5},
+            "walnuts": {"calories": 654, "protein": 9, "carbs": 14, "fat": 65, "sodium": 2, "sugar": 2.6, "fiber": 6.7},
+            "peanuts": {"calories": 567, "protein": 26, "carbs": 16, "fat": 49, "sodium": 7, "sugar": 4.7, "fiber": 8.6},
+            "sunflower seeds": {"calories": 584, "protein": 20, "carbs": 20, "fat": 51, "sodium": 9, "sugar": 2.6, "fiber": 8.6},
+            
+            # Processed Foods (common)
+            "pizza": {"calories": 285, "protein": 12, "carbs": 36, "fat": 10, "sodium": 640, "sugar": 4, "fiber": 2},
+            "burger": {"calories": 354, "protein": 16, "carbs": 32, "fat": 17, "sodium": 580, "sugar": 6, "fiber": 1.5},
+            "chicken nuggets": {"calories": 320, "protein": 17, "carbs": 24, "fat": 17, "sodium": 560, "sugar": 2, "fiber": 0.5},
+            "french fries": {"calories": 365, "protein": 3.4, "carbs": 48, "fat": 17, "sodium": 246, "sugar": 0.3, "fiber": 4},
+            "donut": {"calories": 452, "protein": 4.5, "carbs": 51, "fat": 25, "sodium": 210, "sugar": 33, "fiber": 0.7},
+            "chocolate": {"calories": 546, "protein": 5.3, "carbs": 57, "fat": 31, "sodium": 11, "sugar": 50, "fiber": 7.2},
+            
+            # Beverages (per serving approximation)
+            "coca cola": {"calories": 42, "protein": 0, "carbs": 11, "fat": 0, "sodium": 11, "sugar": 10.6, "fiber": 0},
+            "orange juice": {"calories": 45, "protein": 0.7, "carbs": 11, "fat": 0.25, "sodium": 1, "sugar": 9.3, "fiber": 0.2},
+            "coffee": {"calories": 2, "protein": 0.3, "carbs": 0, "fat": 0, "sodium": 5, "sugar": 0, "fiber": 0},
+            "tea": {"calories": 1, "protein": 0, "carbs": 0.3, "fat": 0, "sodium": 1, "sugar": 0, "fiber": 0},
+            "beer": {"calories": 43, "protein": 0.5, "carbs": 3.6, "fat": 0, "sodium": 10, "sugar": 0, "fiber": 0},
+            "wine": {"calories": 82, "protein": 0.1, "carbs": 2.6, "fat": 0, "sodium": 4, "sugar": 0.6, "fiber": 0},
         }
     
     def analyze_text_meal(self, meal_description: str, meal_type: str = "meal") -> Optional[Dict]:
