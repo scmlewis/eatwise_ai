@@ -2650,7 +2650,18 @@ def insights_page():
     
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
+    
+    # Apply health condition adjustments
+    health_conditions = user_profile.get("health_conditions", [])
+    for condition in health_conditions:
+        if condition in HEALTH_CONDITION_TARGETS:
+            targets.update(HEALTH_CONDITION_TARGETS[condition])
+    
+    # Apply health goal adjustments
+    health_goal = user_profile.get("health_goal", "general_health")
+    if health_goal in HEALTH_GOAL_TARGETS:
+        targets.update(HEALTH_GOAL_TARGETS[health_goal])
     
     # Today's summary
     today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
