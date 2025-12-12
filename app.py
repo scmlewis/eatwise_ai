@@ -2332,7 +2332,18 @@ def analytics_page():
     
     # Get nutrition targets
     age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
+    
+    # Apply health condition adjustments
+    health_conditions = user_profile.get("health_conditions", [])
+    for condition in health_conditions:
+        if condition in HEALTH_CONDITION_TARGETS:
+            targets.update(HEALTH_CONDITION_TARGETS[condition])
+    
+    # Apply health goal adjustments
+    health_goal = user_profile.get("health_goal", "general_health")
+    if health_goal in HEALTH_GOAL_TARGETS:
+        targets.update(HEALTH_GOAL_TARGETS[health_goal])
     
     # ===== STATISTICS CARDS =====
     st.markdown("## 📊 Statistics")
@@ -3689,7 +3700,7 @@ def coaching_assistant_page():
         
         # Get nutrition targets
         age_group = user_profile.get("age_group", "26-35")
-        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
         
         # Apply health condition adjustments
         health_conditions = user_profile.get("health_conditions", [])
@@ -3845,7 +3856,14 @@ def restaurant_analyzer_page():
                     
                     # Get targets
                     age_group = user_profile.get("age_group", "26-35")
-                    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
+                    health_conditions = user_profile.get("health_conditions", [])
+                    for condition in health_conditions:
+                        if condition in HEALTH_CONDITION_TARGETS:
+                            targets.update(HEALTH_CONDITION_TARGETS[condition])
+                    health_goal = user_profile.get("health_goal", "general_health")
+                    if health_goal in HEALTH_GOAL_TARGETS:
+                        targets.update(HEALTH_GOAL_TARGETS[health_goal])
                     
                     # Analyze menu
                     analysis = menu_analyzer.analyze_menu(
@@ -3929,7 +3947,14 @@ def restaurant_analyzer_page():
                                 
                                 # Get targets
                                 age_group = user_profile.get("age_group", "26-35")
-                                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
+                                health_conditions = user_profile.get("health_conditions", [])
+                                for condition in health_conditions:
+                                    if condition in HEALTH_CONDITION_TARGETS:
+                                        targets.update(HEALTH_CONDITION_TARGETS[condition])
+                                health_goal = user_profile.get("health_goal", "general_health")
+                                if health_goal in HEALTH_GOAL_TARGETS:
+                                    targets.update(HEALTH_GOAL_TARGETS[health_goal])
                                 
                                 # Analyze menu
                                 analysis = menu_analyzer.analyze_menu(
@@ -4518,7 +4543,14 @@ def main():
             # Calories calculation
             if user_profile:
                 age_group = user_profile.get("age_group", "26-35")
-                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"])
+                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
+                health_conditions = user_profile.get("health_conditions", [])
+                for condition in health_conditions:
+                    if condition in HEALTH_CONDITION_TARGETS:
+                        targets.update(HEALTH_CONDITION_TARGETS[condition])
+                health_goal = user_profile.get("health_goal", "general_health")
+                if health_goal in HEALTH_GOAL_TARGETS:
+                    targets.update(HEALTH_GOAL_TARGETS[health_goal])
                 cal_display = int(today_nutrition['calories'])
             else:
                 cal_display = int(today_nutrition['calories'])
