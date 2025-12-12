@@ -194,6 +194,83 @@ class NutritionAnalyzer:
             "crackers": {"calories": 402, "protein": 8.5, "carbs": 77, "fat": 8.8, "sodium": 760, "sugar": 2, "fiber": 2},
             "cookies": {"calories": 492, "protein": 6, "carbs": 66, "fat": 23, "sodium": 400, "sugar": 38, "fiber": 0.5},
             "granola": {"calories": 471, "protein": 13, "carbs": 61, "fat": 20, "sodium": 8, "sugar": 19, "fiber": 6},
+            
+            # Asian Foods
+            "tofu scramble": {"calories": 120, "protein": 15, "carbs": 4, "fat": 5, "sodium": 200, "sugar": 0.5, "fiber": 1},
+            "edamame": {"calories": 95, "protein": 11, "carbs": 7, "fat": 4.3, "sodium": 2, "sugar": 2, "fiber": 5.5},
+            "soy sauce": {"calories": 61, "protein": 11, "carbs": 5.6, "fat": 0, "sodium": 5493, "sugar": 1.5, "fiber": 0},
+            "miso paste": {"calories": 199, "protein": 13, "carbs": 12, "fat": 5, "sodium": 5012, "sugar": 5, "fiber": 7},
+            "tempura": {"calories": 300, "protein": 8, "carbs": 28, "fat": 17, "sodium": 400, "sugar": 2, "fiber": 1},
+            "sushi rice": {"calories": 130, "protein": 2.7, "carbs": 30, "fat": 0.2, "sodium": 300, "sugar": 0.3, "fiber": 0.4},
+            "noodles": {"calories": 138, "protein": 5, "carbs": 28, "fat": 1, "sodium": 50, "sugar": 0.5, "fiber": 1.8},
+            "wasabi": {"calories": 109, "protein": 4.8, "carbs": 23, "fat": 0.6, "sodium": 880, "sugar": 7, "fiber": 8},
+            "seaweed": {"calories": 45, "protein": 4, "carbs": 9, "fat": 0.3, "sodium": 872, "sugar": 0.4, "fiber": 1.3},
+            "ginger": {"calories": 80, "protein": 1.8, "carbs": 18, "fat": 0.8, "sodium": 13, "sugar": 1.7, "fiber": 2},
+            
+            # Indian Foods
+            "dal": {"calories": 130, "protein": 9, "carbs": 23, "fat": 0.5, "sodium": 50, "sugar": 1, "fiber": 8},
+            "naan bread": {"calories": 262, "protein": 8, "carbs": 43, "fat": 5, "sodium": 480, "sugar": 1, "fiber": 1.4},
+            "basmati rice": {"calories": 130, "protein": 2.7, "carbs": 28, "fat": 0.3, "sodium": 1, "sugar": 0, "fiber": 0.4},
+            "turmeric": {"calories": 312, "protein": 9.7, "carbs": 68, "fat": 3.1, "sodium": 38, "sugar": 3, "fiber": 21},
+            "cardamom": {"calories": 311, "protein": 10.8, "carbs": 68, "fat": 6.7, "sodium": 18, "sugar": 0, "fiber": 28},
+            "cumin": {"calories": 375, "protein": 17.6, "carbs": 55, "fat": 22, "sodium": 168, "sugar": 2.5, "fiber": 50},
+            
+            # Mediterranean
+            "hummus": {"calories": 180, "protein": 6, "carbs": 16, "fat": 9, "sodium": 300, "sugar": 0.5, "fiber": 4},
+            "tahini": {"calories": 595, "protein": 17, "carbs": 21, "fat": 54, "sodium": 11, "sugar": 0.7, "fiber": 9.7},
+            "olives": {"calories": 115, "protein": 0.8, "carbs": 6.3, "fat": 10.7, "sodium": 735, "sugar": 0, "fiber": 1.6},
+            "falafel": {"calories": 333, "protein": 13, "carbs": 27, "fat": 17, "sodium": 600, "sugar": 1, "fiber": 6},
+            "Greek salad": {"calories": 80, "protein": 3.5, "carbs": 8, "fat": 4, "sodium": 400, "sugar": 2.5, "fiber": 1.5},
+            
+            # Breakfast Items
+            "pancakes": {"calories": 227, "protein": 5.7, "carbs": 42, "fat": 5, "sodium": 520, "sugar": 8, "fiber": 1.4},
+            "waffle": {"calories": 220, "protein": 6, "carbs": 40, "fat": 5, "sodium": 350, "sugar": 10, "fiber": 1},
+            "bagel": {"calories": 245, "protein": 9, "carbs": 48, "fat": 1.5, "sodium": 400, "sugar": 4, "fiber": 2.7},
+            "english muffin": {"calories": 134, "protein": 4.4, "carbs": 26, "fat": 1, "sodium": 280, "sugar": 2, "fiber": 1.5},
+            "croissant": {"calories": 406, "protein": 7.6, "carbs": 36, "fat": 23, "sodium": 340, "sugar": 9, "fiber": 2},
+            "toast": {"calories": 80, "protein": 3, "carbs": 14, "fat": 1, "sodium": 140, "sugar": 2, "fiber": 2},
+            "cereal with milk": {"calories": 140, "protein": 4, "carbs": 26, "fat": 2.5, "sodium": 200, "sugar": 10, "fiber": 2},
+            "jam": {"calories": 278, "protein": 0.4, "carbs": 70, "fat": 0.1, "sodium": 3, "sugar": 48, "fiber": 1.4},
+            "honey": {"calories": 304, "protein": 0.3, "carbs": 82, "fat": 0, "sodium": 2, "sugar": 82, "fiber": 0.2},
+            
+            # Prepared Dishes
+            "beef stew": {"calories": 135, "protein": 12, "carbs": 8, "fat": 6, "sodium": 400, "sugar": 1, "fiber": 1},
+            "chicken curry": {"calories": 180, "protein": 18, "carbs": 12, "fat": 7, "sodium": 500, "sugar": 2, "fiber": 1.5},
+            "pasta carbonara": {"calories": 250, "protein": 14, "carbs": 28, "fat": 10, "sodium": 350, "sugar": 1, "fiber": 1.5},
+            "tacos": {"calories": 280, "protein": 15, "carbs": 28, "fat": 12, "sodium": 500, "sugar": 2, "fiber": 2},
+            "burritos": {"calories": 320, "protein": 18, "carbs": 38, "fat": 12, "sodium": 600, "sugar": 3, "fiber": 2.5},
+            "fried rice": {"calories": 150, "protein": 6, "carbs": 22, "fat": 4.5, "sodium": 600, "sugar": 1, "fiber": 1},
+            
+            # Sauces & Condiments
+            "ketchup": {"calories": 112, "protein": 1.7, "carbs": 26, "fat": 0.3, "sodium": 1000, "sugar": 23, "fiber": 0},
+            "mayo": {"calories": 680, "protein": 0.3, "carbs": 0.6, "fat": 75, "sodium": 360, "sugar": 0, "fiber": 0},
+            "mustard": {"calories": 66, "protein": 3.3, "carbs": 6.2, "fat": 3.3, "sodium": 1300, "sugar": 4.4, "fiber": 2.1},
+            "hot sauce": {"calories": 12, "protein": 0.5, "carbs": 2.4, "fat": 0.1, "sodium": 920, "sugar": 0.3, "fiber": 0},
+            "salsa": {"calories": 36, "protein": 1.1, "carbs": 7, "fat": 0.2, "sodium": 350, "sugar": 3, "fiber": 1},
+            "vinegar": {"calories": 18, "protein": 0.1, "carbs": 0.9, "fat": 0, "sodium": 5, "sugar": 0.4, "fiber": 0},
+            "ranch dressing": {"calories": 436, "protein": 0.9, "carbs": 4, "fat": 46, "sodium": 780, "sugar": 2, "fiber": 0},
+            "soy sauce lite": {"calories": 35, "protein": 6.4, "carbs": 1, "fat": 0, "sodium": 2400, "sugar": 0.6, "fiber": 0},
+            
+            # Spices (per tablespoon)
+            "cinnamon": {"calories": 19, "protein": 0.3, "carbs": 6.2, "fat": 0.1, "sodium": 2, "sugar": 0, "fiber": 1.4},
+            "paprika": {"calories": 19, "protein": 0.7, "carbs": 3.3, "fat": 0.3, "sodium": 2, "sugar": 0.7, "fiber": 0.5},
+            "chili powder": {"calories": 24, "protein": 1, "carbs": 4, "fat": 0.7, "sodium": 4, "sugar": 0.7, "fiber": 1.1},
+            "black pepper": {"calories": 16, "protein": 0.6, "carbs": 4.3, "fat": 0.1, "sodium": 12, "sugar": 0, "fiber": 1.3},
+            "salt": {"calories": 0, "protein": 0, "carbs": 0, "fat": 0, "sodium": 40000, "sugar": 0, "fiber": 0},
+            
+            # Vegetable Proteins
+            "seitan": {"calories": 111, "protein": 25, "carbs": 0.5, "fat": 0.5, "sodium": 980, "sugar": 0, "fiber": 0},
+            "tempeh": {"calories": 165, "protein": 19, "carbs": 7, "fat": 9, "sodium": 11, "sugar": 0, "fiber": 4},
+            "pea protein": {"calories": 118, "protein": 25, "carbs": 2, "fat": 2, "sodium": 360, "sugar": 0, "fiber": 1.5},
+            "hemp seeds": {"calories": 567, "protein": 31.6, "carbs": 12, "fat": 48, "sodium": 12, "sugar": 1.3, "fiber": 12},
+            
+            # Soups (per 100ml)
+            "chicken broth": {"calories": 15, "protein": 1.5, "carbs": 1, "fat": 0.5, "sodium": 860, "sugar": 0, "fiber": 0},
+            "bone broth": {"calories": 18, "protein": 3.3, "carbs": 0, "fat": 0.3, "sodium": 290, "sugar": 0, "fiber": 0},
+            "miso soup": {"calories": 35, "protein": 3, "carbs": 3, "fat": 1, "sodium": 820, "sugar": 0.5, "fiber": 0.5},
+            "vegetable soup": {"calories": 50, "protein": 2, "carbs": 10, "fat": 0.5, "sodium": 600, "sugar": 2, "fiber": 2},
+            "tomato soup": {"calories": 60, "protein": 1, "carbs": 12, "fat": 0.5, "sodium": 500, "sugar": 7, "fiber": 1.5},
+            "lentil soup": {"calories": 100, "protein": 8, "carbs": 16, "fat": 1, "sodium": 700, "sugar": 1, "fiber": 4},
         }
     
     def analyze_text_meal(self, meal_description: str, meal_type: str = "meal") -> Optional[Dict]:
