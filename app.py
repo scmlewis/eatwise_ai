@@ -2614,26 +2614,6 @@ def show_meal_recommendations(user_profile, meals, today_nutrition, targets):
                             st.success(f"**Benefits:** {', '.join(rec.get('health_benefits', []))}")
 
 
-def show_weekly_meal_plan(user_profile):
-    """Display weekly meal plan section"""
-    st.markdown("## 📅 Weekly Meal Plan")
-    
-    if st.button("Generate 7-Day Meal Plan", use_container_width=True):
-        with st.spinner("🤖 Creating your personalized meal plan..."):
-            meal_plan = recommender.get_weekly_meal_plan(
-                user_profile,
-                AGE_GROUP_TARGETS.get(user_profile.get("age_group", "26-35"), AGE_GROUP_TARGETS["26-35"]),
-                user_profile.get("dietary_preferences", [])
-            )
-            
-            if meal_plan:
-                for day, meals_list in meal_plan.items():
-                    with st.expander(f"📅 {day}"):
-                        for meal in meals_list:
-                            st.write(f"**{meal.get('meal_type').title()}:** {meal.get('meal_name')}")
-                            st.caption(meal.get('description', ''))
-
-
 def show_health_insights(meals, user_profile, st_session_state):
     """Display health insights and analysis section"""
     st.markdown("## 📊 Health Insights")
@@ -2742,10 +2722,6 @@ def insights_page():
     # ===== Personalized Recommendations =====
     st.divider()
     show_meal_recommendations(user_profile, meals, today_nutrition, targets)
-    
-    # ===== Weekly Meal Plan =====
-    st.divider()
-    show_weekly_meal_plan(user_profile)
     
     # ===== Health Insights =====
     st.divider()
