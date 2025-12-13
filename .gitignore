@@ -49,6 +49,7 @@ PORTION_ESTIMATION_IMPLEMENTATION.md
 PORTION_ESTIMATION_QUICK_SUMMARY.md
 USER_GUIDE.md
 CODE_QUALITY_ANALYSIS.md
+CODE_REVIEW.md
 
 # Experimental/Alternative Modules (not used by main app)
 hybrid_nutrition_analyzer.py
