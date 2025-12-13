@@ -74,6 +74,4 @@ HEALTH_GOAL_TARGETS = {
 GENDER_ADJUSTMENTS = {
     "Male": {"calories": 200, "protein": 5},          # Slightly higher due to greater muscle mass
     "Female": {"calories": -200, "protein": -5},      # Slightly lower due to different metabolism
-    "Other": {},                                       # No adjustment for non-binary
-    "Prefer not to say": {},                          # No adjustment when not specified
 }

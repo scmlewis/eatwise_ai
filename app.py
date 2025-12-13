@@ -1294,7 +1294,7 @@ def dashboard_page():
         targets.update(HEALTH_GOAL_TARGETS[health_goal])
     
     # Apply gender adjustments
-    gender = user_profile.get("gender", "Prefer not to say")
+    gender = user_profile.get("gender", "Female")
     if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
         for key, value in GENDER_ADJUSTMENTS[gender].items():
             if key in targets:
@@ -2352,7 +2352,7 @@ def analytics_page():
         targets.update(HEALTH_GOAL_TARGETS[health_goal])
     
     # Apply gender adjustments
-    gender = user_profile.get("gender", "Prefer not to say")
+    gender = user_profile.get("gender", "Female")
     if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
         for key, value in GENDER_ADJUSTMENTS[gender].items():
             if key in targets:
@@ -2688,7 +2688,7 @@ def insights_page():
         targets.update(HEALTH_GOAL_TARGETS[health_goal])
     
     # Apply gender adjustments
-    gender = user_profile.get("gender", "Prefer not to say")
+    gender = user_profile.get("gender", "Female")
     if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
         for key, value in GENDER_ADJUSTMENTS[gender].items():
             if key in targets:
@@ -3224,7 +3224,7 @@ def profile_page():
                 with col3:
                     gender = st.selectbox(
                         "Gender",
-                        options=["Male", "Female", "Other", "Prefer not to say"],
+                        options=["Male", "Female"],
                         help="This helps us provide personalized nutrition recommendations"
                     )
                 
@@ -3376,9 +3376,9 @@ def profile_page():
                 # Row 2: Gender and Timezone
                 col3, col4 = st.columns(2)
                 with col3:
-                    gender_options = ["Male", "Female", "Other", "Prefer not to say"]
-                    gender_value = user_profile.get("gender", "Prefer not to say")
-                    gender_index = gender_options.index(gender_value) if gender_value in gender_options else 3
+                    gender_options = ["Male", "Female"]
+                    gender_value = user_profile.get("gender", "Female")
+                    gender_index = gender_options.index(gender_value) if gender_value in gender_options else 1
                     gender = st.selectbox(
                         "Gender",
                         options=gender_options,
@@ -3734,7 +3734,7 @@ def coaching_assistant_page():
             targets.update(HEALTH_GOAL_TARGETS[health_goal])
         
         # Apply gender adjustments
-        gender = user_profile.get("gender", "Prefer not to say")
+        gender = user_profile.get("gender", "Female")
         if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
             for key, value in GENDER_ADJUSTMENTS[gender].items():
                 if key in targets:
@@ -3891,7 +3891,7 @@ def restaurant_analyzer_page():
                     health_goal = user_profile.get("health_goal", "general_health")
                     if health_goal in HEALTH_GOAL_TARGETS:
                         targets.update(HEALTH_GOAL_TARGETS[health_goal])
-                    gender = user_profile.get("gender", "Prefer not to say")
+                    gender = user_profile.get("gender", "Female")
                     if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
                         for key, value in GENDER_ADJUSTMENTS[gender].items():
                             if key in targets:
@@ -3987,7 +3987,7 @@ def restaurant_analyzer_page():
                                 health_goal = user_profile.get("health_goal", "general_health")
                                 if health_goal in HEALTH_GOAL_TARGETS:
                                     targets.update(HEALTH_GOAL_TARGETS[health_goal])
-                                gender = user_profile.get("gender", "Prefer not to say")
+                                gender = user_profile.get("gender", "Female")
                                 if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
                                     for key, value in GENDER_ADJUSTMENTS[gender].items():
                                         if key in targets:
@@ -4588,7 +4588,7 @@ def main():
                 health_goal = user_profile.get("health_goal", "general_health")
                 if health_goal in HEALTH_GOAL_TARGETS:
                     targets.update(HEALTH_GOAL_TARGETS[health_goal])
-                gender = user_profile.get("gender", "Prefer not to say")
+                gender = user_profile.get("gender", "Female")
                 if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
                     for key, value in GENDER_ADJUSTMENTS[gender].items():
                         if key in targets:
