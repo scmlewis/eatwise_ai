@@ -34,9 +34,8 @@ from nutrition_components import display_nutrition_targets_progress
 from gamification import GamificationManager
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
-    get_nutrition_status, format_nutrition_dict, get_streak_info,
-    get_earned_badges, build_nutrition_by_date, paginate_items,
-    show_skeleton_loader, render_icon, get_nutrition_icon
+    get_nutrition_status, get_streak_info,
+    get_earned_badges, build_nutrition_by_date, paginate_items
 )
 from portion_estimation_disclaimer import (
     assess_input_confidence, show_estimation_disclaimer, show_estimation_tips
