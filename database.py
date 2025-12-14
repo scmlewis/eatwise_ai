@@ -506,13 +506,22 @@ class DatabaseManager:
         """Mark challenge as completed"""
         try:
             date_str = challenge_date.isoformat()
+            
+            # Check if challenge is already completed
+            existing_challenge = self.supabase.table("daily_challenges").select("completed").eq("user_id", user_id).eq("challenge_date", date_str).eq("challenge_name", challenge_name).execute()
+            was_already_completed = False
+            if existing_challenge.data:
+                was_already_completed = existing_challenge.data[0].get("completed", False)
+            
+            # Mark as completed
             self.supabase.table("daily_challenges").update({"completed": True}).eq("user_id", user_id).eq("challenge_date", date_str).eq("challenge_name", challenge_name).execute()
             
-            # Award XP
-            challenge_data = self.supabase.table("daily_challenges").select("xp_reward").eq("user_id", user_id).eq("challenge_date", date_str).eq("challenge_name", challenge_name).execute()
-            if challenge_data.data:
-                xp_reward = challenge_data.data[0].get("xp_reward", 50)
-                self.add_xp(user_id, xp_reward)
+            # Award XP only if not already completed
+            if not was_already_completed:
+                challenge_data = self.supabase.table("daily_challenges").select("xp_reward").eq("user_id", user_id).eq("challenge_date", date_str).eq("challenge_name", challenge_name).execute()
+                if challenge_data.data:
+                    xp_reward = challenge_data.data[0].get("xp_reward", 50)
+                    self.add_xp(user_id, xp_reward)
             
             return True
         except Exception as e:
@@ -562,6 +571,7 @@ class DatabaseManager:
             goal = self.get_weekly_goals(user_id, week_start_date)
             
             if goal:
+                current_completed = goal.get("completed", False)
                 new_days = goal.get("days_completed", 0) + 1
                 target = goal.get("target_days_with_nutrition_goals", 5)
                 completed = new_days >= target
@@ -571,8 +581,8 @@ class DatabaseManager:
                     "completed": completed
                 }).eq("user_id", user_id).eq("week_start_date", date_str).execute()
                 
-                # Award XP if completed
-                if completed:
+                # Award XP only if newly completed
+                if completed and not current_completed:
                     self.add_xp(user_id, goal.get("xp_reward", 200))
                 
                 return True
