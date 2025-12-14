@@ -199,6 +199,112 @@ def show_notification(message: str, notification_type: str = "success", use_toas
         api_func(message)
 
 
+def render_animated_stat_card(emoji: str, title: str, value: float, subtitle: str, 
+                               progress_value: float, status: str, color: str, 
+                               shadow_color: str, gradient_start: str, gradient_end: str):
+    """
+    Render a nutrition stat card with animated number counter.
+    
+    Args:
+        emoji: Card emoji (e.g., "🔥", "🍽️")
+        title: Card title in uppercase (e.g., "Avg Calories")
+        value: Main value to display (will animate from 0 to this number)
+        subtitle: Subtitle text (e.g., "of 2000")
+        progress_value: Float 0-100 for progress bar width
+        status: Status indicator (emoji + optional text)
+        color: Primary color for text/borders (e.g., "#FFB84D")
+        shadow_color: RGBA color for box-shadow
+        gradient_start: Gradient start color with alpha
+        gradient_end: Gradient end color with alpha
+    """
+    int_value = int(value)
+    st.markdown(f"""
+    <div class="stat-card" style="
+        background: linear-gradient(135deg, {gradient_start} 0%, {gradient_end} 100%);
+        border: 1px solid {color};
+        border-left: 5px solid {color};
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        box-shadow: 0 4px 15px {shadow_color};
+        transition: transform 0.2s ease;
+    ">
+        <div style="font-size: 28px; margin-bottom: 6px;">{emoji}</div>
+        <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700;">{title}</div>
+        <div class="counter-number" style="font-size: 28px; font-weight: 900; color: {color}; margin-bottom: 8px; display: block;">
+            <span data-target="{int_value}">0</span>
+        </div>
+        <div style="font-size: 9px; color: {color}; font-weight: 700; margin-bottom: 6px;">{subtitle}</div>
+        <div style="background: #0a0e27; border-radius: 4px; height: 4px; margin-bottom: 8px;">
+            <div class="progress-bar-animated" style="background: linear-gradient(90deg, {color} 0%, {color}80 100%); height: 100%; --progress-width: {min(progress_value, 100)}%; border-radius: 4px;"></div>
+        </div>
+        <div style="font-size: 9px; color: {color}; font-weight: 600;">{status}</div>
+    </div>
+    
+    <script>
+        function animateCounter(element, target, duration = 800) {{
+            const startValue = 0;
+            const startTime = performance.now();
+            
+            function update(currentTime) {{
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentValue = Math.floor(startValue + (target - startValue) * easeOut);
+                
+                element.textContent = currentValue.toLocaleString();
+                
+                if (progress < 1) {{
+                    requestAnimationFrame(update);
+                }}
+            }}
+            
+            requestAnimationFrame(update);
+        }}
+        
+        document.querySelectorAll('[data-target]').forEach(el => {{
+            const target = parseInt(el.getAttribute('data-target'));
+            animateCounter(el, target);
+        }});
+    </script>
+    """, unsafe_allow_html=True)
+
+
+def show_badge_unlock_animation(badge_name: str, badge_icon: str, badge_description: str = ""):
+    """
+    Display badge unlock with pop-in animation.
+    
+    Args:
+        badge_name: Name of the badge earned
+        badge_icon: Emoji icon for the badge
+        badge_description: Optional description of the badge
+    """
+    st.markdown(f"""
+    <style>
+        .badge-unlock-container {{
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, rgba(82, 196, 184, 0.15) 0%, rgba(255, 212, 59, 0.15) 100%);
+            border: 2px solid rgba(82, 196, 184, 0.3);
+            border-radius: 16px;
+            margin: 20px 0;
+        }}
+    </style>
+    <div class="badge-unlock-container">
+        <div class="badge-unlock" style="font-size: 64px; margin-bottom: 12px; display: inline-block;">
+            {badge_icon}
+        </div>
+        <div class="badge-unlock-text" style="font-size: 22px; color: #FFD43B; font-weight: 900; margin-bottom: 8px;">
+            🎉 Badge Unlocked!
+        </div>
+        <div style="font-size: 16px; color: #52C4B8; font-weight: 700; margin-bottom: 6px;">
+            {badge_name}
+        </div>
+        {f'<div style="font-size: 12px; color: #a0a0a0;">{badge_description}</div>' if badge_description else ''}
+    </div>
+    """, unsafe_allow_html=True)
+
+
 
 
 # ==================== COMPONENT HELPERS ====================
@@ -733,6 +839,98 @@ st.markdown("""
     .suggestion-card:hover {
         transform: translateX(4px) translateY(-2px);
         box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
+    }
+    
+    /* ===== HIGH PRIORITY ANIMATIONS ===== */
+    
+    /* NUMBER COUNTER ANIMATION FOR STAT CARDS */
+    @keyframes slideUpNumber {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .counter-number {
+        animation: slideUpNumber 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: inline-block;
+    }
+    
+    /* PAGE TRANSITION ANIMATIONS */
+    @keyframes slideInFromRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes slideInFromLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .page-transition {
+        animation: slideInFromRight 0.4s ease-out;
+    }
+    
+    /* BADGE UNLOCK ANIMATION - POP-IN WITH BOUNCE */
+    @keyframes badgePopIn {
+        0% {
+            opacity: 0;
+            transform: scale(0) rotateZ(-15deg);
+        }
+        50% {
+            transform: scale(1.15) rotateZ(5deg);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) rotateZ(0deg);
+        }
+    }
+    
+    @keyframes badgeBounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+    
+    .badge-unlock {
+        animation: badgePopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+    
+    .badge-unlock-text {
+        animation: badgeBounce 2s ease-in-out infinite;
+    }
+    
+    /* PROGRESS BAR FILL ANIMATION */
+    @keyframes fillProgress {
+        from {
+            width: 0;
+        }
+        to {
+            width: var(--progress-width, 100%);
+        }
+    }
+    
+    .progress-bar-animated {
+        animation: fillProgress 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
     
     /* Reduce motion for users who prefer it */
