@@ -3748,6 +3748,7 @@ def profile_page():
                         "health_goal": goal,
                         "water_goal_glasses": int(water_goal),
                         "badges_earned": [],
+                        "total_xp": 0,  # Initialize XP to 0 for new users
                     }
                     
                     if db_manager.create_health_profile(st.session_state.user_id, profile_data):

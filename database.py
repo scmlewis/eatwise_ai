@@ -431,7 +431,7 @@ class DatabaseManager:
         """Calculate user level based on XP (1 level per 100 XP)"""
         profile = self.get_health_profile(user_id)
         if profile:
-            total_xp = profile.get("total_xp", 0)
+            total_xp = int(profile.get("total_xp") or 0)
             return max(1, total_xp // 100)
         return 1
     
@@ -439,7 +439,7 @@ class DatabaseManager:
         """Get XP progress towards next level"""
         profile = self.get_health_profile(user_id)
         if profile:
-            total_xp = profile.get("total_xp", 0)
+            total_xp = int(profile.get("total_xp") or 0)
             current_level = max(1, total_xp // 100)
             xp_for_next_level = (current_level * 100) + 100
             current_xp_in_level = total_xp % 100
