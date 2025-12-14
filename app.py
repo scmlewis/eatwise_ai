@@ -305,6 +305,31 @@ def show_badge_unlock_animation(badge_name: str, badge_icon: str, badge_descript
     """, unsafe_allow_html=True)
 
 
+def show_empty_state(emoji: str, title: str, description: str, action_text: str = None):
+    """
+    Display beautiful empty state with CTA for better UX when no data is available.
+    
+    Args:
+        emoji: Large emoji to display
+        title: Empty state title
+        description: Description of why this state is shown
+        action_text: Optional call-to-action text
+    """
+    st.markdown(f"""
+    <div style="
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, rgba(82, 196, 184, 0.1) 0%, rgba(82, 196, 184, 0.05) 100%);
+        border: 2px dashed rgba(82, 196, 184, 0.3);
+        border-radius: 16px;
+        margin: 20px 0;
+    ">
+        <div style="font-size: 48px; margin-bottom: 16px;">{emoji}</div>
+        <h3 style="color: #52C4B8; margin: 0 0 8px 0; font-weight: 700;">{title}</h3>
+        <p style="color: #b8dbd9; margin: 0 0 16px 0; font-size: 14px;">{description}</p>
+        {f'<p style="color: #10A19D; font-weight: 600; margin: 0; font-size: 13px;">→ {action_text}</p>' if action_text else ''}
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ==================== COMPONENT HELPERS ====================
@@ -931,6 +956,198 @@ st.markdown("""
     
     .progress-bar-animated {
         animation: fillProgress 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    
+    /* ===== UI OPTIMIZATION: SPACING & HIERARCHY ===== */
+    
+    /* Consistent section spacing for breathing room */
+    .section-spacing {
+        margin: 32px 0 !important;
+    }
+    
+    /* Consistent card spacing */
+    .card-spacing {
+        margin-bottom: 16px !important;
+    }
+    
+    /* Better heading hierarchy */
+    h2 {
+        margin-top: 28px !important;
+        margin-bottom: 16px !important;
+    }
+    
+    h3 {
+        margin-top: 20px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    /* Primary stat cards (larger, more prominent) */
+    .primary-stat {
+        min-height: 140px;
+        font-size: 1.1em;
+    }
+    
+    /* Secondary stat cards (medium) */
+    .secondary-stat {
+        min-height: 120px;
+        font-size: 0.95em;
+    }
+    
+    /* Tertiary stat cards (compact) */
+    .tertiary-stat {
+        min-height: 100px;
+        font-size: 0.85em;
+    }
+    
+    /* Better text contrast for accessibility */
+    .card-text {
+        color: #e0f2f1 !important;
+        font-weight: 500;
+    }
+    
+    .card-label {
+        color: #b8dbd9 !important;
+        font-weight: 600;
+    }
+    
+    /* Clickable card hover effects */
+    .clickable-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .clickable-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 161, 157, 0.2) !important;
+    }
+    
+    /* Empty state styling */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, rgba(82, 196, 184, 0.1) 0%, rgba(82, 196, 184, 0.05) 100%);
+        border: 2px dashed rgba(82, 196, 184, 0.3);
+        border-radius: 16px;
+        margin: 20px 0;
+    }
+    
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+    
+    .empty-state-title {
+        color: #52C4B8;
+        margin: 0 0 8px 0;
+        font-weight: 700;
+    }
+    
+    .empty-state-description {
+        color: #b8dbd9;
+        margin: 0 0 16px 0;
+        font-size: 14px;
+    }
+    
+    .empty-state-action {
+        color: #10A19D;
+        font-weight: 600;
+        margin: 0;
+        font-size: 13px;
+    }
+    
+    /* ===== MOBILE RESPONSIVENESS ===== */
+    @media (max-width: 768px) {
+        /* Stack columns vertically on mobile */
+        [data-testid="column"] {
+            min-width: 100% !important;
+            margin-bottom: 16px !important;
+        }
+        
+        /* Hide less important sidebar expanded text */
+        .sidebar-expanded-text {
+            display: none;
+        }
+        
+        /* Larger touch targets for mobile */
+        button {
+            min-height: 48px !important;
+            padding: 12px 16px !important;
+        }
+        
+        .stButton > button {
+            min-height: 48px !important;
+            padding: 12px 20px !important;
+        }
+        
+        /* Reduce horizontal padding on mobile */
+        .main {
+            padding: 0 12px !important;
+            padding-top: 2rem !important;
+        }
+        
+        /* Compact stat cards on mobile */
+        .stat-card {
+            padding: 12px !important;
+        }
+        
+        /* Reduce font sizes on mobile */
+        h1 {
+            font-size: 24px !important;
+        }
+        
+        h2 {
+            font-size: 18px !important;
+            margin-top: 16px !important;
+        }
+        
+        h3 {
+            font-size: 16px !important;
+            margin-top: 12px !important;
+        }
+        
+        /* Better spacing for mobile */
+        .section-spacing {
+            margin: 16px 0 !important;
+        }
+        
+        .card-spacing {
+            margin-bottom: 12px !important;
+        }
+        
+        /* Reduce metric card padding */
+        .metric-card {
+            padding: 12px !important;
+        }
+        
+        /* Hide less critical info on mobile */
+        .mobile-hidden {
+            display: none !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        /* Extra compact on very small screens */
+        .main {
+            padding: 0 8px !important;
+        }
+        
+        h1 {
+            font-size: 20px !important;
+        }
+        
+        h2 {
+            font-size: 16px !important;
+        }
+        
+        .stat-card {
+            padding: 10px !important;
+            font-size: 12px !important;
+        }
+        
+        /* Single column grid on very small screens */
+        [data-testid="column"] {
+            max-width: 100% !important;
+        }
     }
     
     /* Reduce motion for users who prefer it */
