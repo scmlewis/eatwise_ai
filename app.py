@@ -3649,8 +3649,12 @@ def profile_page():
     with tab1:
         # Fetch profile from database (fresh for this page, not using cache)
         # because users expect to see current profile data when they visit settings
-        user_profile = db_manager.get_health_profile(st.session_state.user_id)
-        user_profile = normalize_profile(user_profile) if user_profile else None
+        try:
+            user_profile = db_manager.get_health_profile(st.session_state.user_id)
+            user_profile = normalize_profile(user_profile) if user_profile else None
+        except Exception as e:
+            st.error(f"Failed to load profile: {str(e)}")
+            user_profile = None
         
         st.markdown(f"**Email:** {user_email}")
         
@@ -3810,19 +3814,25 @@ def profile_page():
                     # Handle age group with migration for old format (26-35 (Adult) -> 26-35)
                     current_age_group = user_profile.get("age_group", "26-35")
                     # If user has old format with label, try to find matching new format
-                    if current_age_group not in AGE_GROUP_TARGETS.keys():
-                        # Try to find a matching age group key
-                        matching_key = None
-                        for key in AGE_GROUP_TARGETS.keys():
-                            if key.split(" (")[0] == current_age_group or key in current_age_group:  # Match by age range part
-                                matching_key = key
-                                break
-                        current_age_group = matching_key or "26-35"  # Default fallback
+                    age_group_keys = list(AGE_GROUP_TARGETS.keys())
+                    age_group_index = 0
+                    try:
+                        if current_age_group not in age_group_keys:
+                            # Try to find a matching age group key
+                            matching_key = None
+                            for key in age_group_keys:
+                                if key.split(" (")[0] == current_age_group or key in current_age_group:  # Match by age range part
+                                    matching_key = key
+                                    break
+                            current_age_group = matching_key or "26-35"  # Default fallback
+                        
+                        age_group_index = age_group_keys.index(current_age_group)
+                    except (ValueError, IndexError):
+                        age_group_index = age_group_keys.index("26-35") if "26-35" in age_group_keys else 0
                     
-                    age_group_index = list(AGE_GROUP_TARGETS.keys()).index(current_age_group)
                     age_group = st.selectbox(
                         "Age Group",
-                        options=list(AGE_GROUP_TARGETS.keys()),
+                        options=age_group_keys,
                         index=age_group_index
                     )
                 
@@ -3864,41 +3874,59 @@ def profile_page():
                     timezone_value = user_profile.get("timezone", "UTC")
                     # Find the matching display key for the saved timezone value
                     timezone_index = 0
-                    for key, value in timezone_dict.items():
-                        if value == timezone_value:
-                            timezone_index = timezone_options.index(key)
-                            break
+                    try:
+                        for key, value in timezone_dict.items():
+                            if value == timezone_value:
+                                timezone_index = timezone_options.index(key)
+                                break
+                    except (ValueError, IndexError):
+                        timezone_index = 0  # Default to first option
+                    
                     timezone = st.selectbox(
                         "Timezone",
                         options=timezone_options,
                         index=timezone_index,
                         help="Select your timezone. The UTC offset and major cities help you find yours quickly."
                     )
-                    timezone = timezone_dict[timezone]
+                    timezone = timezone_dict.get(timezone, "UTC")
                 
                 # Row 2.5: Height and Weight (Optional)
                 col3b, col4b = st.columns(2)
                 with col3b:
+                    # Safe height handling
+                    height_value = user_profile.get("height_cm")
+                    try:
+                        height_default = int(height_value) if height_value is not None else 170
+                    except (ValueError, TypeError):
+                        height_default = 170
+                    
                     height_cm = st.number_input(
                         "Height (cm) - Optional",
                         min_value=100,
                         max_value=250,
-                        value=int(user_profile.get("height_cm", 170)) if user_profile.get("height_cm") else 170,
+                        value=height_default,
                         step=1,
                         help="Your height in centimeters (optional)"
                     )
-                    height_cm = height_cm if height_cm else None
+                    height_cm = height_cm if height_cm != 170 or height_value is not None else None
                 
                 with col4b:
+                    # Safe weight handling
+                    weight_value = user_profile.get("weight_kg")
+                    try:
+                        weight_default = float(weight_value) if weight_value is not None else 70.0
+                    except (ValueError, TypeError):
+                        weight_default = 70.0
+                    
                     weight_kg = st.number_input(
                         "Weight (kg) - Optional",
                         min_value=30.0,
                         max_value=200.0,
-                        value=float(user_profile.get("weight_kg", 70.0)) if user_profile.get("weight_kg") else 70.0,
+                        value=weight_default,
                         step=0.5,
                         help="Your weight in kilograms (optional)"
                     )
-                    weight_kg = weight_kg if weight_kg else None
+                    weight_kg = weight_kg if weight_kg != 70.0 or weight_value is not None else None
                 
                 # Row 3: Health Conditions and Dietary Preferences
                 col5, col6 = st.columns(2)
@@ -3924,7 +3952,11 @@ def profile_page():
                     # Handle health goal with safe index lookup
                     current_health_goal = user_profile.get("health_goal", "general_health")
                     goal_keys = list(HEALTH_GOAL_TARGETS.keys())
-                    goal_index = goal_keys.index(current_health_goal) if current_health_goal in goal_keys else 0
+                    goal_index = 0
+                    try:
+                        goal_index = goal_keys.index(current_health_goal) if current_health_goal in goal_keys else 0
+                    except (ValueError, IndexError):
+                        goal_index = 0
                     
                     # Create display names for health goals
                     goal_display_names = {
@@ -3944,11 +3976,18 @@ def profile_page():
                     )
                 
                 with col8:
+                    # Safe water goal handling
+                    water_goal_value = user_profile.get("water_goal_glasses", 8)
+                    try:
+                        water_goal_default = int(water_goal_value) if water_goal_value is not None else 8
+                    except (ValueError, TypeError):
+                        water_goal_default = 8
+                    
                     water_goal = st.number_input(
                         "Daily Water Goal (glasses)",
                         min_value=1,
                         max_value=20,
-                        value=user_profile.get("water_goal_glasses", 8),
+                        value=water_goal_default,
                         help="Recommended: 8 glasses per day (2 liters)"
                     )
                 
