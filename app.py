@@ -2502,12 +2502,14 @@ def meal_logging_page():
         - Use natural lighting for clarity
         - Include all food items in the frame
         - Add text description of portions if possible for better accuracy
+        
+        📁 **Supported formats:** JPG, JPEG, PNG | **Max file size:** 50 MB
         """)
         
         uploaded_file = st.file_uploader(
             "Choose a food photo",
             type=["jpg", "jpeg", "png"],
-            help="Upload a clear photo of your meal"
+            help="Upload a clear photo of your meal (JPG/PNG, max 50 MB)"
         )
         
         meal_type = st.selectbox(
@@ -4364,13 +4366,14 @@ def restaurant_analyzer_page():
     
     with tab_photo:
         st.markdown("### Upload Menu Photo")
-        st.caption("Take a photo of the menu (JPG, PNG)")
+        st.caption("Take a photo of the menu (JPG, PNG) | Max 50 MB")
         
         uploaded_file = st.file_uploader(
             "Menu Photo",
             type=["jpg", "jpeg", "png"],
             label_visibility="collapsed",
-            key="menu_photo_upload"
+            key="menu_photo_upload",
+            help="JPG or PNG format, max 50 MB"
         )
         
         if uploaded_file is not None:
