@@ -2440,15 +2440,24 @@ def meal_logging_page():
             
             st.info(f"**Health Notes:** {analysis.get('health_notes', 'N/A')}")
             
-            # Date selector - ask RIGHT BEFORE saving
+            # Date and time selector
             st.markdown("### 📅 When did you eat this?")
-            meal_date = st.date_input(
-                "Select date",
-                value=date.today(),
-                max_value=date.today(),
-                help="You can log meals from past dates",
-                key="text_meal_date"
-            )
+            col1, col2 = st.columns(2)
+            with col1:
+                meal_date = st.date_input(
+                    "Select date",
+                    value=date.today(),
+                    max_value=date.today(),
+                    help="You can log meals from past dates",
+                    key="text_meal_date"
+                )
+            with col2:
+                meal_time = st.time_input(
+                    "Select time",
+                    value=datetime.now().time(),
+                    help="What time did you eat this meal?",
+                    key="text_meal_time"
+                )
             
             # Save meal
             if st.button("Save This Meal", key="text_save_btn", use_container_width=True):
@@ -2460,7 +2469,7 @@ def meal_logging_page():
                     "nutrition": analysis['nutrition'],
                     "healthiness_score": analysis.get('healthiness_score', 0),
                     "health_notes": analysis.get('health_notes', ''),
-                    "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
+                    "logged_at": datetime.combine(meal_date, meal_time).isoformat(),
                 }
                 
                 # Validate meal data before saving
@@ -2553,15 +2562,24 @@ def meal_logging_page():
             st.info(f"**AI Confidence:** {analysis.get('confidence', 0)}%")
             st.info(f"**Notes:** {analysis.get('notes', 'N/A')}")
             
-            # Date selector - ask RIGHT BEFORE saving
+            # Date and time selector
             st.markdown("### 📅 When did you eat this?")
-            meal_date = st.date_input(
-                "Select date",
-                value=date.today(),
-                max_value=date.today(),
-                help="You can log meals from past dates",
-                key="photo_meal_date"
-            )
+            col1, col2 = st.columns(2)
+            with col1:
+                meal_date = st.date_input(
+                    "Select date",
+                    value=date.today(),
+                    max_value=date.today(),
+                    help="You can log meals from past dates",
+                    key="photo_meal_date"
+                )
+            with col2:
+                meal_time = st.time_input(
+                    "Select time",
+                    value=datetime.now().time(),
+                    help="What time did you eat this meal?",
+                    key="photo_meal_time"
+                )
             
             # Save meal
             if st.button("Save This Meal", key="save_photo_meal", use_container_width=True):
@@ -2573,7 +2591,7 @@ def meal_logging_page():
                     "nutrition": analysis['total_nutrition'],
                     "healthiness_score": 75,  # Default score
                     "health_notes": analysis.get('notes', ''),
-                    "logged_at": datetime.combine(meal_date, time(12, 0, 0)).isoformat(),
+                    "logged_at": datetime.combine(meal_date, meal_time).isoformat(),
                 }
                 
                 # Validate meal data before saving
@@ -3473,6 +3491,23 @@ def meal_history_page():
                     key=f"dup_date_{meal['id']}"
                 )
                 
+                # Extract time from original meal
+                original_logged_at = meal.get('logged_at', '')
+                original_time = time(12, 0, 0)
+                if original_logged_at:
+                    try:
+                        original_dt = datetime.fromisoformat(original_logged_at)
+                        original_time = original_dt.time()
+                    except:
+                        pass
+                
+                dup_time = st.time_input(
+                    "Log this meal at:",
+                    value=original_time,
+                    help="What time did you eat this meal?",
+                    key=f"dup_time_{meal['id']}"
+                )
+                
                 dup_col1, dup_col2 = st.columns(2)
                 
                 with dup_col1:
@@ -3485,7 +3520,7 @@ def meal_history_page():
                             "nutrition": meal.get('nutrition', {}),
                             "healthiness_score": meal.get('healthiness_score', 0),
                             "health_notes": meal.get('health_notes', ''),
-                            "logged_at": datetime.combine(dup_date, time(12, 0, 0)).isoformat(),
+                            "logged_at": datetime.combine(dup_date, dup_time).isoformat(),
                         }
                         
                         if db_manager.log_meal(meal_data):
