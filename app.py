@@ -2748,7 +2748,7 @@ def analytics_page():
     col1, col2, col3 = st.columns(3, gap="small")
     
     with col1:
-        if st.button("Last 7 days", use_container_width=True, key="btn_7days"):
+        if st.button("Last Week", use_container_width=True, key="btn_7days"):
             st.session_state.analytics_days = 7
     
     with col2:
