@@ -2284,25 +2284,55 @@ def meal_logging_page():
         
         with col2:
             if st.button("➕ Quick Add", key="quick_add_btn", use_container_width=True):
-                meal = meal_options[selected_quick_meal]
-                meal_data = {
-                    "user_id": st.session_state.user_id,
-                    "meal_name": meal.get('meal_name', 'Unknown'),
-                    "description": meal.get('description', ''),
-                    "meal_type": meal.get('meal_type'),
-                    "nutrition": meal.get('nutrition', {}),
-                    "healthiness_score": meal.get('healthiness_score', 0),
-                    "health_notes": meal.get('health_notes', ''),
-                    "logged_at": datetime.now().isoformat(),
-                }
-                
-                if db_manager.log_meal(meal_data):
-                    # Award XP for logging meal
-                    db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
-                    st.toast("Meal added! +25 XP", icon="✅")
-                    st.rerun()
-                else:
-                    st.toast("Failed to add meal", icon="❌")
+                st.session_state.show_quick_add_form = True
+        
+        # Show quick add form with time selection
+        if st.session_state.get("show_quick_add_form", False):
+            st.markdown("---")
+            st.subheader("Add Quick Meal")
+            
+            meal = meal_options[selected_quick_meal]
+            
+            # Date and time selection for quick add
+            col1, col2 = st.columns(2)
+            with col1:
+                quick_date = st.date_input(
+                    "Select date",
+                    value=date.today(),
+                    max_value=date.today(),
+                    key="quick_add_date"
+                )
+            with col2:
+                quick_time = st.time_input(
+                    "Select time",
+                    value=datetime.now().time(),
+                    key="quick_add_time"
+                )
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✅ Confirm", key="quick_add_confirm", use_container_width=True):
+                    meal_data = {
+                        "user_id": st.session_state.user_id,
+                        "meal_name": meal.get('meal_name', 'Unknown'),
+                        "description": meal.get('description', ''),
+                        "meal_type": meal.get('meal_type'),
+                        "nutrition": meal.get('nutrition', {}),
+                        "healthiness_score": meal.get('healthiness_score', 0),
+                        "health_notes": meal.get('health_notes', ''),
+                        "logged_at": datetime.combine(quick_date, quick_time).isoformat(),
+                    }
+                    
+                    if db_manager.log_meal(meal_data):
+                        db_manager.add_xp(st.session_state.user_id, GamificationManager.XP_REWARDS['meal_logged'])
+                        st.session_state.show_quick_add_form = False
+                        st.toast("Meal added! +25 XP", icon="✅")
+                        st.rerun()
+                    else:
+                        st.toast("Failed to add meal", icon="❌")
+            with col2:
+                if st.button("❌ Cancel", key="quick_add_cancel", use_container_width=True):
+                    st.session_state.show_quick_add_form = False
         
         st.divider()
     
@@ -2650,47 +2680,74 @@ def meal_logging_page():
             date_str = current_date.strftime("%Y-%m-%d")
             st.markdown(f"### 📅 {current_date.strftime('%A, %B %d, %Y')}")
             
-            # Create columns for meal types
-            meal_col1, meal_col2, meal_col3 = st.columns(3)
+            meal_data_for_day = {}
             
-            with meal_col1:
-                breakfast = st.text_input(
+            # Breakfast
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                breakfast_desc = st.text_input(
                     f"Breakfast",
                     placeholder="e.g., Oatmeal with berries",
-                    key=f"batch_breakfast_{date_str}"
+                    key=f"batch_breakfast_desc_{date_str}"
                 )
+            with col2:
+                breakfast_time = st.time_input(
+                    "Time",
+                    value=time(8, 0),
+                    key=f"batch_breakfast_time_{date_str}"
+                )
+            meal_data_for_day["breakfast"] = {"desc": breakfast_desc, "time": breakfast_time}
             
-            with meal_col2:
-                lunch = st.text_input(
+            # Lunch
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                lunch_desc = st.text_input(
                     f"Lunch",
                     placeholder="e.g., Grilled chicken with vegetables",
-                    key=f"batch_lunch_{date_str}"
+                    key=f"batch_lunch_desc_{date_str}"
                 )
+            with col2:
+                lunch_time = st.time_input(
+                    "Time",
+                    value=time(12, 0),
+                    key=f"batch_lunch_time_{date_str}"
+                )
+            meal_data_for_day["lunch"] = {"desc": lunch_desc, "time": lunch_time}
             
-            with meal_col3:
-                dinner = st.text_input(
+            # Dinner
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                dinner_desc = st.text_input(
                     f"Dinner",
                     placeholder="e.g., Salmon with rice",
-                    key=f"batch_dinner_{date_str}"
+                    key=f"batch_dinner_desc_{date_str}"
                 )
+            with col2:
+                dinner_time = st.time_input(
+                    "Time",
+                    value=time(19, 0),
+                    key=f"batch_dinner_time_{date_str}"
+                )
+            meal_data_for_day["dinner"] = {"desc": dinner_desc, "time": dinner_time}
             
-            day_meals[date_str] = {
-                "breakfast": breakfast,
-                "lunch": lunch,
-                "dinner": dinner
-            }
+            day_meals[date_str] = meal_data_for_day
+            st.markdown("---")
             
             current_date += timedelta(days=1)
         
         st.divider()
         
+        st.divider()
         if st.button("📥 Analyze & Save All Meals", key="batch_save_btn", use_container_width=True):
             total_saved = 0
             total_failed = 0
             
             with st.spinner("🤖 Analyzing and saving meals..."):
                 for date_str, meals_dict in day_meals.items():
-                    for meal_type, description in meals_dict.items():
+                    for meal_type, meal_data_dict in meals_dict.items():
+                        description = meal_data_dict.get("desc", "")
+                        meal_time = meal_data_dict.get("time", time(12, 0))
+                        
                         if description and description.strip():
                             # Analyze the meal
                             analysis = nutrition_analyzer.analyze_text_meal(description, meal_type)
@@ -2706,7 +2763,7 @@ def meal_logging_page():
                                     "health_notes": analysis.get('health_notes', ''),
                                     "logged_at": datetime.combine(
                                         datetime.fromisoformat(date_str).date(),
-                                        time(12, 0, 0)
+                                        meal_time
                                     ).isoformat(),
                                 }
                                 
@@ -3446,7 +3503,17 @@ def meal_history_page():
             
             with col1:
                 st.write(f"🍴 **{meal.get('meal_name', 'Unknown')}** - {meal.get('meal_type', 'meal')}")
-                st.caption(f"📅 {meal.get('logged_at', 'N/A')}")
+                # Format timestamp nicely
+                logged_at = meal.get('logged_at', 'N/A')
+                if logged_at and logged_at != 'N/A':
+                    try:
+                        meal_dt = datetime.fromisoformat(logged_at)
+                        formatted_time = meal_dt.strftime("%a, %b %d • %I:%M %p")
+                        st.caption(f"📅 {formatted_time}")
+                    except:
+                        st.caption(f"📅 {logged_at}")
+                else:
+                    st.caption(f"📅 {logged_at}")
             
             with col2:
                 if st.button("Edit", key=f"edit_hist_{meal['id']}", use_container_width=True):
