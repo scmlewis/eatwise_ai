@@ -130,6 +130,76 @@ def get_or_load_user_profile() -> dict:
     return user_profile
 
 
+def calculate_personal_targets(user_profile: Optional[dict]) -> dict:
+    """
+    Build nutrition targets for a user profile with all adjustments applied.
+    Centralizes the age/goal/condition logic so we don't duplicate it across pages.
+    """
+    profile = user_profile or {}
+    age_group = profile.get("age_group", "26-35")
+    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
+
+    for condition in profile.get("health_conditions", []) or []:
+        if condition in HEALTH_CONDITION_TARGETS:
+            targets.update(HEALTH_CONDITION_TARGETS[condition])
+
+    health_goal = profile.get("health_goal", "general_health")
+    if health_goal in HEALTH_GOAL_TARGETS:
+        targets.update(HEALTH_GOAL_TARGETS[health_goal])
+
+    gender = profile.get("gender", "Female")
+    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
+        for key, value in GENDER_ADJUSTMENTS[gender].items():
+            if key in targets:
+                targets[key] += value
+
+    return targets
+
+
+def load_daily_snapshot(user_profile: Optional[dict], days_back: int = 30) -> dict:
+    """
+    Fetch commonly used daily data once so sidebar and dashboard can share it.
+    Reduces duplicate DB hits within a single app run.
+    """
+    user_id = st.session_state.user_id
+    today = date.today()
+    default_nutrition = {
+        "calories": 0,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 0,
+        "sodium": 0,
+        "sugar": 0,
+        "fiber": 0,
+    }
+
+    meals_today = db_manager.get_meals_by_date(user_id, today)
+    daily_nutrition_raw = db_manager.get_daily_nutrition_summary(user_id, today) or {}
+    daily_nutrition = {**default_nutrition, **daily_nutrition_raw}
+    water_intake = db_manager.get_daily_water_intake(user_id, today)
+
+    start_date = today - timedelta(days=days_back)
+    recent_meals = db_manager.get_meals_in_range(user_id, start_date, today)
+
+    recent_meal_dates = []
+    for meal in recent_meals:
+        try:
+            recent_meal_dates.append(datetime.fromisoformat(meal.get("logged_at", "")))
+        except Exception:
+            continue
+
+    return {
+        "today": today,
+        "meals_today": meals_today,
+        "daily_nutrition": daily_nutrition,
+        "water_intake": water_intake,
+        "recent_meals": recent_meals,
+        "recent_meal_dates": recent_meal_dates,
+        "streak_info": get_streak_info(recent_meal_dates),
+        "targets": calculate_personal_targets(user_profile),
+    }
+
+
 def render_stat_card(emoji: str, title: str, value: str, subtitle: str, 
                      progress_value: float, status: str, color: str, 
                      shadow_color: str, gradient_start: str, gradient_end: str):
@@ -1648,31 +1718,64 @@ def login_page():
             """, unsafe_allow_html=True)
 
 
-def dashboard_page():
+def dashboard_page(prefetched_data: Optional[dict] = None):
     """Dashboard/Home page"""
     # Get user profile (handles loading and caching automatically)
     user_profile = get_or_load_user_profile()
-    
-    # Get user's timezone for greeting
     user_timezone = user_profile.get("timezone", "UTC")
     st.markdown(f"# {get_greeting(user_timezone)} 👋")
-    
-    # Get today's meals and nutrition
-    today = date.today()
-    meals = db_manager.get_meals_by_date(st.session_state.user_id, today)
-    daily_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
-    
-    # ===== STREAK NOTIFICATIONS & MOTIVATIONAL BANNERS =====
-    days_back = 7
-    end_date = today
-    start_date = end_date - timedelta(days=days_back)
-    recent_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
-    
-    # Get streak info
-    meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
-    streak_info = get_streak_info(meal_dates)
-    current_streak = streak_info['current_streak']
-    longest_streak = streak_info['longest_streak']
+
+    # Pull prefetched data when available to avoid redundant DB calls
+    today = prefetched_data.get("today") if prefetched_data else date.today()
+
+    meals = prefetched_data.get("meals_today") if prefetched_data else None
+    if meals is None:
+        meals = db_manager.get_meals_by_date(st.session_state.user_id, today)
+
+    daily_nutrition = prefetched_data.get("daily_nutrition") if prefetched_data else None
+    if daily_nutrition is None:
+        daily_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today) or {
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "sodium": 0,
+            "sugar": 0,
+            "fiber": 0,
+        }
+
+    targets = prefetched_data.get("targets") if prefetched_data else None
+    if targets is None:
+        targets = calculate_personal_targets(user_profile)
+
+    water_intake = prefetched_data.get("water_intake") if prefetched_data else None
+    if water_intake is None:
+        water_intake = db_manager.get_daily_water_intake(st.session_state.user_id, today)
+
+    recent_meals = None
+    recent_meal_dates = None
+    if prefetched_data:
+        recent_meals = prefetched_data.get("recent_meals_7d") or prefetched_data.get("recent_meals")
+        recent_meal_dates = prefetched_data.get("recent_meal_dates_7d") or prefetched_data.get("recent_meal_dates")
+
+    if recent_meals is None:
+        start_date = today - timedelta(days=7)
+        recent_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, today)
+
+    if recent_meal_dates is None:
+        recent_meal_dates = []
+        for meal in recent_meals:
+            try:
+                recent_meal_dates.append(datetime.fromisoformat(meal.get("logged_at", "")))
+            except Exception:
+                continue
+
+    streak_info = prefetched_data.get("streak_info") if prefetched_data else None
+    if streak_info is None:
+        streak_info = get_streak_info(recent_meal_dates)
+
+    current_streak = streak_info.get('current_streak', 0)
+    longest_streak = streak_info.get('longest_streak', 0)
     
     # Motivational notifications (as persistent boxes below greeting)
     if current_streak >= 7 and current_streak % 7 == 0:
@@ -1693,35 +1796,7 @@ def dashboard_page():
     # Add spacing divider
     st.markdown("")
     
-    # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
-    
-    # Apply health condition adjustments
-    health_conditions = user_profile.get("health_conditions", [])
-    for condition in health_conditions:
-        if condition in HEALTH_CONDITION_TARGETS:
-            targets.update(HEALTH_CONDITION_TARGETS[condition])
-    
-    # Apply health goal adjustments
-    health_goal = user_profile.get("health_goal", "general_health")
-    if health_goal in HEALTH_GOAL_TARGETS:
-        targets.update(HEALTH_GOAL_TARGETS[health_goal])
-    
-    # Apply gender adjustments
-    gender = user_profile.get("gender", "Female")
-    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
-        for key, value in GENDER_ADJUSTMENTS[gender].items():
-            if key in targets:
-                targets[key] += value
-    
     # ===== Statistics & Achievements (Top Section) =====
-    # Get data for the last 7 days for statistics
-    days_back = 7
-    end_date = today
-    start_date = end_date - timedelta(days=days_back)
-    recent_meals = db_manager.get_meals_in_range(st.session_state.user_id, start_date, end_date)
-    
     # Prepare data for statistics using utility function
     nutrition_by_date = build_nutrition_by_date(recent_meals)
     
@@ -1766,14 +1841,10 @@ def dashboard_page():
     
     st.markdown("## 🏆 Achievements & Quick Stats")
     
-    meal_dates = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_meals]
-    streak_info = get_streak_info(meal_dates)
-    
     achieve_cols = st.columns(2, gap="small")
     
     # Current Streak Card
     with achieve_cols[0]:
-        current_streak = streak_info['current_streak']
         streak_emoji = "🔥" if current_streak > 0 else "⭕"
         st.markdown(f"""
         <div class="streak-box" style="
@@ -1832,9 +1903,6 @@ def dashboard_page():
     
     # Display Daily Challenges
     daily_challenges = GamificationManager.calculate_daily_challenges(db_manager, st.session_state.user_id, user_profile)
-    today = date.today()
-    daily_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
-    water_intake = db_manager.get_daily_water_intake(st.session_state.user_id, today)
     
     # Update challenge progress
     completed_challenges = GamificationManager.update_challenge_progress(
@@ -1885,7 +1953,7 @@ def dashboard_page():
     with quick_stats_col1:
         # Get water intake data
         water_goal = user_profile.get("water_goal_glasses", 8)
-        current_water = db_manager.get_daily_water_intake(st.session_state.user_id, today)
+        current_water = water_intake
         water_percentage = min((current_water / water_goal) * 100, 100) if water_goal > 0 else 0
         
         # Determine water status
@@ -2829,26 +2897,7 @@ def analytics_page():
         return
     
     # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
-    
-    # Apply health condition adjustments
-    health_conditions = user_profile.get("health_conditions", [])
-    for condition in health_conditions:
-        if condition in HEALTH_CONDITION_TARGETS:
-            targets.update(HEALTH_CONDITION_TARGETS[condition])
-    
-    # Apply health goal adjustments
-    health_goal = user_profile.get("health_goal", "general_health")
-    if health_goal in HEALTH_GOAL_TARGETS:
-        targets.update(HEALTH_GOAL_TARGETS[health_goal])
-    
-    # Apply gender adjustments
-    gender = user_profile.get("gender", "Female")
-    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
-        for key, value in GENDER_ADJUSTMENTS[gender].items():
-            if key in targets:
-                targets[key] += value
+    targets = calculate_personal_targets(user_profile)
     
     # ===== STATISTICS CARDS =====
     st.markdown("## 📊 Statistics")
@@ -3165,26 +3214,7 @@ def insights_page():
         return
     
     # Get nutrition targets
-    age_group = user_profile.get("age_group", "26-35")
-    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
-    
-    # Apply health condition adjustments
-    health_conditions = user_profile.get("health_conditions", [])
-    for condition in health_conditions:
-        if condition in HEALTH_CONDITION_TARGETS:
-            targets.update(HEALTH_CONDITION_TARGETS[condition])
-    
-    # Apply health goal adjustments
-    health_goal = user_profile.get("health_goal", "general_health")
-    if health_goal in HEALTH_GOAL_TARGETS:
-        targets.update(HEALTH_GOAL_TARGETS[health_goal])
-    
-    # Apply gender adjustments
-    gender = user_profile.get("gender", "Female")
-    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
-        for key, value in GENDER_ADJUSTMENTS[gender].items():
-            if key in targets:
-                targets[key] += value
+    targets = calculate_personal_targets(user_profile)
     
     # Today's summary
     today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
@@ -4278,26 +4308,7 @@ def coaching_assistant_page():
         today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, today)
         
         # Get nutrition targets
-        age_group = user_profile.get("age_group", "26-35")
-        targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
-        
-        # Apply health condition adjustments
-        health_conditions = user_profile.get("health_conditions", [])
-        for condition in health_conditions:
-            if condition in HEALTH_CONDITION_TARGETS:
-                targets.update(HEALTH_CONDITION_TARGETS[condition])
-        
-        # Apply health goal adjustments
-        health_goal = user_profile.get("health_goal", "general_health")
-        if health_goal in HEALTH_GOAL_TARGETS:
-            targets.update(HEALTH_GOAL_TARGETS[health_goal])
-        
-        # Apply gender adjustments
-        gender = user_profile.get("gender", "Female")
-        if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
-            for key, value in GENDER_ADJUSTMENTS[gender].items():
-                if key in targets:
-                    targets[key] += value
+        targets = calculate_personal_targets(user_profile)
         
         # Initialize conversation history in session state
         if "coaching_conversation" not in st.session_state:
@@ -4441,20 +4452,7 @@ def restaurant_analyzer_page():
                     )
                     
                     # Get targets
-                    age_group = user_profile.get("age_group", "26-35")
-                    targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
-                    health_conditions = user_profile.get("health_conditions", [])
-                    for condition in health_conditions:
-                        if condition in HEALTH_CONDITION_TARGETS:
-                            targets.update(HEALTH_CONDITION_TARGETS[condition])
-                    health_goal = user_profile.get("health_goal", "general_health")
-                    if health_goal in HEALTH_GOAL_TARGETS:
-                        targets.update(HEALTH_GOAL_TARGETS[health_goal])
-                    gender = user_profile.get("gender", "Female")
-                    if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
-                        for key, value in GENDER_ADJUSTMENTS[gender].items():
-                            if key in targets:
-                                targets[key] += value
+                    targets = calculate_personal_targets(user_profile)
                     
                     # Analyze menu
                     analysis = menu_analyzer.analyze_menu(
@@ -4538,20 +4536,7 @@ def restaurant_analyzer_page():
                                 )
                                 
                                 # Get targets
-                                age_group = user_profile.get("age_group", "26-35")
-                                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
-                                health_conditions = user_profile.get("health_conditions", [])
-                                for condition in health_conditions:
-                                    if condition in HEALTH_CONDITION_TARGETS:
-                                        targets.update(HEALTH_CONDITION_TARGETS[condition])
-                                health_goal = user_profile.get("health_goal", "general_health")
-                                if health_goal in HEALTH_GOAL_TARGETS:
-                                    targets.update(HEALTH_GOAL_TARGETS[health_goal])
-                                gender = user_profile.get("gender", "Female")
-                                if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
-                                    for key, value in GENDER_ADJUSTMENTS[gender].items():
-                                        if key in targets:
-                                            targets[key] += value
+                                targets = calculate_personal_targets(user_profile)
                                 
                                 # Analyze menu
                                 analysis = menu_analyzer.analyze_menu(
@@ -5028,12 +5013,162 @@ def main():
     # Add anchor for back-to-top functionality
     st.markdown('<a id="app-top"></a>', unsafe_allow_html=True)
     
-    # Add responsive sidebar CSS
+    # Add comprehensive responsive mobile styling
     st.markdown("""
     <style>
+        /* ========== MOBILE RESPONSIVE STYLING ========== */
+        
+        /* Base responsive adjustments */
+        @media (max-width: 768px) {
+            /* Main content area */
+            .main .block-container {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                padding-top: 1rem !important;
+                max-width: 100% !important;
+            }
+            
+            /* Reduce heading sizes on mobile */
+            h1 { font-size: 1.5em !important; }
+            h2 { font-size: 1.3em !important; }
+            h3 { font-size: 1.1em !important; }
+            
+            /* Make gradient headers more compact */
+            .main [style*="linear-gradient"] {
+                padding: 10px 15px !important;
+                margin-bottom: 15px !important;
+            }
+            
+            /* Streamlit columns responsive */
+            [data-testid="column"] {
+                width: 100% !important;
+                flex: 1 1 100% !important;
+                min-width: 0 !important;
+            }
+            
+            /* Stack metrics vertically on mobile */
+            [data-testid="metric-container"] {
+                width: 100% !important;
+                margin-bottom: 10px !important;
+            }
+            
+            /* Make buttons full width */
+            button {
+                width: 100% !important;
+                font-size: 14px !important;
+                padding: 10px 16px !important;
+            }
+            
+            /* Form inputs full width */
+            input, textarea, select {
+                width: 100% !important;
+                font-size: 16px !important; /* Prevents zoom on iOS */
+            }
+            
+            /* Text areas more compact */
+            textarea {
+                min-height: 120px !important;
+            }
+            
+            /* Tables responsive - enable horizontal scroll */
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                font-size: 12px !important;
+            }
+            
+            /* Plotly charts responsive */
+            [data-testid="stPlotlyChart"] {
+                width: 100% !important;
+                height: auto !important;
+            }
+            
+            /* Expander more compact */
+            [data-testid="stExpander"] {
+                font-size: 14px !important;
+            }
+            
+            /* Tabs more compact */
+            [data-testid="stTabs"] button {
+                font-size: 13px !important;
+                padding: 8px 12px !important;
+            }
+            
+            /* Reduce padding in containers */
+            [data-testid="stVerticalBlock"] > div {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            
+            /* Image uploads */
+            [data-testid="stFileUploader"] {
+                font-size: 14px !important;
+            }
+            
+            /* Make sidebar toggle more prominent */
+            [data-testid="collapsedControl"] {
+                width: 50px !important;
+                height: 50px !important;
+            }
+        }
+        
+        /* Small mobile devices (phones in portrait) */
+        @media (max-width: 480px) {
+            .main .block-container {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+            
+            h1 { font-size: 1.3em !important; }
+            h2 { font-size: 1.1em !important; }
+            
+            button {
+                font-size: 13px !important;
+                padding: 8px 12px !important;
+            }
+            
+            /* Compact stat cards */
+            [style*="text-align: center"] {
+                padding: 8px !important;
+            }
+            
+            /* Smaller metric text */
+            [data-testid="metric-container"] {
+                font-size: 12px !important;
+            }
+        }
+        
+        /* Tablet and small desktop */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .main .block-container {
+                padding-left: 2rem !important;
+                padding-right: 2rem !important;
+            }
+        }
+        
         /* Sidebar responsive adjustments */
         [data-testid="stSidebar"] {
             width: fit-content !important;
+        }
+        
+        @media (max-width: 768px) {
+            [data-testid="stSidebar"] {
+                width: 280px !important;
+            }
+            
+            [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+                font-size: 14px !important;
+            }
+            
+            /* Compact sidebar stats */
+            [data-testid="stSidebar"] [style*="font-size: 22px"] {
+                font-size: 18px !important;
+            }
+            
+            [data-testid="stSidebar"] [style*="font-size: 20px"] {
+                font-size: 16px !important;
+            }
         }
         
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
@@ -5052,6 +5187,153 @@ def main():
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
+        
+        /* Navigation menu responsive */
+        @media (max-width: 768px) {
+            .css-1544g2n, .css-nahz7x {
+                font-size: 13px !important;
+            }
+        }
+        
+        /* Cards and containers responsive */
+        @media (max-width: 768px) {
+            [style*="border-radius"] {
+                border-radius: 10px !important;
+            }
+            
+            [style*="padding: 12px"] {
+                padding: 10px !important;
+            }
+            
+            [style*="padding: 16px"] {
+                padding: 12px !important;
+            }
+            
+            [style*="padding: 20px"] {
+                padding: 14px !important;
+            }
+        }
+        
+        /* Responsive floating button */
+        @media (max-width: 768px) {
+            .floating-back-to-top {
+                bottom: 80px !important;
+                right: 15px !important;
+            }
+            
+            .floating-back-to-top a {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.5em !important;
+            }
+        }
+        
+        /* Touch-friendly targets */
+        @media (hover: none) and (pointer: coarse) {
+            button, a, input[type="button"], input[type="submit"] {
+                min-height: 44px !important; /* iOS recommendation */
+                min-width: 44px !important;
+            }
+        }
+        
+        /* Prevent horizontal scroll */
+        .main, [data-testid="stApp"] {
+            overflow-x: hidden !important;
+        }
+        
+        /* Optimize images for mobile */
+        @media (max-width: 768px) {
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+        }
+        
+        /* Better spacing for mobile cards */
+        @media (max-width: 768px) {
+            [data-testid="stVerticalBlock"] > [data-testid="element-container"] {
+                margin-bottom: 0.75rem !important;
+            }
+        }
+        
+        /* File uploader responsive */
+        @media (max-width: 768px) {
+            [data-testid="stFileUploadDropzone"] {
+                padding: 1rem !important;
+                min-height: 100px !important;
+            }
+            
+            [data-testid="stFileUploadDropzone"] button {
+                font-size: 13px !important;
+            }
+        }
+        
+        /* Dataframe responsive */
+        @media (max-width: 768px) {
+            [data-testid="stDataFrame"] {
+                font-size: 12px !important;
+            }
+            
+            [data-testid="stDataFrame"] td,
+            [data-testid="stDataFrame"] th {
+                padding: 4px 8px !important;
+            }
+        }
+        
+        /* Improve form layout on mobile */
+        @media (max-width: 768px) {
+            [data-testid="stForm"] {
+                padding: 1rem 0.5rem !important;
+            }
+            
+            [data-testid="stFormSubmitButton"] button {
+                margin-top: 1rem !important;
+            }
+        }
+        
+        /* Selectbox and multiselect responsive */
+        @media (max-width: 768px) {
+            [data-testid="stSelectbox"],
+            [data-testid="stMultiSelect"] {
+                font-size: 14px !important;
+            }
+        }
+        
+        /* Date input responsive */
+        @media (max-width: 768px) {
+            [data-testid="stDateInput"] input {
+                font-size: 16px !important;
+            }
+        }
+        
+        /* Number input responsive */
+        @media (max-width: 768px) {
+            [data-testid="stNumberInput"] input {
+                font-size: 16px !important;
+            }
+        }
+        
+        /* Success/Warning/Error boxes responsive */
+        @media (max-width: 768px) {
+            [data-testid="stAlert"] {
+                font-size: 13px !important;
+                padding: 10px !important;
+            }
+        }
+        
+        /* Spinner responsive */
+        @media (max-width: 768px) {
+            [data-testid="stSpinner"] > div {
+                font-size: 14px !important;
+            }
+        }
+        
+        /* Progress bar responsive */
+        @media (max-width: 768px) {
+            [data-testid="stProgress"] {
+                height: 8px !important;
+            }
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -5059,6 +5341,21 @@ def main():
         login_page()
     else:
         if st.session_state.user_email:
+            user_profile = get_or_load_user_profile()
+            # Prefetch daily data once for sidebar and dashboard to avoid duplicate DB hits
+            today_snapshot = load_daily_snapshot(user_profile, days_back=30)
+            dashboard_prefetch = {}
+            seven_day_threshold = today_snapshot["today"] - timedelta(days=7)
+            recent_meals_7d = []
+            recent_meal_dates_7d = []
+            for meal, meal_dt in zip(today_snapshot["recent_meals"], today_snapshot["recent_meal_dates"]):
+                if meal_dt and meal_dt.date() >= seven_day_threshold:
+                    recent_meals_7d.append(meal)
+                    recent_meal_dates_7d.append(meal_dt)
+            dashboard_prefetch.update(today_snapshot)
+            dashboard_prefetch["recent_meals_7d"] = recent_meals_7d
+            dashboard_prefetch["recent_meal_dates_7d"] = recent_meal_dates_7d
+            
             # Navigation pages dictionary
             pages = {
                 "Dashboard": "📊",
@@ -5116,46 +5413,13 @@ def main():
             st.sidebar.markdown("<div style='margin: 12px 0;'></div>", unsafe_allow_html=True)
             
             # ===== QUICK STATS IN SIDEBAR - COMPACT SINGLE ROW =====
-            # Get today's data for sidebar stats
-            today_meals = db_manager.get_meals_by_date(st.session_state.user_id, date.today())
-            today_nutrition = db_manager.get_daily_nutrition_summary(st.session_state.user_id, date.today())
-            
-            # Get user profile (handles loading and caching automatically)
-            user_profile = get_or_load_user_profile()
-            
-            # Streak info - Use same logic as dashboard
-            # Get meals from last 30 days for accurate streak calculation
-            days_back = 30
-            streak_end_date = date.today()
-            streak_start_date = streak_end_date - timedelta(days=days_back)
-            recent_all_meals = db_manager.get_meals_in_range(st.session_state.user_id, streak_start_date, streak_end_date)
-            meal_dates_all = [datetime.fromisoformat(m.get("logged_at", "")) for m in recent_all_meals]
-            streak_info = get_streak_info(meal_dates_all)
+            # Get today's data for sidebar stats from the prefetched snapshot
+            today_nutrition = today_snapshot["daily_nutrition"]
+            streak_info = today_snapshot["streak_info"]
             current_streak = streak_info.get('current_streak', 0)
-            
-            # Get water intake
             water_goal = user_profile.get("water_goal_glasses", 8) if user_profile else 8
-            water_today = db_manager.get_daily_water_intake(st.session_state.user_id, date.today())
-            
-            # Calories calculation
-            if user_profile:
-                age_group = user_profile.get("age_group", "26-35")
-                targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
-                health_conditions = user_profile.get("health_conditions", [])
-                for condition in health_conditions:
-                    if condition in HEALTH_CONDITION_TARGETS:
-                        targets.update(HEALTH_CONDITION_TARGETS[condition])
-                health_goal = user_profile.get("health_goal", "general_health")
-                if health_goal in HEALTH_GOAL_TARGETS:
-                    targets.update(HEALTH_GOAL_TARGETS[health_goal])
-                gender = user_profile.get("gender", "Female")
-                if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
-                    for key, value in GENDER_ADJUSTMENTS[gender].items():
-                        if key in targets:
-                            targets[key] += value
-                cal_display = int(today_nutrition['calories'])
-            else:
-                cal_display = int(today_nutrition['calories'])
+            water_today = today_snapshot["water_intake"]
+            cal_display = int(today_nutrition.get('calories', 0))
             
             # Create three-column compact stats (Streak, Calories, Water)
             stat_cols = st.sidebar.columns(3, gap="medium")
@@ -5204,7 +5468,7 @@ def main():
             
             # Route to selected page
             if st.session_state.current_page == "Dashboard":
-                dashboard_page()
+                dashboard_page(dashboard_prefetch)
             elif st.session_state.current_page == "Log Meal":
                 meal_logging_page()
             elif st.session_state.current_page == "Analytics":
