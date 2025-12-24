@@ -139,14 +139,19 @@ def calculate_personal_targets(user_profile: Optional[dict]) -> dict:
     age_group = profile.get("age_group", "26-35")
     targets = AGE_GROUP_TARGETS.get(age_group, AGE_GROUP_TARGETS["26-35"]).copy()
 
+    # Apply health condition adjustments (these replace values for medical reasons)
     for condition in profile.get("health_conditions", []) or []:
         if condition in HEALTH_CONDITION_TARGETS:
             targets.update(HEALTH_CONDITION_TARGETS[condition])
 
+    # Apply health goal adjustments (these ADD to base values)
     health_goal = profile.get("health_goal", "general_health")
     if health_goal in HEALTH_GOAL_TARGETS:
-        targets.update(HEALTH_GOAL_TARGETS[health_goal])
+        for key, value in HEALTH_GOAL_TARGETS[health_goal].items():
+            if key in targets:
+                targets[key] += value
 
+    # Apply gender adjustments (these ADD to current values)
     gender = profile.get("gender", "Female")
     if gender in GENDER_ADJUSTMENTS and GENDER_ADJUSTMENTS[gender]:
         for key, value in GENDER_ADJUSTMENTS[gender].items():
@@ -482,256 +487,504 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+    /* ===== FONTS & BASE IMPORTS ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
     @import url('https://cdn.jsdelivr.net/npm/tabler-icons@latest/tabler-icons.min.css');
     
     :root {
-        --primary-color: #10A19D;
-        --primary-dark: #0D7A76;
-        --primary-light: #52C4B8;
-        --secondary-color: #FF6B6B;
-        --success-color: #51CF66;
-        --warning-color: #FFA500;
-        --danger-color: #FF0000;
-        --accent-purple: #845EF7;
+        /* Primary palette - refined teal with depth */
+        --primary-50: #E6FAF9;
+        --primary-100: #B3F0ED;
+        --primary-200: #80E6E1;
+        --primary-300: #4DD9D3;
+        --primary-400: #26CFC8;
+        --primary-500: #10A19D;
+        --primary-600: #0D847F;
+        --primary-700: #0A6662;
+        --primary-800: #074845;
+        --primary-900: #042A28;
+        
+        /* Accent colors */
+        --accent-purple: #8B5CF6;
+        --accent-purple-light: #A78BFA;
         --accent-blue: #3B82F6;
-        --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        --accent-blue-light: #60A5FA;
+        --accent-pink: #EC4899;
+        --accent-orange: #F59E0B;
+        
+        /* Semantic colors */
+        --success-400: #4ADE80;
+        --success-500: #22C55E;
+        --success-600: #16A34A;
+        --warning-400: #FBBF24;
+        --warning-500: #F59E0B;
+        --warning-600: #D97706;
+        --danger-400: #F87171;
+        --danger-500: #EF4444;
+        --danger-600: #DC2626;
+        
+        /* Neutrals - refined dark theme */
+        --neutral-50: #F8FAFC;
+        --neutral-100: #F1F5F9;
+        --neutral-200: #E2E8F0;
+        --neutral-300: #CBD5E1;
+        --neutral-400: #94A3B8;
+        --neutral-500: #64748B;
+        --neutral-600: #475569;
+        --neutral-700: #334155;
+        --neutral-800: #1E293B;
+        --neutral-900: #0F172A;
+        --neutral-950: #020617;
+        
+        /* Surface colors for layered UI - GREENER */
+        --surface-0: #1a3430;
+        --surface-1: #1e3a35;
+        --surface-2: #24443f;
+        --surface-3: #2a4e4a;
+        --surface-4: #305854;
+        
+        /* Glass morphism */
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        
+        /* Typography */
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        
+        /* Spacing scale */
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-10: 40px;
+        --space-12: 48px;
+        
+        /* Border radius */
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --radius-xl: 20px;
+        --radius-2xl: 28px;
+        --radius-full: 9999px;
+        
+        /* Shadows - layered for depth */
+        --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+        --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+        --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
+        --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.2);
+        --shadow-glow-primary: 0 0 20px rgba(16, 161, 157, 0.3), 0 0 40px rgba(16, 161, 157, 0.15);
+        --shadow-glow-success: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.15);
+        --shadow-glow-warning: 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.15);
+        --shadow-glow-danger: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.15);
+        
+        /* Transitions */
+        --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     
-    /* Apply Outfit font globally */
+    /* ===== GLOBAL STYLES ===== */
     html, body, [class*="css"] {
-        font-family: var(--font-family) !important;
+        font-family: var(--font-sans) !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        letter-spacing: -0.01em;
     }
     
+    /* Background with subtle noise texture - GREENER THEME */
     .main {
-        padding-top: 2rem;
-        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+        padding-top: 1.5rem;
+        background: 
+            radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 161, 157, 0.4), transparent),
+            radial-gradient(ellipse 60% 40% at 100% 100%, rgba(34, 197, 94, 0.25), transparent),
+            radial-gradient(circle at 0% 0%, rgba(16, 161, 157, 0.15), transparent 50%),
+            radial-gradient(circle at 100% 100%, rgba(34, 197, 94, 0.15), transparent 50%),
+            linear-gradient(180deg, #1a3430 0%, #1e3a35 50%, #244440 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
     }
     
-    h1, h2, h3 {
+    /* Subtle animated gradient overlay - GREENER */
+    .main::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(16, 161, 157, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.18) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(16, 161, 157, 0.1) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+        animation: gradientShift 20s ease-in-out infinite alternate;
+    }
+    
+    @keyframes gradientShift {
+        0% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    /* Typography hierarchy */
+    h1 {
+        font-size: 2rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.03em !important;
+        background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-300) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-top: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    h2 {
+        font-size: 1.375rem !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.02em !important;
+        color: var(--neutral-100) !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 0.75rem !important;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    h3 {
+        font-size: 1.125rem !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        color: var(--neutral-200) !important;
         margin-top: 1rem !important;
         margin-bottom: 0.5rem !important;
     }
     
-    /* Modern gradient cards */
+    p, span, div {
+        color: var(--neutral-300);
+    }
+    
+    /* ===== MODERN GRADIENT CARDS ===== */
     .gradient-primary {
-        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-400) 100%);
     }
     
     .gradient-purple {
-        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
+        background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-purple-light) 100%);
     }
     
     .gradient-blue {
-        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+        background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-blue-light) 100%);
     }
     
     .gradient-success {
-        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
+        background: linear-gradient(135deg, var(--success-500) 0%, var(--success-400) 100%);
     }
     
     .gradient-warning {
-        background: linear-gradient(135deg, #FFA500 0%, #FFB84D 100%);
+        background: linear-gradient(135deg, var(--warning-500) 0%, var(--warning-400) 100%);
     }
     
     .gradient-danger {
-        background: linear-gradient(135deg, #FF6B6B 0%, #FF8A8A 100%);
+        background: linear-gradient(135deg, var(--danger-500) 0%, var(--danger-400) 100%);
     }
     
+    /* ===== METRIC CARDS - PRODUCTION GRADE ===== */
     .metric-card {
-        background: rgba(16, 161, 157, 0.08);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(82, 196, 184, 0.3);
-        padding: 16px;
-        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.08) 0%, rgba(16, 161, 157, 0.03) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(16, 161, 157, 0.15);
+        padding: var(--space-5);
+        border-radius: var(--radius-xl);
         color: white;
-        margin: 8px 0;
+        margin: var(--space-2) 0;
         box-shadow: 
-            0 1px 3px rgba(0, 0, 0, 0.12),
-            0 4px 12px rgba(16, 161, 157, 0.15),
-            0 8px 24px rgba(16, 161, 157, 0.1);
-        transition: all 0.3s ease;
+            var(--shadow-lg),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all var(--transition-base);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     }
     
     .metric-card:hover {
-        transform: translateY(-4px);
-        background: rgba(16, 161, 157, 0.12);
-        border-color: rgba(82, 196, 184, 0.5);
+        transform: translateY(-4px) scale(1.01);
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.12) 0%, rgba(16, 161, 157, 0.06) 100%);
+        border-color: rgba(16, 161, 157, 0.3);
         box-shadow: 
-            0 2px 4px rgba(0, 0, 0, 0.15),
-            0 8px 16px rgba(16, 161, 157, 0.25),
-            0 16px 32px rgba(16, 161, 157, 0.15);
+            var(--shadow-xl),
+            var(--shadow-glow-primary),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     
-    /* Glass morphism for all cards */
-    [data-testid="stColumn"] {
-        backdrop-filter: blur(5px);
-    }
-    
+    /* Glass morphism cards */
     .card-glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 16px;
-        box-shadow: 
-            0 1px 3px rgba(0, 0, 0, 0.1),
-            0 4px 12px rgba(0, 0, 0, 0.08);
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        box-shadow: var(--glass-shadow);
+        position: relative;
     }
     
+    .card-glass::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    }
+    
+    /* ===== NUTRITION PROGRESS BARS ===== */
     .nutrition-bar {
-        height: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: var(--radius-full);
         overflow: hidden;
-        margin: 5px 0;
-        box-shadow: 
-            inset 0 2px 4px rgba(0, 0, 0, 0.2),
-            0 1px 3px rgba(0, 0, 0, 0.1);
+        margin: 6px 0;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
     }
     
     .nutrition-bar > div {
-        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(82, 196, 184, 0.3);
+        height: 100%;
+        border-radius: var(--radius-full);
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
     
-    .success {
-        color: #51CF66;
+    .nutrition-bar > div::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        animation: shimmerBar 2s infinite;
     }
     
-    .warning {
-        color: #FFA500;
+    @keyframes shimmerBar {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
     }
     
-    .danger {
-        color: #FF0000;
-    }
+    /* Semantic status classes */
+    .success { color: var(--success-400) !important; font-weight: 600; }
+    .warning { color: var(--warning-400) !important; font-weight: 600; }
+    .danger { color: var(--danger-400) !important; font-weight: 600; }
+    .info { color: var(--accent-blue-light) !important; font-weight: 600; }
     
-    /* Modern buttons with enhanced shadows */
+    /* ===== BUTTONS - REFINED ===== */
     .stButton > button {
-        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
         color: white;
         border: none;
-        border-radius: 12px;
+        border-radius: var(--radius-lg);
         padding: 12px 24px;
         font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 14px;
+        letter-spacing: -0.01em;
+        transition: all var(--transition-base);
         box-shadow: 
-            0 2px 4px rgba(0, 0, 0, 0.1),
-            0 4px 12px rgba(16, 161, 157, 0.25),
-            0 8px 24px rgba(16, 161, 157, 0.15);
+            var(--shadow-md),
+            0 0 0 1px rgba(16, 161, 157, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stButton > button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+        pointer-events: none;
     }
     
     .stButton > button:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
         box-shadow: 
-            0 4px 8px rgba(0, 0, 0, 0.12),
-            0 8px 20px rgba(16, 161, 157, 0.35),
-            0 12px 32px rgba(16, 161, 157, 0.2);
+            var(--shadow-lg),
+            var(--shadow-glow-primary),
+            0 0 0 1px rgba(16, 161, 157, 0.5);
     }
     
     .stButton > button:active {
-        transform: translateY(-1px);
+        transform: translateY(0);
+        box-shadow: var(--shadow-sm);
     }
     
-    /* Tabs styling with glass morphism */
+    /* Secondary button variant */
+    .stButton > button[kind="secondary"] {
+        background: transparent;
+        border: 1px solid rgba(16, 161, 157, 0.4);
+        color: var(--primary-400);
+    }
+    
+    .stButton > button[kind="secondary"]:hover {
+        background: rgba(16, 161, 157, 0.1);
+        border-color: var(--primary-400);
+    }
+    
+    /* ===== TABS - PILL STYLE ===== */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
+        gap: 8px;
+        background: var(--surface-2);
+        padding: 6px;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--glass-border);
         margin-bottom: 1.5rem;
     }
     
     .stTabs [data-baseweb="tab"] {
-        background: rgba(16, 161, 157, 0.08);
-        backdrop-filter: blur(8px);
-        border-radius: 12px;
-        padding: 12px 20px;
-        border: 1px solid rgba(82, 196, 184, 0.2);
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: transparent;
+        border-radius: var(--radius-lg);
+        padding: 10px 20px;
+        border: none;
+        color: var(--neutral-400);
+        font-weight: 500;
+        font-size: 14px;
+        transition: all var(--transition-fast);
     }
     
     .stTabs [data-baseweb="tab"]:hover {
-        background: rgba(16, 161, 157, 0.12);
-        border-color: rgba(82, 196, 184, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--neutral-200);
     }
     
     .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-        border-color: rgba(82, 196, 184, 0.8);
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
         color: white;
-        box-shadow: 
-            0 2px 4px rgba(0, 0, 0, 0.15),
-            0 4px 12px rgba(16, 161, 157, 0.3);
+        font-weight: 600;
+        box-shadow: var(--shadow-md);
     }
     
-    /* Ensure sidebar expansion on all screen sizes after login */
+    .stTabs [data-baseweb="tab-highlight"] {
+        display: none;
+    }
+    
+    .stTabs [data-baseweb="tab-border"] {
+        display: none;
+    }
+    
+    /* ===== SIDEBAR - GREENER ===== */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1a3430 0%, #1e3a35 100%);
+        border-right: 1px solid rgba(16, 161, 157, 0.15);
+    }
+    
     section[data-testid="stSidebar"] > div {
-        width: 250px !important;
+        width: 280px !important;
+        padding-top: var(--space-4);
     }
     
-    /* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        color: var(--neutral-300);
+    }
     
-    /* Input focus states - WCAG AA compliant */
+    /* ===== FORM INPUTS ===== */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea,
+    .stSelectbox > div > div > div {
+        background: var(--surface-2) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: var(--radius-md) !important;
+        color: var(--neutral-100) !important;
+        font-size: 14px;
+        transition: all var(--transition-fast);
+    }
+    
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: var(--primary-500) !important;
+        box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.15) !important;
+        outline: none !important;
+    }
+    
+    .stTextInput > div > div > input::placeholder,
+    .stTextArea > div > div > textarea::placeholder {
+        color: var(--neutral-500) !important;
+    }
+    
+    /* Input labels */
+    .stTextInput > label,
+    .stTextArea > label,
+    .stSelectbox > label {
+        color: var(--neutral-300) !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    /* ===== ACCESSIBILITY ===== */
     input:focus, textarea:focus, select:focus {
-        outline: 2px solid #10A19D !important;
+        outline: 2px solid var(--primary-500) !important;
         outline-offset: 2px !important;
-        border-color: #10A19D !important;
-        box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.25) !important;
     }
     
     input:focus-visible, textarea:focus-visible, select:focus-visible {
-        outline: 2px solid #10A19D !important;
+        outline: 2px solid var(--primary-500) !important;
         outline-offset: 2px !important;
     }
     
-    /* Better button focus indicators */
     button:focus-visible {
-        outline: 2px solid #10A19D !important;
+        outline: 2px solid var(--primary-500) !important;
         outline-offset: 2px !important;
     }
     
-    /* Disabled state indicators for accessibility */
     button:disabled, input:disabled, select:disabled, textarea:disabled {
-        opacity: 0.6 !important;
+        opacity: 0.5 !important;
         cursor: not-allowed !important;
     }
     
-    /* Ensure readable text in all states */
     button, input, select, textarea {
         min-height: 44px;
         font-size: 14px;
         line-height: 1.5;
     }
     
-    /* Selectbox hover effect */
-    [data-testid="stSelectbox"] {
-        transition: all 0.2s ease;
-    }
-    
-    /* Selectbox focus styling */
-    [data-testid="stSelectbox"]:focus-within {
-        transform: translateY(-1px);
-    }
-    
-    /* Better link styling for contrast */
+    /* Links */
     a {
-        color: #10A19D;
-        text-decoration: underline;
-        transition: all 0.2s ease;
+        color: var(--primary-400);
+        text-decoration: none;
+        transition: all var(--transition-fast);
+        font-weight: 500;
     }
     
     a:hover {
-        color: #52C4B8;
-        text-decoration-thickness: 2px;
+        color: var(--primary-300);
+        text-decoration: underline;
     }
     
     a:focus {
-        outline: 2px solid #10A19D;
+        outline: 2px solid var(--primary-500);
         outline-offset: 2px;
     }
     
-    /* Skip to main content link (hidden by default) */
+    /* Skip link */
     .skip-to-main {
         position: absolute;
         left: -9999px;
@@ -742,128 +995,331 @@ st.markdown("""
         position: fixed;
         top: 10px;
         left: 10px;
-        padding: 10px 20px;
-        background: #10A19D;
+        padding: 12px 24px;
+        background: var(--primary-500);
         color: white;
         text-decoration: none;
-        border-radius: 4px;
+        border-radius: var(--radius-md);
         z-index: 1000;
+        box-shadow: var(--shadow-lg);
     }
     
     /* Ensure sufficient color contrast for semantic colors */
     .success {
-        color: #51CF66;
+        color: var(--success-400);
         font-weight: 600;
     }
     
     .warning {
-        color: #FFD43B;
+        color: var(--warning-400);
         font-weight: 600;
     }
     
     .danger {
-        color: #FF6B6B;
+        color: var(--danger-400);
         font-weight: 600;
     }
     
     .info {
-        color: #3B82F6;
+        color: var(--accent-blue-light);
         font-weight: 600;
     }
     
-    /* ===== MEAL CARD HOVER EFFECTS ===== */
+    /* ===== CARD SYSTEM - PRODUCTION GRADE ===== */
+    
+    /* Base card component */
+    .card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+    
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    }
+    
+    .card:hover {
+        border-color: rgba(16, 161, 157, 0.3);
+        box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
+    }
+    
+    /* ===== MEAL CARD - ENHANCED ===== */
     .meal-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.06) 0%, rgba(139, 92, 246, 0.03) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(16, 161, 157, 0.15);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
         cursor: pointer;
+    }
+    
+    .meal-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(16, 161, 157, 0.3), transparent);
+    }
+    
+    .meal-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, transparent 50%);
+        opacity: 0;
+        transition: opacity var(--transition-base);
+        pointer-events: none;
     }
     
     .meal-card:hover {
-        transform: scale(1.03);
-        box-shadow: 0 12px 32px rgba(16, 161, 157, 0.3) !important;
+        transform: translateY(-4px) scale(1.01);
+        border-color: rgba(16, 161, 157, 0.4);
+        box-shadow: 
+            var(--shadow-xl),
+            var(--shadow-glow-primary);
     }
     
-    /* ===== NUTRITION INFO CARD HOVER EFFECTS ===== */
+    .meal-card:hover::after {
+        opacity: 1;
+    }
+    
+    /* ===== NUTRITION INFO CARD - ENHANCED ===== */
     .nutrition-info {
-        transition: filter 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: var(--radius-xl);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+    
+    .nutrition-info::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        border-radius: var(--radius-xl) 0 0 var(--radius-xl);
     }
     
     .nutrition-info:hover {
-        filter: brightness(0.95);
-        box-shadow: 0 10px 28px rgba(16, 161, 157, 0.35) !important;
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-xl);
     }
     
-    /* ===== BADGE/ACHIEVEMENT CARD HOVER EFFECTS ===== */
+    /* ===== BADGE/ACHIEVEMENT CARD - ENHANCED ===== */
     .badge-achievement {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(16, 161, 157, 0.05) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: var(--radius-xl);
+        padding: var(--space-4);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-bounce);
         cursor: pointer;
+    }
+    
+    .badge-achievement::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity var(--transition-base);
+        pointer-events: none;
     }
     
     .badge-achievement:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 40px rgba(16, 161, 157, 0.4),
-                    0 0 20px rgba(16, 161, 157, 0.3) !important;
+        transform: translateY(-6px) scale(1.02);
+        border-color: rgba(139, 92, 246, 0.5);
+        box-shadow: 
+            var(--shadow-xl),
+            0 0 30px rgba(139, 92, 246, 0.3),
+            0 0 60px rgba(139, 92, 246, 0.15);
     }
     
-    /* ===== INSIGHT CARD HOVER EFFECTS ===== */
+    .badge-achievement:hover::before {
+        opacity: 1;
+    }
+    
+    /* ===== INSIGHT CARD - ENHANCED ===== */
     .insight-box {
-        border: 2px solid rgba(16, 161, 157, 0.2);
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(16, 161, 157, 0.03) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-left: 3px solid var(--accent-blue);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        position: relative;
+        transition: all var(--transition-base);
+    }
+    
+    .insight-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, var(--accent-blue), transparent 80%);
     }
     
     .insight-box:hover {
-        border-color: #10A19D;
-        box-shadow: 0 8px 20px rgba(16, 161, 157, 0.25) !important;
+        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateX(4px);
+        box-shadow: var(--shadow-lg), 0 0 20px rgba(59, 130, 246, 0.15);
     }
     
-    /* ===== STAT CARD HOVER EFFECTS ===== */
+    /* ===== STAT CARD - ENHANCED ===== */
     .stat-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
         cursor: pointer;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
     }
     
     .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(16, 161, 157, 0.3) !important;
+        transform: translateY(-4px);
+        border-color: rgba(16, 161, 157, 0.3);
+        box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
     }
     
-    /* ===== CHART CONTAINER HOVER EFFECTS ===== */
+    /* ===== CHART CONTAINER - ENHANCED ===== */
     .chart-container {
-        transition: box-shadow 0.3s ease, border-color 0.3s ease;
-        border: 1px solid rgba(16, 161, 157, 0.2);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+    
+    .chart-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
     }
     
     .chart-container:hover {
-        box-shadow: 0 10px 30px rgba(16, 161, 157, 0.25) !important;
-        border-color: rgba(16, 161, 157, 0.5);
+        border-color: rgba(16, 161, 157, 0.3);
+        box-shadow: var(--shadow-lg);
     }
     
-    /* ===== SUMMARY/PROGRESS CARD HOVER EFFECTS ===== */
+    /* ===== SUMMARY/PROGRESS CARD - ENHANCED ===== */
     .summary-card {
-        transition: all 0.3s ease;
+        background: linear-gradient(145deg, rgba(16, 161, 157, 0.08) 0%, rgba(16, 161, 157, 0.03) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(16, 161, 157, 0.15);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
         cursor: pointer;
     }
     
-    .summary-card:hover {
-        transform: scale(1.02) translateY(-2px);
-        box-shadow: 0 12px 32px rgba(16, 161, 157, 0.35) !important;
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(16, 161, 157, 0.2), transparent);
     }
     
-    /* ===== MACRO BREAKDOWN BOX HOVER EFFECTS ===== */
+    .summary-card:hover {
+        transform: translateY(-4px) scale(1.01);
+        border-color: rgba(16, 161, 157, 0.4);
+        box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
+    }
+    
+    /* ===== MACRO BREAKDOWN BOX - ENHANCED ===== */
     .macro-box {
-        transition: all 0.3s ease;
-        border: 1px solid rgba(16, 161, 157, 0.3);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+    
+    .macro-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
     }
     
     .macro-box:hover {
-        border-color: #10A19D;
-        box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
+        border-color: rgba(16, 161, 157, 0.4);
+        box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
     }
     
-    /* ===== DASHBOARD INFO BOXES WITH FADE-IN ANIMATION ===== */
+    /* ===== DASHBOARD INFO BOXES - ENHANCED ===== */
     @keyframes dashboardFadeIn {
         from { 
             opacity: 0; 
-            transform: translateY(10px);
+            transform: translateY(16px);
         }
         to { 
             opacity: 1; 
@@ -872,68 +1328,157 @@ st.markdown("""
     }
     
     .dashboard-info-box {
-        animation: dashboardFadeIn 0.4s ease-out;
-        transition: all 0.3s ease;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        position: relative;
+        overflow: hidden;
+        animation: dashboardFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all var(--transition-base);
+    }
+    
+    .dashboard-info-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
     }
     
     .dashboard-info-box:hover {
-        border-color: rgba(16, 161, 157, 0.8) !important;
-        box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
+        border-color: rgba(16, 161, 157, 0.4);
+        box-shadow: var(--shadow-xl), var(--shadow-glow-primary);
     }
     
-    /* ===== PATTERN/TIMING CARD HOVER EFFECTS ===== */
+    /* ===== PATTERN/TIMING CARD - ENHANCED ===== */
     .pattern-card {
-        transition: all 0.3s ease;
+        background: linear-gradient(145deg, rgba(139, 92, 246, 0.06) 0%, rgba(16, 161, 157, 0.03) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
         cursor: pointer;
     }
     
     .pattern-card:hover {
-        background: rgba(16, 161, 157, 0.15) !important;
-        box-shadow: 0 8px 20px rgba(16, 161, 157, 0.25) !important;
+        background: linear-gradient(145deg, rgba(139, 92, 246, 0.12) 0%, rgba(16, 161, 157, 0.06) 100%);
+        border-color: rgba(139, 92, 246, 0.4);
+        box-shadow: var(--shadow-lg), 0 0 20px rgba(139, 92, 246, 0.15);
     }
     
-    /* ===== HEALTH METRIC BOX HOVER EFFECTS ===== */
+    /* ===== HEALTH METRIC BOX - ENHANCED ===== */
     .health-metric {
-        transition: all 0.3s ease;
+        background: linear-gradient(145deg, rgba(34, 197, 94, 0.06) 0%, rgba(16, 161, 157, 0.03) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
         cursor: pointer;
     }
     
     .health-metric:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 32px rgba(16, 161, 157, 0.3) !important;
+        transform: translateY(-4px);
+        border-color: rgba(34, 197, 94, 0.4);
+        box-shadow: var(--shadow-xl), var(--shadow-glow-success);
     }
     
-    /* ===== STREAK BOX HOVER EFFECTS ===== */
+    /* ===== STREAK BOX - ENHANCED ===== */
     .streak-box {
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        border-radius: var(--radius-2xl);
+        padding: var(--space-6);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-bounce);
         cursor: pointer;
     }
     
-    .streak-box:hover {
-        transform: scale(1.03) translateY(-2px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+    .streak-box::before {
+        content: '';
+        position: absolute;
+        top: -100%;
+        left: -100%;
+        width: 300%;
+        height: 300%;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+        animation: pulseGlow 3s ease-in-out infinite;
+        pointer-events: none;
     }
     
-    /* ===== PROFILE SECTION HOVER EFFECTS ===== */
+    @keyframes pulseGlow {
+        0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+        50% { transform: translate(10%, 10%); opacity: 1; }
+    }
+    
+    .streak-box:hover {
+        transform: translateY(-6px) scale(1.02);
+        border-color: rgba(245, 158, 11, 0.6);
+        box-shadow: var(--shadow-xl), var(--shadow-glow-warning);
+    }
+    
+    /* ===== PROFILE SECTION - ENHANCED ===== */
     .profile-section {
-        transition: all 0.3s ease;
-        border: 1px solid rgba(16, 161, 157, 0.2);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+    
+    .profile-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
     }
     
     .profile-section:hover {
-        border-color: rgba(16, 161, 157, 0.6);
-        box-shadow: 0 8px 24px rgba(16, 161, 157, 0.2) !important;
+        border-color: rgba(16, 161, 157, 0.4);
+        box-shadow: var(--shadow-lg);
     }
     
-    /* ===== SUGGESTION/RECOMMENDATION CARD HOVER EFFECTS ===== */
+    /* ===== SUGGESTION/RECOMMENDATION CARD - ENHANCED ===== */
     .suggestion-card {
-        transition: all 0.3s ease;
+        background: linear-gradient(145deg, rgba(59, 130, 246, 0.06) 0%, rgba(139, 92, 246, 0.03) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-left: 3px solid var(--accent-blue);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
         cursor: pointer;
     }
     
     .suggestion-card:hover {
-        transform: translateX(4px) translateY(-2px);
-        box-shadow: 0 10px 28px rgba(16, 161, 157, 0.3) !important;
+        transform: translateX(6px);
+        border-color: rgba(59, 130, 246, 0.4);
+        box-shadow: var(--shadow-lg), 0 0 20px rgba(59, 130, 246, 0.15);
     }
     
     /* ===== HIGH PRIORITY ANIMATIONS ===== */
@@ -1071,66 +1616,92 @@ st.markdown("""
     
     /* Better text contrast for accessibility */
     .card-text {
-        color: #e0f2f1 !important;
+        color: var(--neutral-100) !important;
         font-weight: 500;
     }
     
     .card-label {
-        color: #b8dbd9 !important;
+        color: var(--neutral-300) !important;
         font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     /* Clickable card hover effects */
     .clickable-card {
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition-base);
     }
     
     .clickable-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(16, 161, 157, 0.2) !important;
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
     }
     
-    /* Empty state styling */
+    /* ===== EMPTY STATE - ENHANCED ===== */
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
-        background: linear-gradient(135deg, rgba(82, 196, 184, 0.1) 0%, rgba(82, 196, 184, 0.05) 100%);
-        border: 2px dashed rgba(82, 196, 184, 0.3);
-        border-radius: 16px;
-        margin: 20px 0;
+        padding: 60px 32px;
+        background: linear-gradient(145deg, rgba(16, 161, 157, 0.06) 0%, rgba(139, 92, 246, 0.03) 100%);
+        border: 2px dashed rgba(16, 161, 157, 0.25);
+        border-radius: var(--radius-2xl);
+        margin: 24px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .empty-state::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(16, 161, 157, 0.1) 0%, transparent 70%);
+        pointer-events: none;
     }
     
     .empty-state-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
+        font-size: 56px;
+        margin-bottom: 20px;
+        display: block;
     }
     
     .empty-state-title {
-        color: #52C4B8;
-        margin: 0 0 8px 0;
+        color: var(--primary-300);
+        margin: 0 0 12px 0;
         font-weight: 700;
+        font-size: 18px;
     }
     
     .empty-state-description {
-        color: #b8dbd9;
-        margin: 0 0 16px 0;
+        color: var(--neutral-400);
+        margin: 0 0 20px 0;
         font-size: 14px;
+        line-height: 1.6;
     }
     
     .empty-state-action {
-        color: #10A19D;
+        color: var(--primary-400);
         font-weight: 600;
         margin: 0;
-        font-size: 13px;
+        font-size: 14px;
     }
     
-    /* ===== MOBILE RESPONSIVENESS ===== */
+    /* ===== MOBILE RESPONSIVENESS - ENHANCED ===== */
     @media (max-width: 768px) {
+        :root {
+            --space-4: 12px;
+            --space-5: 16px;
+            --space-6: 20px;
+        }
+        
         /* Stack columns vertically on mobile */
         [data-testid="column"] {
             min-width: 100% !important;
-            margin-bottom: 16px !important;
+            margin-bottom: var(--space-4) !important;
         }
         
         /* Hide less important sidebar expanded text */
@@ -1147,46 +1718,57 @@ st.markdown("""
         .stButton > button {
             min-height: 48px !important;
             padding: 12px 20px !important;
+            font-size: 14px !important;
         }
         
         /* Reduce horizontal padding on mobile */
         .main {
-            padding: 0 12px !important;
-            padding-top: 2rem !important;
+            padding: 0 var(--space-3) !important;
+            padding-top: 1.5rem !important;
         }
         
         /* Compact stat cards on mobile */
-        .stat-card {
-            padding: 12px !important;
+        .stat-card, .metric-card, .dashboard-info-box {
+            padding: var(--space-4) !important;
+            border-radius: var(--radius-lg) !important;
         }
         
-        /* Reduce font sizes on mobile */
+        /* Typography adjustments */
         h1 {
-            font-size: 24px !important;
+            font-size: 1.5rem !important;
         }
         
         h2 {
-            font-size: 18px !important;
-            margin-top: 16px !important;
+            font-size: 1.125rem !important;
+            margin-top: var(--space-4) !important;
         }
         
         h3 {
-            font-size: 16px !important;
-            margin-top: 12px !important;
+            font-size: 1rem !important;
+            margin-top: var(--space-3) !important;
         }
         
         /* Better spacing for mobile */
         .section-spacing {
-            margin: 16px 0 !important;
+            margin: var(--space-4) 0 !important;
         }
         
         .card-spacing {
-            margin-bottom: 12px !important;
+            margin-bottom: var(--space-3) !important;
         }
         
-        /* Reduce metric card padding */
-        .metric-card {
-            padding: 12px !important;
+        /* Tabs on mobile */
+        .stTabs [data-baseweb="tab-list"] {
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 4px;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            padding: 8px 14px;
+            font-size: 13px;
+            flex: 1 1 auto;
+            text-align: center;
         }
         
         /* Hide less critical info on mobile */
@@ -1198,63 +1780,73 @@ st.markdown("""
     @media (max-width: 480px) {
         /* Extra compact on very small screens */
         .main {
-            padding: 0 8px !important;
+            padding: 0 var(--space-2) !important;
         }
         
         h1 {
-            font-size: 20px !important;
+            font-size: 1.25rem !important;
         }
         
         h2 {
-            font-size: 16px !important;
+            font-size: 1rem !important;
         }
         
-        .stat-card {
-            padding: 10px !important;
-            font-size: 12px !important;
+        .stat-card, .metric-card {
+            padding: var(--space-3) !important;
         }
         
         /* Single column grid on very small screens */
         [data-testid="column"] {
             max-width: 100% !important;
         }
+        
+        /* Compact nutrition cards */
+        .nutrition-info {
+            min-height: auto !important;
+            padding: var(--space-3) !important;
+        }
     }
     
     /* Reduce motion for users who prefer it */
     @media (prefers-reduced-motion: reduce) {
-        * {
-            animation: none !important;
-            transition: none !important;
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
         }
     }
     
     /* High contrast mode support */
     @media (prefers-contrast: more) {
+        :root {
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+        
         input:focus, textarea:focus, select:focus, button:focus {
-            outline: 3px solid #10A19D !important;
+            outline: 3px solid var(--primary-400) !important;
             outline-offset: 3px !important;
         }
         
         button:disabled {
             opacity: 0.3 !important;
-            border: 2px solid #999 !important;
+            border: 2px solid var(--neutral-500) !important;
+        }
+        
+        .card, .metric-card, .stat-card {
+            border-width: 2px !important;
         }
     }
     
-    /* ===== ENTRANCE ANIMATIONS ===== */
+    /* ===== ENTRANCE ANIMATIONS - REFINED ===== */
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
     
     @keyframes slideUpFade {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(16px);
         }
         to {
             opacity: 1;
@@ -1265,7 +1857,7 @@ st.markdown("""
     @keyframes slideDownFade {
         from {
             opacity: 0;
-            transform: translateY(-20px);
+            transform: translateY(-16px);
         }
         to {
             opacity: 1;
@@ -1276,7 +1868,7 @@ st.markdown("""
     @keyframes scaleIn {
         from {
             opacity: 0;
-            transform: scale(0.95);
+            transform: scale(0.96);
         }
         to {
             opacity: 1;
@@ -1284,83 +1876,105 @@ st.markdown("""
         }
     }
     
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(24px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Staggered animation delays */
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.1s; }
+    .stagger-3 { animation-delay: 0.15s; }
+    .stagger-4 { animation-delay: 0.2s; }
+    .stagger-5 { animation-delay: 0.25s; }
+    
     /* Apply entrance animations to main containers */
     .main {
-        animation: fadeIn 0.5s ease-out;
+        animation: fadeIn 0.4s ease-out;
     }
     
     [data-testid="stMetricDelta"] {
-        animation: slideUpFade 0.6s ease-out;
+        animation: slideUpFade 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     [data-testid="stMetric"] {
-        animation: slideUpFade 0.6s ease-out;
+        animation: slideUpFade 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .stTabs [role="tablist"] {
-        animation: slideDownFade 0.5s ease-out;
+        animation: slideDownFade 0.4s ease-out;
     }
     
-    /* Card entrance animations with stagger */
+    /* Card entrance animations */
     .meal-card {
-        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: scaleIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
     }
     
     .metric-card {
-        animation: slideUpFade 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideUpFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
     }
     
     .stat-card {
-        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: scaleIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
     }
     
     .nutrition-info {
-        animation: slideUpFade 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideUpFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
     }
     
-    /* ===== LOADING SKELETONS ===== */
+    .dashboard-info-box {
+        animation: slideUpFade 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    
+    /* ===== LOADING SKELETONS - ENHANCED ===== */
     .skeleton {
         background: linear-gradient(
             90deg,
-            rgba(16, 161, 157, 0.08) 0%,
-            rgba(16, 161, 157, 0.15) 50%,
-            rgba(16, 161, 157, 0.08) 100%
+            rgba(255, 255, 255, 0.03) 0%,
+            rgba(16, 161, 157, 0.08) 50%,
+            rgba(255, 255, 255, 0.03) 100%
         );
         background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
-        border-radius: 8px;
+        animation: shimmer 1.8s ease-in-out infinite;
+        border-radius: var(--radius-md);
     }
     
     @keyframes shimmer {
-        0% {
-            background-position: -200% 0;
-        }
-        100% {
-            background-position: 200% 0;
-        }
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
     }
     
     .skeleton-text {
         height: 14px;
-        margin-bottom: 8px;
-        border-radius: 4px;
+        margin-bottom: 10px;
+        border-radius: var(--radius-sm);
         display: block;
+    }
+    
+    .skeleton-text:last-child {
+        width: 70%;
     }
     
     .skeleton-heading {
-        height: 24px;
-        margin-bottom: 16px;
-        border-radius: 4px;
+        height: 28px;
+        margin-bottom: 20px;
+        border-radius: var(--radius-sm);
         display: block;
-        width: 60%;
+        width: 50%;
     }
     
     .skeleton-card {
-        background: rgba(16, 161, 157, 0.06);
-        border: 1px solid rgba(16, 161, 157, 0.1);
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 16px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        margin-bottom: var(--space-4);
     }
     
     .skeleton-card .skeleton-heading {
@@ -1369,26 +1983,48 @@ st.markdown("""
     
     .skeleton-line {
         height: 12px;
-        margin-bottom: 12px;
-        border-radius: 4px;
+        margin-bottom: 14px;
+        border-radius: var(--radius-sm);
+    }
+    
+    .skeleton-line:nth-child(odd) {
+        width: 85%;
     }
     
     .skeleton-line:last-child {
         margin-bottom: 0;
+        width: 60%;
     }
     
     .skeleton-bar {
-        height: 40px;
-        margin-bottom: 12px;
-        border-radius: 8px;
+        height: 44px;
+        margin-bottom: 14px;
+        border-radius: var(--radius-md);
     }
     
-    /* Icon styling for integration with icon libraries */
+    .skeleton-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-full);
+    }
+    
+    .skeleton-circle {
+        border-radius: var(--radius-full);
+    }
+    
+    /* ===== ICON SYSTEM - PRODUCTION GRADE ===== */
     .icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         vertical-align: middle;
+        flex-shrink: 0;
+    }
+    
+    .icon-xs {
+        width: 14px;
+        height: 14px;
+        font-size: 12px;
     }
     
     .icon-sm {
@@ -1415,28 +2051,189 @@ st.markdown("""
         font-size: 40px;
     }
     
-    .icon-primary {
-        color: #10A19D;
+    .icon-2xl {
+        width: 64px;
+        height: 64px;
+        font-size: 56px;
     }
     
-    .icon-success {
-        color: #51CF66;
+    /* Icon colors using CSS variables */
+    .icon-primary { color: var(--primary-400); }
+    .icon-success { color: var(--success-400); }
+    .icon-warning { color: var(--warning-400); }
+    .icon-danger { color: var(--danger-400); }
+    .icon-info { color: var(--accent-blue-light); }
+    .icon-secondary { color: var(--accent-purple-light); }
+    .icon-muted { color: var(--neutral-500); }
+    
+    /* Icon with background */
+    .icon-bg {
+        padding: 8px;
+        border-radius: var(--radius-md);
     }
     
-    .icon-warning {
-        color: #FFD43B;
+    .icon-bg-primary {
+        background: rgba(16, 161, 157, 0.15);
+        color: var(--primary-400);
     }
     
-    .icon-danger {
-        color: #FF6B6B;
+    .icon-bg-success {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success-400);
     }
     
-    .icon-info {
-        color: #3B82F6;
+    .icon-bg-warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-400);
     }
     
-    .icon-secondary {
-        color: #845EF7;
+    .icon-bg-danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger-400);
+    }
+    
+    /* ===== UTILITY CLASSES ===== */
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+    
+    .font-mono { font-family: var(--font-mono); }
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    
+    .text-primary { color: var(--primary-400) !important; }
+    .text-success { color: var(--success-400) !important; }
+    .text-warning { color: var(--warning-400) !important; }
+    .text-danger { color: var(--danger-400) !important; }
+    .text-muted { color: var(--neutral-500) !important; }
+    
+    .bg-primary { background-color: var(--primary-500); }
+    .bg-surface-1 { background-color: var(--surface-1); }
+    .bg-surface-2 { background-color: var(--surface-2); }
+    
+    .rounded-sm { border-radius: var(--radius-sm); }
+    .rounded-md { border-radius: var(--radius-md); }
+    .rounded-lg { border-radius: var(--radius-lg); }
+    .rounded-xl { border-radius: var(--radius-xl); }
+    .rounded-full { border-radius: var(--radius-full); }
+    
+    .shadow-sm { box-shadow: var(--shadow-sm); }
+    .shadow-md { box-shadow: var(--shadow-md); }
+    .shadow-lg { box-shadow: var(--shadow-lg); }
+    .shadow-xl { box-shadow: var(--shadow-xl); }
+    .shadow-glow { box-shadow: var(--shadow-glow-primary); }
+    
+    /* Divider */
+    .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+        margin: var(--space-6) 0;
+    }
+    
+    /* Badge component */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: var(--radius-full);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-primary {
+        background: rgba(16, 161, 157, 0.15);
+        color: var(--primary-400);
+        border: 1px solid rgba(16, 161, 157, 0.3);
+    }
+    
+    .badge-success {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success-400);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    .badge-warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-400);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    .badge-danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger-400);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    /* Tooltip styling */
+    .tooltip {
+        position: relative;
+    }
+    
+    .tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        background: var(--surface-3);
+        color: var(--neutral-100);
+        padding: 8px 12px;
+        border-radius: var(--radius-md);
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all var(--transition-fast);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--glass-border);
+        z-index: 100;
+    }
+    
+    .tooltip:hover::after {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(-4px);
+    }
+    
+    /* ===== SCROLLBAR STYLING ===== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--surface-1);
+        border-radius: var(--radius-full);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--surface-4);
+        border-radius: var(--radius-full);
+        border: 2px solid var(--surface-1);
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--neutral-500);
+    }
+    
+    /* Firefox scrollbar */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--surface-4) var(--surface-1);
+    }
+    
+    /* ===== SELECTION STYLING ===== */
+    ::selection {
+        background: rgba(16, 161, 157, 0.3);
+        color: white;
+    }
+    
+    ::-moz-selection {
+        background: rgba(16, 161, 157, 0.3);
+        color: white;
     }
     
 </style>
@@ -1461,9 +2258,12 @@ def login_page():
     # Add custom CSS for login page with full-page background
     st.markdown("""
     <style>
-        /* Apply gradient to entire page when on login */
+        /* Apply gradient to entire page when on login - GREENER */
         [data-testid="stAppViewContainer"] {
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #0D7A76 75%, #063d3a 100%) !important;
+            background: 
+                radial-gradient(ellipse 100% 80% at 50% 120%, rgba(16, 161, 157, 0.3), transparent),
+                radial-gradient(ellipse 80% 50% at 0% 50%, rgba(34, 197, 94, 0.12), transparent),
+                linear-gradient(180deg, #1a3430 0%, #1e3a35 50%, #244440 100%) !important;
             background-attachment: fixed !important;
         }
         
@@ -1475,8 +2275,8 @@ def login_page():
             right: 0;
             bottom: 0;
             background-image: 
-                radial-gradient(circle at 20% 50%, rgba(16, 161, 157, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(82, 196, 184, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 30%, rgba(16, 161, 157, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(34, 197, 94, 0.08) 0%, transparent 40%);
             pointer-events: none;
             z-index: 1;
         }
@@ -1487,80 +2287,131 @@ def login_page():
         
         .login-container {
             display: flex;
-            gap: 20px;
+            gap: 24px;
             align-items: stretch;
         }
         
         .login-hero {
             flex: 1;
-            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-            padding: 30px;
-            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(16, 161, 157, 0.95) 0%, rgba(13, 132, 127, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            padding: 28px 32px;
+            border-radius: 24px;
             color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-shadow: 0 10px 40px rgba(16, 161, 157, 0.3);
+            box-shadow: 
+                0 4px 6px rgba(0, 0, 0, 0.1),
+                0 10px 20px rgba(0, 0, 0, 0.15),
+                0 20px 40px rgba(16, 161, 157, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+        
+        .login-hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            pointer-events: none;
         }
         
         .login-hero h1 {
-            font-size: 2.2em;
+            font-size: 2.5em;
             margin: 0 0 8px 0;
             font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4), 
-                         0 0 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.03em;
+            position: relative;
+            z-index: 1;
         }
         
         .login-hero h2 {
             font-size: 1.1em;
-            margin: 0 0 15px 0;
-            font-weight: 300;
-            opacity: 0.95;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            margin: 0 0 20px 0;
+            font-weight: 400;
+            opacity: 0.9;
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 1;
         }
         
         .login-hero ul {
-            font-size: 0.9em;
-            line-height: 1.4;
+            font-size: 0.95em;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
         }
         
         .login-hero li {
-            margin-bottom: 6px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            gap: 12px;
+            opacity: 0.95;
         }
         
         .login-form-container {
             flex: 1;
-            background: linear-gradient(135deg, #0D7A7620 0%, #10A19D10 100%);
-            padding: 30px;
-            border-radius: 20px;
-            border: 2px solid #10A19D;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 36px;
+            border-radius: 24px;
+            border: 1px solid rgba(16, 161, 157, 0.2);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            box-shadow: 0 10px 40px rgba(16, 161, 157, 0.15);
+            box-shadow: 
+                0 4px 6px rgba(0, 0, 0, 0.1),
+                0 10px 20px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+        
+        .login-form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(16, 161, 157, 0.3), transparent);
         }
         
         .login-header {
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             text-align: center;
             padding: 8px 0;
         }
         
         .login-header h3 {
-            color: #52C4B8;
-            font-size: 1.3em;
+            color: #4DD9D3;
+            font-size: 1.4em;
             margin: 0;
-            margin-bottom: 2px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            margin-bottom: 4px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
         
         .login-header p {
             margin: 0 !important;
             padding: 0 !important;
+            color: #94A3B8;
         }
         
         .login-tabs {
@@ -1568,69 +2419,44 @@ def login_page():
             margin-bottom: 15px;
         }
         
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 10px;
-            background: transparent;
-        }
-        
-        .stTabs [data-baseweb="tab"] {
-            background: transparent;
-            border: 2px solid #10A19D40;
-            border-radius: 10px;
-            color: #d0e0df;
-            padding: 8px 16px;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-        
-        .stTabs [data-baseweb="tab"][aria-selected="true"] {
-            background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-            color: white;
-            border: 2px solid #10A19D;
-        }
-        
         .form-input-group {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
         
         .form-input-group label {
             display: block;
-            margin-bottom: 6px;
-            color: #c8f0ed;
-            font-weight: 600;
-            font-size: 0.85em;
+            margin-bottom: 8px;
+            color: #CBD5E1;
+            font-weight: 500;
+            font-size: 0.9em;
         }
         
         .stTextInput {
-            margin-bottom: 15px !important;
+            margin-bottom: 16px !important;
         }
         
         .stTextInput input {
-            background: #0a0e27 !important;
-            color: #e0f2f1 !important;
-            border: 2px solid #10A19D40 !important;
-            border-radius: 10px !important;
-            padding: 10px 12px !important;
-            font-size: 0.9em !important;
+            background: rgba(15, 23, 42, 0.8) !important;
+            color: #F1F5F9 !important;
+            border: 1px solid rgba(16, 161, 157, 0.25) !important;
+            border-radius: 12px !important;
+            padding: 14px 16px !important;
+            font-size: 0.95em !important;
+            transition: all 0.2s ease !important;
         }
         
         .stTextInput input::placeholder {
-            color: #7a9a98 !important;
-            opacity: 0.8 !important;
+            color: #64748B !important;
         }
         
         .stTextInput input:focus {
-            border: 2px solid #10A19D !important;
-            box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.2) !important;
+            border-color: #10A19D !important;
+            box-shadow: 0 0 0 3px rgba(16, 161, 157, 0.15), 0 0 20px rgba(16, 161, 157, 0.1) !important;
+            background: rgba(15, 23, 42, 0.95) !important;
         }
         
         .stCaption {
-            color: #b8dbd9 !important;
-        }
-        button[kind="secondary"]:has-text("Forgot password?") {
-            background: #4a5f5e !important;
-            color: #a0a0a0 !important;
-            border: 1px solid #5a6f6e !important;
+            color: #94A3B8 !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -1641,19 +2467,40 @@ def login_page():
     
     with col1:
         st.markdown("""
-        <div class="login-hero" style="padding-top: 30px;">
-            <h1 style="font-size: 3em; margin: 0 0 20px 0; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);">EatWise</h1>
-            <h2>Your AI-Powered Nutrition Hub</h2>
-            <p style="font-size: 0.95em; opacity: 0.9; margin-bottom: 15px; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);">
+        <div class="login-hero">
+            <h1 style="font-size: 3.3em; margin: 0 0 8px 0; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.9) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1;">
+                EatWise
+            </h1>
+            <h2 style="font-size: 1.3em; margin: 0 0 14px 0; font-weight: 600; color: rgba(255, 255, 255, 0.95); letter-spacing: -0.01em;">
+                Your AI-Powered Nutrition Hub
+            </h2>
+            <p style="font-size: 0.98em; opacity: 0.85; margin-bottom: 14px; line-height: 1.5; color: rgba(255, 255, 255, 0.9);">
                 Transform your eating habits with intelligent meal tracking and personalized nutrition insights.
             </p>
-            <ul style="list-style: none; padding: 0;">
-                <li>📸 Smart meal logging (text or photo)</li>
-                <li>📊 Instant nutritional analysis</li>
-                <li>📈 Habit tracking and progress monitoring</li>
-                <li>💡 AI-powered personalized suggestions</li>
-                <li>🎮 Gamification with badges and streaks</li>
-            </ul>
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 12px;">
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                    <li style="display: flex; align-items: center; gap: 10px; font-size: 0.93em; opacity: 0.9;">
+                        <span style="font-size: 1.35em;">📸</span>
+                        <span style="font-weight: 500;">Smart meal logging (text or photo)</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 10px; font-size: 0.93em; opacity: 0.9;">
+                        <span style="font-size: 1.35em;">📊</span>
+                        <span style="font-weight: 500;">Instant nutritional analysis</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 10px; font-size: 0.93em; opacity: 0.9;">
+                        <span style="font-size: 1.35em;">📈</span>
+                        <span style="font-weight: 500;">Habit tracking and progress monitoring</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 10px; font-size: 0.93em; opacity: 0.9;">
+                        <span style="font-size: 1.35em;">💡</span>
+                        <span style="font-weight: 500;">AI-powered personalized suggestions</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 10px; font-size: 0.93em; opacity: 0.9;">
+                        <span style="font-size: 1.35em;">🎮</span>
+                        <span style="font-weight: 500;">Gamification with badges and streaks</span>
+                    </li>
+                </ul>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1847,23 +2694,11 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
     with achieve_cols[0]:
         streak_emoji = "🔥" if current_streak > 0 else "⭕"
         st.markdown(f"""
-        <div class="streak-box" style="
-            background: linear-gradient(135deg, #FF671520 0%, #FF671540 100%);
-            border: 1px solid #FF6715;
-            border-left: 5px solid #FF6715;
-            border-radius: 12px;
-            padding: 20px 16px;
-            text-align: center;
-            min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(255, 103, 21, 0.2);
-        ">
-            <div style="font-size: 40px; margin-bottom: 10px;">{streak_emoji}</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;">Current Streak</div>
-            <div style="font-size: 36px; font-weight: 900; color: #FFB84D; margin-bottom: 6px;">{current_streak}</div>
-            <div style="font-size: 11px; color: #FF6715; font-weight: 700;">days in a row</div>
+        <div style="background: linear-gradient(145deg, rgba(255, 103, 21, 0.15), rgba(255, 140, 70, 0.08)); border: 1px solid rgba(255, 103, 21, 0.5); border-radius: 20px; padding: 28px 20px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="font-size: 48px; margin-bottom: 12px;">{streak_emoji}</div>
+            <div style="font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 700;">Current Streak</div>
+            <div style="font-size: 44px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{current_streak}</div>
+            <div style="font-size: 12px; color: #FF8C46; font-weight: 600;">days in a row</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1871,23 +2706,11 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
     with achieve_cols[1]:
         longest_streak = streak_info['longest_streak']
         st.markdown(f"""
-        <div class="streak-box" style="
-            background: linear-gradient(135deg, #FFD43B20 0%, #FFC94D40 100%);
-            border: 1px solid #FFD43B;
-            border-left: 5px solid #FFD43B;
-            border-radius: 12px;
-            padding: 20px 16px;
-            text-align: center;
-            min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(255, 212, 59, 0.2);
-        ">
-            <div style="font-size: 40px; margin-bottom: 10px;">🏅</div>
-            <div style="font-size: 11px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;">Longest Streak</div>
-            <div style="font-size: 36px; font-weight: 900; color: #FFD43B; margin-bottom: 6px;">{longest_streak}</div>
-            <div style="font-size: 11px; color: #FFD43B; font-weight: 700;">personal record</div>
+        <div style="background: linear-gradient(145deg, rgba(255, 212, 59, 0.12), rgba(255, 201, 77, 0.06)); border: 1px solid rgba(255, 212, 59, 0.4); border-radius: 20px; padding: 28px 20px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="font-size: 48px; margin-bottom: 12px;">🏅</div>
+            <div style="font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 700;">Longest Streak</div>
+            <div style="font-size: 44px; font-weight: 900; color: #FFD43B; margin-bottom: 8px;">{longest_streak}</div>
+            <div style="font-size: 12px; color: #FFC94D; font-weight: 600;">personal record</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1959,40 +2782,50 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
         # Determine water status
         if current_water >= water_goal:
             water_status = "🎉 Daily goal achieved!"
-            water_status_color = "#51CF66"
-            water_bg = "linear-gradient(135deg, #51CF6620 0%, #69DB7C40 100%)"
-            water_border = "#51CF66"
+            water_status_color = "#4ADE80"
+            water_bg = "linear-gradient(145deg, rgba(74, 222, 128, 0.12) 0%, rgba(34, 197, 94, 0.06) 100%)"
+            water_border = "rgba(74, 222, 128, 0.5)"
+            water_glow = "0 0 30px rgba(74, 222, 128, 0.25)"
         elif current_water >= water_goal * 0.75:
             water_status = "💪 Almost there! Keep going!"
-            water_status_color = "#FFD43B"
-            water_bg = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
-            water_border = "#FFD43B"
+            water_status_color = "#60A5FA"
+            water_bg = "linear-gradient(145deg, rgba(96, 165, 250, 0.12) 0%, rgba(59, 130, 246, 0.06) 100%)"
+            water_border = "rgba(96, 165, 250, 0.5)"
+            water_glow = "0 0 30px rgba(96, 165, 250, 0.25)"
         else:
-            water_status = "💧 Stay hydrated! Keep drinking"
-            water_status_color = "#3B82F6"
-            water_bg = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
-            water_border = "#3B82F6"
+            water_status = "💧 Stay hydrated!"
+            water_status_color = "#60A5FA"
+            water_bg = "linear-gradient(145deg, rgba(96, 165, 250, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)"
+            water_border = "rgba(96, 165, 250, 0.4)"
+            water_glow = "0 0 20px rgba(96, 165, 250, 0.2)"
+        
+        # Water glasses visualization
+        glasses_display = ""
+        for i in range(water_goal):
+            if i < current_water:
+                glasses_display += '<span style="font-size: 18px; margin: 0 2px; filter: drop-shadow(0 2px 4px rgba(96, 165, 250, 0.5));">💧</span>'
+            else:
+                glasses_display += '<span style="font-size: 18px; margin: 0 2px; opacity: 0.3;">💧</span>'
         
         # Water intake card
         st.markdown(f"""
-        <div style="
-            background: {water_bg};
-            border: 2px solid {water_border};
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            margin-bottom: 12px;
-        ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <span style="color: #e0f2f1; font-weight: 700; font-size: 16px;">💧 Water Intake</span>
-                <span style="color: {water_status_color}; font-weight: bold; font-size: 15px;">{current_water}/{water_goal}</span>
+        <div class="dashboard-info-box" style="background: {water_bg}; border: 1px solid {water_border}; border-radius: 20px; padding: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), {water_glow}, inset 0 1px 0 rgba(255, 255, 255, 0.08); margin-bottom: 12px; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, {water_status_color}60, transparent);"></div>
+            <div style="position: absolute; top: -30%; right: -20%; width: 50%; height: 80%; background: radial-gradient(circle, {water_status_color}08 0%, transparent 70%); pointer-events: none;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 28px; filter: drop-shadow(0 2px 6px rgba(96, 165, 250, 0.4));">💧</span>
+                    <span style="color: #F1F5F9; font-weight: 700; font-size: 16px;">Water Intake</span>
+                </div>
+                <span style="color: {water_status_color}; font-weight: 800; font-size: 18px; font-family: JetBrains Mono, monospace; text-shadow: 0 2px 8px {water_status_color}40;">{current_water}/{water_goal}</span>
             </div>
-            <div style="background: #0a0e27; border-radius: 8px; height: 14px; overflow: hidden; margin-bottom: 12px;">
-                <div style="background: linear-gradient(90deg, {water_border} 0%, {water_status_color} 100%); height: 100%; width: {water_percentage}%; transition: width 0.3s ease;"></div>
+            <div style="margin-bottom: 16px; text-align: center; line-height: 1.8;">{glasses_display}</div>
+            <div style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; height: 12px; overflow: hidden; margin-bottom: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                <div style="background: linear-gradient(90deg, #3B82F6, #60A5FA, #93C5FD); height: 100%; width: {water_percentage}%; border-radius: 12px; transition: width 0.5s; box-shadow: 0 0 15px rgba(96, 165, 250, 0.5);"></div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <span style="color: {water_status_color}; font-weight: 600; font-size: 14px;">{water_status}</span>
-                <span style="color: #a0a0a0; font-size: 13px;">{water_percentage:.0f}%</span>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: {water_status_color}; font-weight: 600; font-size: 13px;">{water_status}</span>
+                <span style="color: #94A3B8; font-size: 12px; font-weight: 600; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px;">{water_percentage:.0f}%</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -2037,37 +2870,41 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
         # Determine calorie status
         if cal_percentage > 100:
             cal_status = "⚡ Above target"
-            cal_color = "#51CF66"
+            cal_color = "#4ADE80"
+            cal_glow = "0 0 20px rgba(74, 222, 128, 0.2)"
         elif cal_percentage >= 80:
-            cal_color = "#51CF66"
+            cal_color = "#4ADE80"
             cal_status = "✅ On track"
+            cal_glow = "0 0 20px rgba(74, 222, 128, 0.2)"
         elif cal_percentage >= 50:
-            cal_color = "#FFD43B"
+            cal_color = "#FBBF24"
             cal_status = "⚠️ Below target"
+            cal_glow = "0 0 20px rgba(251, 191, 36, 0.2)"
         else:
-            cal_color = "#FF6B6B"
+            cal_color = "#F87171"
             cal_status = "📉 Well below"
+            cal_glow = "0 0 20px rgba(248, 113, 113, 0.2)"
+            cal_gradient = "linear-gradient(90deg, #F87171, #EF4444)"
         
+        cal_dash = min(cal_percentage, 100) * 2.64
         st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, {cal_color}20 0%, {cal_color}40 100%);
-            border: 2px solid {cal_color};
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            margin-bottom: 12px;
-        ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <span style="color: #e0f2f1; font-weight: 700; font-size: 16px;">🔥 Daily Calories</span>
-                <span style="color: {cal_color}; font-weight: bold; font-size: 15px;">{cal_value}/{cal_target}</span>
+        <div class="dashboard-info-box" style="background: linear-gradient(145deg, {cal_color}12 0%, {cal_color}06 100%); border: 1px solid {cal_color}50; border-radius: 20px; padding: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), {cal_glow}, inset 0 1px 0 rgba(255, 255, 255, 0.08); margin-bottom: 12px; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, {cal_color}60, transparent);"></div>
+            <div style="position: absolute; top: -30%; left: -20%; width: 50%; height: 80%; background: radial-gradient(circle, {cal_color}08 0%, transparent 70%); pointer-events: none;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 28px; filter: drop-shadow(0 2px 6px {cal_color}60);">🔥</span>
+                    <span style="color: #F1F5F9; font-weight: 700; font-size: 16px;">Daily Calories</span>
+                </div>
+                <span style="color: {cal_color}; font-weight: 800; font-size: 18px; font-family: JetBrains Mono, monospace; text-shadow: 0 2px 8px {cal_color}40;">{cal_value}/{cal_target}</span>
             </div>
-            <div style="background: #0a0e27; border-radius: 8px; height: 14px; overflow: hidden; margin-bottom: 12px;">
-                <div style="background: linear-gradient(90deg, {cal_color} 0%, {cal_color} 100%); height: 100%; width: {min(cal_percentage, 100)}%; transition: width 0.3s ease;"></div>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="display: inline-block; position: relative; width: 100px; height: 100px;">
+                    <svg viewBox="0 0 100 100" style="transform: rotate(-90deg); width: 100px; height: 100px;"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(15, 23, 42, 0.6)" stroke-width="8"/><circle cx="50" cy="50" r="42" fill="none" stroke="{cal_color}" stroke-width="8" stroke-dasharray="{cal_dash} 264" stroke-linecap="round" style="filter: drop-shadow(0 0 6px {cal_color}80);"/></svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;"><div style="font-size: 20px; font-weight: 800; color: {cal_color}; font-family: JetBrains Mono, monospace;">{cal_percentage:.0f}%</div></div>
+                </div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <span style="color: {cal_color}; font-weight: 600; font-size: 14px;">{cal_status}</span>
-                <span style="color: #a0a0a0; font-size: 13px;">{cal_percentage:.0f}%</span>
-            </div>
+            <div style="display: flex; justify-content: center; align-items: center;"><span style="color: {cal_color}; font-weight: 600; font-size: 14px; background: {cal_color}15; padding: 6px 14px; border-radius: 20px; border: 1px solid {cal_color}30;">{cal_status}</span></div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -2085,7 +2922,9 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "value": f"{daily_nutrition['protein']:.1f}",
             "target": targets["protein"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["protein"], targets["protein"]),
-            "unit": "g"
+            "unit": "g",
+            "base_color": "#8B5CF6",
+            "gradient": "linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)"
         },
         {
             "icon": "🥗",
@@ -2093,7 +2932,9 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "value": f"{daily_nutrition['carbs']:.1f}",
             "target": targets["carbs"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["carbs"], targets["carbs"]),
-            "unit": "g"
+            "unit": "g",
+            "base_color": "#F59E0B",
+            "gradient": "linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)"
         },
         {
             "icon": "🧈",
@@ -2101,7 +2942,9 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "value": f"{daily_nutrition['fat']:.1f}",
             "target": targets["fat"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["fat"], targets["fat"]),
-            "unit": "g"
+            "unit": "g",
+            "base_color": "#10B981",
+            "gradient": "linear-gradient(135deg, #10B981 0%, #34D399 100%)"
         },
         {
             "icon": "🧂",
@@ -2109,7 +2952,9 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "value": f"{daily_nutrition['sodium']:.0f}",
             "target": targets["sodium"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["sodium"], targets["sodium"]),
-            "unit": "mg"
+            "unit": "mg",
+            "base_color": "#EC4899",
+            "gradient": "linear-gradient(135deg, #EC4899 0%, #F472B6 100%)"
         },
         {
             "icon": "🍬",
@@ -2117,7 +2962,9 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "value": f"{daily_nutrition['sugar']:.1f}",
             "target": targets["sugar"],
             "percentage": calculate_nutrition_percentage(daily_nutrition["sugar"], targets["sugar"]),
-            "unit": "g"
+            "unit": "g",
+            "base_color": "#EF4444",
+            "gradient": "linear-gradient(135deg, #EF4444 0%, #F87171 100%)"
         }
     ]
     
@@ -2128,67 +2975,60 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
         with cols[idx % 3]:
             percentage = card["percentage"]
             
-            # Determine color and status
+            # Determine color and status using refined palette
             if card["label"] in ["Sodium", "Sugar"]:
                 # Harmful nutrients - red for exceeding
                 if percentage > 100:
-                    color = "#FF6B6B"
-                    gradient_color = "#FF8A8A"
+                    color = "#F87171"
+                    gradient_color = "#EF4444"
                     status_icon = "⚠️"
                     status_text = f"Over by {percentage-100:.0f}%"
+                    glow = "0 0 20px rgba(248, 113, 113, 0.2)"
                 elif percentage >= 80:
-                    color = "#FFD43B"
-                    gradient_color = "#FCC41A"
+                    color = "#FBBF24"
+                    gradient_color = "#F59E0B"
                     status_icon = "⚠️"
                     status_text = f"{percentage:.0f}%"
+                    glow = "0 0 20px rgba(251, 191, 36, 0.2)"
                 else:
-                    color = "#51CF66"
-                    gradient_color = "#80C342"
+                    color = "#4ADE80"
+                    gradient_color = "#22C55E"
                     status_icon = "✅"
                     status_text = f"{percentage:.0f}%"
+                    glow = "0 0 20px rgba(74, 222, 128, 0.2)"
             else:
                 # Good nutrients - green for on target
                 if percentage > 100:
-                    color = "#51CF66"  # Green for over (protein ok to exceed)
-                    gradient_color = "#80C342"
+                    color = "#4ADE80"
+                    gradient_color = "#22C55E"
                     status_icon = "⚡"
                     status_text = f"+{percentage-100:.0f}%"
+                    glow = "0 0 20px rgba(74, 222, 128, 0.2)"
                 elif percentage >= 80:
-                    color = "#51CF66"
-                    gradient_color = "#80C342"
+                    color = "#4ADE80"
+                    gradient_color = "#22C55E"
                     status_icon = "✅"
                     status_text = f"{percentage:.0f}%"
+                    glow = "0 0 20px rgba(74, 222, 128, 0.2)"
                 else:
-                    color = "#FFD43B"
-                    gradient_color = "#FCC41A"
+                    color = "#FBBF24"
+                    gradient_color = "#F59E0B"
                     status_icon = "⚠️"
                     status_text = f"{percentage:.0f}%"
+                    glow = "0 0 20px rgba(251, 191, 36, 0.2)"
+            
+            # Use macro-specific base color for background tint
+            base_color = card.get("base_color", color)
+            progress_gradient = card.get("gradient", f"linear-gradient(90deg, {color}, {gradient_color})")
+            progress_width = min(percentage, 100)
             
             st.markdown(f"""
-            <div class="nutrition-info" style="
-                background: linear-gradient(135deg, {color}20 0%, {gradient_color}40 100%);
-                border: 1px solid {color};
-                border-left: 5px solid {color};
-                border-radius: 14px;
-                padding: 16px;
-                text-align: center;
-                min-height: 180px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                box-shadow: 0 4px 15px rgba({int(color[1:3], 16)}, {int(color[3:5], 16)}, {int(color[5:7], 16)}, 0.15);
-                transition: all 0.3s ease;
-            ">
-                <div>
-                    <div style="font-size: 32px; margin-bottom: 8px;">{card['icon']}</div>
-                    <div style="font-size: 10px; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;">{card['label']}</div>
-                </div>
-                <div>
-                    <div style="font-size: 28px; font-weight: 900; color: #FFB84D; margin-bottom: 10px;">{card['value']}{card['unit']}</div>
-                    <div style="background: #0a0e27; border-radius: 4px; height: 5px; margin-bottom: 8px;"><div style="background: linear-gradient(90deg, {color} 0%, {gradient_color} 100%); height: 100%; width: {min(percentage, 100)}%; border-radius: 4px;"></div></div>
-                    <div style="font-size: 10px; color: #a0a0a0; margin-bottom: 6px;">of {card['target']}{card['unit']}</div>
-                </div>
-                <div style="font-size: 10px; color: {color}; font-weight: 700;">{status_icon} {status_text}</div>
+            <div class="nutrition-info" style="background: linear-gradient(145deg, {base_color}15 0%, {base_color}08 100%); border: 1px solid {base_color}30; border-radius: 20px; padding: 24px 16px; text-align: center; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 0 20px {base_color}15, inset 0 1px 0 rgba(255, 255, 255, 0.05); position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, {base_color}50, transparent);"></div>
+                <div style="position: absolute; top: -40%; right: -40%; width: 80%; height: 80%; background: radial-gradient(circle, {base_color}10 0%, transparent 70%); pointer-events: none;"></div>
+                <div><div style="font-size: 40px; margin-bottom: 8px; filter: drop-shadow(0 4px 8px {base_color}40);">{card['icon']}</div><div style="font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div></div>
+                <div><div style="font-size: 34px; font-weight: 800; color: #F1F5F9; margin-bottom: 6px; letter-spacing: -0.02em; font-family: JetBrains Mono, monospace; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">{card['value']}<span style="font-size: 13px; font-weight: 500; color: #94A3B8;">{card['unit']}</span></div><div style="background: rgba(15, 23, 42, 0.5); border-radius: 10px; height: 8px; margin: 12px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);"><div style="background: {progress_gradient}; height: 100%; width: {progress_width}%; border-radius: 10px; box-shadow: 0 0 12px {base_color}60;"></div></div><div style="font-size: 11px; color: #64748B; margin-bottom: 8px;">of {card['target']}{card['unit']}</div></div>
+                <div style="font-size: 12px; color: {color}; font-weight: 700; background: {color}15; padding: 4px 12px; border-radius: 20px; display: inline-block;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
     
@@ -2292,12 +3132,42 @@ def meal_logging_page():
     """Meal logging page"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-        padding: 10px 20px;
-        border-radius: 12px;
-        margin-bottom: 16px;
+        background: linear-gradient(135deg, #0D847F 0%, #10A19D 50%, #52C4B8 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        margin: -1rem -1rem 24px -1rem;
+        box-shadow: 
+            0 8px 32px rgba(16, 161, 157, 0.3),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.5em; line-height: 1.2;">📸 Log Your Meal</h1>
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        "></div>
+        <h1 style="
+            color: white; 
+            margin: 0; 
+            font-size: 1.75em; 
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <span style="font-size: 1.3em;">📸</span>
+            <span>Log Your Meal</span>
+        </h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -2852,12 +3722,42 @@ def analytics_page():
     """Analytics and insights page"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #6E48C7 0%, #845EF7 50%, #BE80FF 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        margin: -1rem -1rem 24px -1rem;
+        box-shadow: 
+            0 8px 32px rgba(132, 94, 247, 0.3),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📈 Analytics & Insights</h1>
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        "></div>
+        <h1 style="
+            color: white; 
+            margin: 0; 
+            font-size: 1.75em; 
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <span style="font-size: 1.3em;">📈</span>
+            <span>Analytics & Insights</span>
+        </h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -3194,12 +4094,42 @@ def insights_page():
     """Health insights and recommendations page"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #51CF66 0%, #80C342 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #41B952 0%, #51CF66 50%, #80C342 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        margin: -1rem -1rem 24px -1rem;
+        box-shadow: 
+            0 8px 32px rgba(81, 207, 102, 0.3),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">💡 Health Insights & Recommendations</h1>
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        "></div>
+        <h1 style="
+            color: white; 
+            margin: 0; 
+            font-size: 1.75em; 
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <span style="font-size: 1.3em;">💡</span>
+            <span>Health Insights & Recommendations</span>
+        </h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -3474,12 +4404,42 @@ def meal_history_page():
     """View and manage all logged meals"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        margin: -1rem -1rem 24px -1rem;
+        box-shadow: 
+            0 8px 32px rgba(59, 130, 246, 0.3),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">📋 Meal History</h1>
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        "></div>
+        <h1 style="
+            color: white; 
+            margin: 0; 
+            font-size: 1.75em; 
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <span style="font-size: 1.3em;">📋</span>
+            <span>Meal History</span>
+        </h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -3729,12 +4689,42 @@ def profile_page():
     """User profile and health settings page"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #FF6B16 0%, #FF8A4D 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #E85C0D 0%, #FF6B16 50%, #FF8A4D 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        margin: -1rem -1rem 24px -1rem;
+        box-shadow: 
+            0 8px 32px rgba(255, 107, 22, 0.3),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">👤 My Profile</h1>
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        "></div>
+        <h1 style="
+            color: white; 
+            margin: 0; 
+            font-size: 1.75em; 
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <span style="font-size: 1.3em;">👤</span>
+            <span>My Profile</span>
+        </h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -4402,12 +5392,42 @@ def restaurant_analyzer_page():
     """Analyze restaurant menus and find healthiest options"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #FF6B6B 0%, #FFA94D 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #EE5A52 0%, #FF6B6B 50%, #FFA94D 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        margin: -1rem -1rem 24px -1rem;
+        box-shadow: 
+            0 8px 32px rgba(255, 107, 107, 0.3),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">🍽️ Restaurant Menu Analyzer</h1>
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        "></div>
+        <h1 style="
+            color: white; 
+            margin: 0; 
+            font-size: 1.75em; 
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <span style="font-size: 1.3em;">🍽️</span>
+            <span>Restaurant Menu Analyzer</span>
+        </h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -4725,12 +5745,42 @@ def help_page():
     """Help and About page"""
     st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #10A19D 0%, #52C4B8 100%);
-        padding: 15px 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #0D847F 0%, #10A19D 50%, #52C4B8 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        margin: -1rem -1rem 24px -1rem;
+        box-shadow: 
+            0 8px 32px rgba(16, 161, 157, 0.3),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
     ">
-        <h1 style="color: white; margin: 0; font-size: 1.6em; line-height: 1.2;">❓ Help & About</h1>
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        "></div>
+        <h1 style="
+            color: white; 
+            margin: 0; 
+            font-size: 1.75em; 
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <span style="font-size: 1.3em;">❓</span>
+            <span>Help & About</span>
+        </h1>
     </div>
     """, unsafe_allow_html=True)
     

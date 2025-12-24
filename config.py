@@ -64,10 +64,10 @@ HEALTH_CONDITION_TARGETS = {
 # Health Goal Targets (Adjustments for specific health goals)
 HEALTH_GOAL_TARGETS = {
     "general_health": {},  # No specific adjustments, use age group defaults
-    "weight_loss": {"calories": 1500, "protein": 80},
-    "weight_gain": {"calories": 3000, "protein": 100},
-    "muscle_gain": {"calories": 2800, "protein": 120},
-    "performance": {"calories": 2600, "protein": 100, "carbs": 400},
+    "weight_loss": {"calories": -500, "protein": 80},  # Deficit from base
+    "weight_gain": {"calories": 400, "protein": 70},   # Surplus from base
+    "muscle_gain": {"calories": 300, "protein": 100},  # Moderate surplus with high protein
+    "performance": {"calories": 200, "protein": 80, "carbs": 350},  # Slight surplus with more carbs
 }
 
 # Gender-Based Targets (Adjustments for biological differences in metabolism)
