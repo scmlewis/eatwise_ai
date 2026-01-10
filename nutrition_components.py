@@ -5,6 +5,12 @@ Reusable, modern nutrition-related UI components for the EatWise application
 
 import streamlit as st
 from utils import calculate_nutrition_percentage
+from icons import (
+    get_nutrition_icon, radial_progress, radial_nutrition_card,
+    icon_flame, icon_protein, icon_wheat, icon_droplet, 
+    icon_salt, icon_candy, icon_leaf, icon_alert_triangle,
+    icon_trending_up, icon_check_circle
+)
 
 
 def get_nutrition_color(percentage: float) -> tuple[str, str]:
@@ -25,6 +31,75 @@ def get_nutrition_color(percentage: float) -> tuple[str, str]:
         return ("#FFD43B", "#FFC94D")  # Yellow - Below target
 
 
+def render_nutrition_progress_bar_v2(
+    label: str,
+    icon_html: str,
+    current: float,
+    target: float,
+    unit: str = "",
+    show_value: bool = True
+) -> None:
+    """
+    Render a single nutrition progress bar with SVG icons and modern styling.
+    
+    Args:
+        label: Nutrition name (e.g., "Calories", "Protein")
+        icon_html: SVG icon HTML for the nutrient
+        current: Current consumption value
+        target: Target consumption value
+        unit: Unit of measurement (e.g., "g", "mg")
+        show_value: Whether to show the exact value
+    """
+    percentage = calculate_nutrition_percentage(current, target)
+    primary_color, gradient_color = get_nutrition_color(percentage)
+    
+    # Determine if this is a "limit" nutrient (should not exceed)
+    limit_nutrients = ["sodium", "sugar", "fat"]
+    is_limit_nutrient = any(lim.lower() in label.lower() for lim in limit_nutrients)
+    
+    # Cap bar at 100% visually but show actual percentage in text
+    bar_width = min(percentage, 100)
+    
+    # Display percentage and value text
+    if show_value:
+        value_text = f"{current:.1f}{unit}" if unit else f"{current:.0f}"
+        target_text = f"{target:.1f}{unit}" if unit else f"{target:.0f}"
+        # Use SVG trending icon instead of arrow emoji
+        trend_icon = icon_trending_up(size="xs", color=primary_color)
+        percentage_text = f'{trend_icon} <span style="margin-left: 4px;">{percentage:.0f}% • {value_text} of {target_text}</span>'
+    else:
+        trend_icon = icon_trending_up(size="xs", color=primary_color)
+        percentage_text = f'{trend_icon} <span style="margin-left: 4px;">{percentage:.0f}%</span>'
+    
+    # Extract RGB values from hex color for glow effect
+    rgb_str = f"{int(primary_color[1:3], 16)}, {int(primary_color[3:5], 16)}, {int(primary_color[5:7], 16)}"
+    
+    # Build warning section if needed with SVG icon
+    warning_html = ""
+    if is_limit_nutrient and percentage > 100:
+        excess_amount = current - target
+        warning_icon = icon_alert_triangle(size="xs", color="#FF6B6B")
+        warning_html = f'<div style="color: #FF6B6B; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">{warning_icon} Exceeded by {excess_amount:.1f}{unit}</div>'
+    
+    # Create complete progress bar with label, bar, and text in one HTML block
+    progress_html = f'''
+    <div style="width: 100%; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="color: #e0f2f1; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                {icon_html} {label}
+            </span>
+        </div>
+        {warning_html}
+        <div style="width: 100%; background: #2a2a3e; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 6px; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); box-sizing: border-box; position: relative;">
+            <div style="background: linear-gradient(90deg, {primary_color} 0%, {gradient_color} 100%); height: 100%; width: {bar_width}%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba({rgb_str}, 0.5);"></div>
+        </div>
+        <div style="color: #a0a0a0; font-size: 11px; text-align: left; display: flex; align-items: center;">{percentage_text}</div>
+    </div>
+    '''
+    
+    st.markdown(progress_html, unsafe_allow_html=True)
+
+
 def render_nutrition_progress_bar(
     label: str,
     icon: str,
@@ -35,6 +110,7 @@ def render_nutrition_progress_bar(
 ) -> None:
     """
     Render a single nutrition progress bar with modern styling.
+    (Legacy version with emoji icons - kept for backwards compatibility)
     
     Args:
         label: Nutrition name (e.g., "Calories", "Protein")
@@ -108,56 +184,58 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
         ... }
         >>> display_nutrition_targets_progress(daily_nutrition, targets)
     """
-    # Display title outside container
-    st.markdown("""
-    <h2 style="color: white; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px; font-size: 1.5em; font-weight: 600;">
-        📊 Nutrition Targets Progress
+    # Display title outside container with SVG icon
+    chart_icon = '''<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10A19D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>'''
+    st.markdown(f"""
+    <h2 style="color: white; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; font-size: 1.5em; font-weight: 600;">
+        {chart_icon} Nutrition Targets Progress
     </h2>
     """, unsafe_allow_html=True)
     
     # Create two columns for nutrition targets
     col1, col2 = st.columns(2)
     
+    # Icon functions for each nutrient
     nutrition_items = [
         {
             "col": col1,
             "label": "Calories",
-            "icon": "🔥",
+            "icon_html": icon_flame(size="sm"),
             "key": "calories",
             "unit": ""
         },
         {
             "col": col1,
             "label": "Protein",
-            "icon": "💪",
+            "icon_html": icon_protein(size="sm"),
             "key": "protein",
             "unit": "g"
         },
         {
             "col": col1,
             "label": "Carbs",
-            "icon": "🍚",
+            "icon_html": icon_wheat(size="sm"),
             "key": "carbs",
             "unit": "g"
         },
         {
             "col": col2,
             "label": "Fat",
-            "icon": "🫒",
+            "icon_html": icon_droplet(size="sm"),
             "key": "fat",
             "unit": "g"
         },
         {
             "col": col2,
             "label": "Sodium",
-            "icon": "🧂",
+            "icon_html": icon_salt(size="sm"),
             "key": "sodium",
             "unit": "mg"
         },
         {
             "col": col2,
             "label": "Sugar",
-            "icon": "🍬",
+            "icon_html": icon_candy(size="sm"),
             "key": "sugar",
             "unit": "g"
         }
@@ -166,9 +244,9 @@ def display_nutrition_targets_progress(daily_nutrition: dict, targets: dict) -> 
     # Render each nutrition item
     for item in nutrition_items:
         with item["col"]:
-            render_nutrition_progress_bar(
+            render_nutrition_progress_bar_v2(
                 label=item["label"],
-                icon=item["icon"],
+                icon_html=item["icon_html"],
                 current=daily_nutrition.get(item["key"], 0),
                 target=targets.get(item["key"], 0),
                 unit=item["unit"]
@@ -405,3 +483,154 @@ def create_nutrition_status_badge(daily_nutrition: dict, targets: dict) -> None:
         <div style="font-size: 12px; color: {color}; font-weight: 600; margin-top: 6px;">Average: {avg_percentage:.0f}% of target</div>
     </div>
     """, unsafe_allow_html=True)
+
+
+def display_radial_nutrition_dashboard(daily_nutrition: dict, targets: dict) -> None:
+    """
+    Display nutrition targets as modern radial/circular progress indicators.
+    
+    This provides a more visual and engaging way to display nutrition progress
+    compared to linear progress bars.
+    
+    Args:
+        daily_nutrition: Dictionary with current nutrition values
+        targets: Dictionary with target nutrition values
+    """
+    # Section header with SVG icon
+    chart_icon = '''<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10A19D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'''
+    st.markdown(f"""
+    <h2 style="color: white; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; font-size: 1.5em; font-weight: 600;">
+        {chart_icon} Nutrition Overview
+    </h2>
+    """, unsafe_allow_html=True)
+    
+    # Define nutrients with their properties
+    nutrients = [
+        {"key": "calories", "label": "Calories", "unit": "", "color": "#FF6B35"},
+        {"key": "protein", "label": "Protein", "unit": "g", "color": "#51CF66"},
+        {"key": "carbs", "label": "Carbs", "unit": "g", "color": "#845EF7"},
+        {"key": "fat", "label": "Fat", "unit": "g", "color": "#FFD43B"},
+        {"key": "sodium", "label": "Sodium", "unit": "mg", "color": "#94A3B8"},
+        {"key": "sugar", "label": "Sugar", "unit": "g", "color": "#F472B6"},
+    ]
+    
+    # Create 3x2 grid for radial progress
+    row1_cols = st.columns(3, gap="medium")
+    row2_cols = st.columns(3, gap="medium")
+    all_cols = row1_cols + row2_cols
+    
+    for idx, nutrient in enumerate(nutrients):
+        with all_cols[idx]:
+            current = daily_nutrition.get(nutrient["key"], 0)
+            target = targets.get(nutrient["key"], 0)
+            st.markdown(
+                radial_nutrition_card(
+                    nutrient=nutrient["key"],
+                    current=current,
+                    target=target,
+                    unit=nutrient["unit"],
+                    size=90
+                ),
+                unsafe_allow_html=True
+            )
+
+
+def display_macro_breakdown_radial(daily_nutrition: dict, targets: dict) -> None:
+    """
+    Display macronutrient breakdown with large radial indicators.
+    
+    Shows calories prominently in the center with macros around it.
+    
+    Args:
+        daily_nutrition: Dictionary with current nutrition values
+        targets: Dictionary with target nutrition values
+    """
+    from icons import radial_progress, icon_flame
+    
+    # Calculate percentages
+    cal_current = daily_nutrition.get("calories", 0)
+    cal_target = targets.get("calories", 2000)
+    cal_pct = (cal_current / cal_target * 100) if cal_target > 0 else 0
+    
+    # Determine calorie color
+    if cal_pct > 100:
+        cal_color = "#FF6B6B"
+    elif cal_pct >= 80:
+        cal_color = "#51CF66"
+    else:
+        cal_color = "#FF6B35"
+    
+    # Center section with main calorie ring
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        st.markdown(f"""
+        <div style="text-align: center; padding: 20px;">
+            <div style="margin-bottom: 8px;">
+                {icon_flame(size="lg", color=cal_color)}
+            </div>
+            {radial_progress(
+                percentage=cal_pct,
+                size=160,
+                stroke_width=12,
+                color=cal_color,
+                value_text=f"{cal_current:.0f}",
+                label="calories"
+            )}
+            <div style="font-size: 12px; color: #94A3B8; margin-top: 8px;">
+                Target: {cal_target:.0f} cal
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Macro row below
+    st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
+    macro_cols = st.columns(3, gap="medium")
+    
+    macros = [
+        {"key": "protein", "label": "Protein", "unit": "g", "color": "#51CF66", "icon_func": icon_protein},
+        {"key": "carbs", "label": "Carbs", "unit": "g", "color": "#845EF7", "icon_func": icon_wheat},
+        {"key": "fat", "label": "Fat", "unit": "g", "color": "#FFD43B", "icon_func": icon_droplet},
+    ]
+    
+    for idx, macro in enumerate(macros):
+        with macro_cols[idx]:
+            current = daily_nutrition.get(macro["key"], 0)
+            target = targets.get(macro["key"], 0)
+            pct = (current / target * 100) if target > 0 else 0
+            
+            # Determine color based on status
+            if pct > 100:
+                color = "#FF6B6B"
+            elif pct >= 80:
+                color = "#51CF66"
+            else:
+                color = macro["color"]
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 16px;
+                padding: 16px;
+                text-align: center;
+            ">
+                <div style="margin-bottom: 8px;">
+                    {macro["icon_func"](size="md", color=color)}
+                </div>
+                {radial_progress(
+                    percentage=pct,
+                    size=80,
+                    stroke_width=8,
+                    color=color,
+                    value_text=f"{current:.0f}",
+                    label=macro["unit"]
+                )}
+                <div style="font-size: 11px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-top: 8px;">
+                    {macro["label"]}
+                </div>
+                <div style="font-size: 10px; color: {color}; font-weight: 600; margin-top: 4px;">
+                    {pct:.0f}% of {target:.0f}{macro["unit"]}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)

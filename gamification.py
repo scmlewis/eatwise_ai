@@ -6,6 +6,11 @@ Handles points, XP, challenges, and rewards
 from datetime import date, timedelta
 from typing import List, Dict, Optional
 import streamlit as st
+from icons import (
+    icon_zap, icon_trophy, icon_medal, icon_target, icon_fire,
+    icon_check_circle, icon_star, icon_crown, icon_water,
+    icon_flame, icon_protein, radial_progress
+)
 
 
 class GamificationManager:
@@ -176,34 +181,88 @@ class GamificationManager:
     
     @staticmethod
     def render_xp_progress(user_level: int, current_xp: int, xp_needed: int) -> None:
-        """Render XP progress bar"""
+        """Render XP progress bar with SVG icons and animations"""
         xp_percentage = min((current_xp / xp_needed) * 100, 100)
+        
+        # Use SVG icons
+        zap_icon = icon_zap(size="md", color="#FBBF24")
+        star_icon = icon_star(size="sm", color="#FBBF24", filled=True)
         
         st.markdown(f"""
         <div style="
-            background: linear-gradient(135deg, #10A19D20 0%, #52C4B840 100%);
-            border: 1px solid #10A19D;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
         ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="color: #e0f2f1; font-weight: 700;">🎮 Level {user_level}</span>
-                <span style="color: #52C4B8; font-size: 12px; font-weight: 600;">{current_xp}/{xp_needed} XP</span>
+            <div style="position: absolute; top: -20px; right: -20px; opacity: 0.1; font-size: 80px;">⚡</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; position: relative; z-index: 1;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    {zap_icon}
+                    <span style="color: #FBBF24; font-weight: 800; font-size: 18px;">Level {user_level}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    {star_icon}
+                    <span style="color: #F59E0B; font-size: 13px; font-weight: 600;">{current_xp} / {xp_needed} XP</span>
+                </div>
             </div>
-            <div style="background: #0a0e27; border-radius: 4px; height: 8px; overflow: hidden;">
-                <div style="background: linear-gradient(90deg, #10A19D 0%, #52C4B8 100%); height: 100%; width: {xp_percentage}%; transition: width 0.3s ease;"></div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; height: 10px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); position: relative; z-index: 1;">
+                <div style="
+                    background: linear-gradient(90deg, #FBBF24 0%, #F59E0B 50%, #D97706 100%);
+                    height: 100%;
+                    width: {xp_percentage}%;
+                    border-radius: 6px;
+                    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+                    position: relative;
+                ">
+                    <div style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                        animation: shimmer 2s infinite;
+                    "></div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; position: relative; z-index: 1;">
+                <span style="font-size: 10px; color: #94A3B8;">Next level: {xp_needed - current_xp} XP needed</span>
+                <span style="font-size: 10px; color: #F59E0B; font-weight: 600;">{xp_percentage:.0f}%</span>
             </div>
         </div>
+        <style>
+            @keyframes shimmer {{
+                0% {{ transform: translateX(-100%); }}
+                100% {{ transform: translateX(100%); }}
+            }}
+        </style>
         """, unsafe_allow_html=True)
     
     @staticmethod
     def render_daily_challenges(challenges: List[Dict], completed: Dict[str, bool]) -> None:
-        """Render daily challenges display in 1 row x 4 columns"""
-        st.markdown("### 🎯 Daily Challenges")
+        """Render daily challenges display with SVG icons in 1 row x 4 columns"""
+        target_icon = icon_target(size="md", color="#10A19D")
+        st.markdown(f"""
+        <h3 style="color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            {target_icon} Daily Challenges
+        </h3>
+        """, unsafe_allow_html=True)
         
         # Create 4 columns for the challenges
         cols = st.columns(4)
+        
+        # Challenge type to icon mapping
+        challenge_icons = {
+            "meal_count": icon_flame(size="sm", color="#FF6B35"),
+            "calorie_goal": icon_flame(size="sm", color="#FF6B35"),
+            "protein_goal": icon_protein(size="sm", color="#51CF66"),
+            "water_goal": icon_water(size="sm", color="#3B82F6"),
+        }
         
         for idx, challenge in enumerate(challenges):
             if idx >= 4:
@@ -215,56 +274,76 @@ class GamificationManager:
                 current = challenge.get("current_progress", 0)
                 target = challenge.get("target", 1)
                 xp_reward = challenge.get("xp_reward", 0)
+                challenge_type = challenge.get("challenge_type", "")
                 is_completed = completed.get(name, False)
+                
+                # Get appropriate icon
+                status_icon_html = challenge_icons.get(challenge_type, icon_target(size="sm", color="#3B82F6"))
                 
                 # Calculate progress percentage
                 progress_pct = min((current / target) * 100, 100) if target > 0 else 0
                 
                 # Determine color based on completion
                 if is_completed:
-                    bg_color = "linear-gradient(135deg, #51CF6620 0%, #80C34240 100%)"
+                    bg_color = "linear-gradient(135deg, rgba(81, 207, 102, 0.12) 0%, rgba(128, 195, 66, 0.06) 100%)"
                     border_color = "#51CF66"
-                    status_icon = "✅"
+                    status_badge = icon_check_circle(size="sm", color="#51CF66")
                 elif progress_pct >= 75:
-                    bg_color = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
+                    bg_color = "linear-gradient(135deg, rgba(255, 212, 59, 0.12) 0%, rgba(252, 196, 25, 0.06) 100%)"
                     border_color = "#FFD43B"
-                    status_icon = "🔥"
+                    status_badge = icon_fire(size="sm", color="#FFD43B")
                 else:
-                    bg_color = "linear-gradient(135deg, #3B82F620 0%, #60A5FA40 100%)"
+                    bg_color = "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%)"
                     border_color = "#3B82F6"
-                    status_icon = "📌"
+                    status_badge = status_icon_html
+                
+                # XP badge with zap icon
+                xp_icon = icon_zap(size="xs", color=border_color)
                 
                 st.markdown(f"""
                 <div style="
                     background: {bg_color};
                     border: 1px solid {border_color};
-                    border-radius: 8px;
-                    padding: 12px;
-                    min-height: 140px;
+                    border-radius: 12px;
+                    padding: 14px;
+                    min-height: 150px;
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
-                ">
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    cursor: pointer;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
-                            <span style="color: #e0f2f1; font-weight: 600; font-size: 12px; flex: 1;">{status_icon} {name}</span>
-                            <span style="color: {border_color}; font-size: 9px; font-weight: 700; white-space: nowrap;">+{xp_reward} XP</span>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                {status_badge}
+                                <span style="color: #e0f2f1; font-weight: 600; font-size: 12px;">{name}</span>
+                            </div>
                         </div>
-                        <div style="color: #a0a0a0; font-size: 11px; margin-bottom: 8px; line-height: 1.4;">{description}</div>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
+                            {xp_icon}
+                            <span style="color: {border_color}; font-size: 10px; font-weight: 700;">+{xp_reward} XP</span>
+                        </div>
+                        <div style="color: #a0a0a0; font-size: 11px; line-height: 1.4;">{description}</div>
                     </div>
-                    <div>
-                        <div style="background: #0a0e27; border-radius: 3px; height: 6px; overflow: hidden; margin-bottom: 6px;">
-                            <div style="background: {border_color}; height: 100%; width: {progress_pct}%;"></div>
+                    <div style="margin-top: 12px;">
+                        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 6px;">
+                            <div style="background: linear-gradient(90deg, {border_color} 0%, {border_color}80 100%); height: 100%; width: {progress_pct}%; transition: width 0.5s ease; border-radius: 4px;"></div>
                         </div>
-                        <div style="font-size: 9px; color: #a0a0a0; text-align: right;">{int(current)}/{target}</div>
+                        <div style="font-size: 10px; color: #a0a0a0; text-align: right; font-weight: 500;">{int(current)}/{target}</div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
     
     @staticmethod
     def render_weekly_goals(weekly_goal: Optional[Dict]) -> None:
-        """Render weekly goals display"""
-        st.markdown("### 🎯 Weekly Goal")
+        """Render weekly goals display with SVG icons"""
+        medal_icon = icon_medal(size="md", color="#F59E0B")
+        st.markdown(f"""
+        <h3 style="color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            {medal_icon} Weekly Goal
+        </h3>
+        """, unsafe_allow_html=True)
         
         if not weekly_goal:
             st.info("Weekly goal not initialized. Log some meals to get started!")
@@ -278,28 +357,113 @@ class GamificationManager:
         progress_pct = (completed / target) * 100 if target > 0 else 0
         
         if is_complete:
-            bg_color = "linear-gradient(135deg, #51CF6620 0%, #80C34240 100%)"
+            bg_color = "linear-gradient(135deg, rgba(81, 207, 102, 0.15) 0%, rgba(128, 195, 66, 0.08) 100%)"
             border_color = "#51CF66"
-            status_icon = "🏆"
+            status_icon = icon_trophy(size="xl", color="#FFD43B")
         else:
-            bg_color = "linear-gradient(135deg, #FFD43B20 0%, #FCC41940 100%)"
+            bg_color = "linear-gradient(135deg, rgba(255, 212, 59, 0.12) 0%, rgba(252, 196, 25, 0.06) 100%)"
             border_color = "#FFD43B"
-            status_icon = "🎖️"
+            status_icon = icon_crown(size="xl", color="#FFD43B")
+        
+        # XP icon
+        xp_icon = icon_zap(size="sm", color=border_color)
         
         st.markdown(f"""
         <div style="
             background: {bg_color};
             border: 2px solid {border_color};
-            border-radius: 10px;
-            padding: 14px;
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         ">
-            <div style="font-size: 24px; margin-bottom: 8px;">{status_icon}</div>
-            <div style="color: #e0f2f1; font-weight: 700; margin-bottom: 4px;">Complete Nutrition Goals {target} Days</div>
-            <div style="color: {border_color}; font-weight: 600; margin-bottom: 10px; font-size: 12px;">+{xp_reward} XP</div>
-            <div style="background: #0a0e27; border-radius: 6px; height: 12px; overflow: hidden; margin-bottom: 8px;">
-                <div style="background: linear-gradient(90deg, {border_color} 0%, {border_color} 100%); height: 100%; width: {progress_pct}%;"></div>
+            <div style="position: absolute; top: -30px; right: -30px; opacity: 0.1; font-size: 100px;">🏆</div>
+            <div style="margin-bottom: 12px; position: relative; z-index: 1;">{status_icon}</div>
+            <div style="color: #e0f2f1; font-weight: 700; margin-bottom: 8px; font-size: 16px; position: relative; z-index: 1;">
+                Complete Nutrition Goals {target} Days
             </div>
-            <div style="color: #a0a0a0; font-size: 13px; font-weight: 600;">{completed}/{target} days completed</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 14px; position: relative; z-index: 1;">
+                {xp_icon}
+                <span style="color: {border_color}; font-weight: 700; font-size: 14px;">+{xp_reward} XP</span>
+            </div>
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; height: 14px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); position: relative; z-index: 1;">
+                <div style="
+                    background: linear-gradient(90deg, {border_color} 0%, {border_color}80 100%);
+                    height: 100%;
+                    width: {progress_pct}%;
+                    border-radius: 8px;
+                    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 0 10px {border_color}80;
+                "></div>
+            </div>
+            <div style="color: #a0a0a0; font-size: 14px; font-weight: 600; position: relative; z-index: 1;">
+                {completed} / {target} days completed
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    @staticmethod
+    def render_streak_calendar(streak_days: List[date], current_streak: int) -> None:
+        """
+        Render a visual streak calendar showing logging history.
+        
+        Args:
+            streak_days: List of dates when meals were logged
+            current_streak: Current consecutive day streak
+        """
+        fire_icon = icon_fire(size="md", color="#FF6B35")
+        
+        # Get last 14 days
+        today = date.today()
+        days = [(today - timedelta(days=i)) for i in range(13, -1, -1)]
+        
+        # Build day boxes
+        day_boxes = ""
+        for d in days:
+            is_logged = d in streak_days
+            if is_logged:
+                box_bg = "linear-gradient(135deg, #FF6B35 0%, #FF8C46 100%)"
+                box_border = "#FF6B35"
+                box_shadow = "0 0 8px rgba(255, 107, 53, 0.4)"
+            else:
+                box_bg = "rgba(255, 255, 255, 0.05)"
+                box_border = "rgba(255, 255, 255, 0.1)"
+                box_shadow = "none"
+            
+            day_boxes += f'''
+            <div style="
+                width: 32px;
+                height: 32px;
+                border-radius: 6px;
+                background: {box_bg};
+                border: 1px solid {box_border};
+                box-shadow: {box_shadow};
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                color: {'white' if is_logged else '#64748B'};
+                font-weight: 600;
+            ">{d.day}</div>
+            '''
+        
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 140, 70, 0.05) 100%);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+        ">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                {fire_icon}
+                <span style="color: #FF6B35; font-weight: 700; font-size: 14px;">{current_streak} Day Streak</span>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
+                {day_boxes}
+            </div>
+            <div style="text-align: center; margin-top: 10px; font-size: 11px; color: #94A3B8;">
+                Last 14 days
+            </div>
         </div>
         """, unsafe_allow_html=True)
