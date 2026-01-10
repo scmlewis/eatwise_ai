@@ -9,6 +9,7 @@ from config import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEP
 import base64
 from io import BytesIO
 from utils import sanitize_user_input, get_user_friendly_error
+from rate_limiter import check_rate_limit, ai_rate_limiter, RateLimitExceeded
 
 logger = logging.getLogger(__name__)
 
@@ -418,6 +419,12 @@ Please provide the response in JSON format with the following structure:
 
 Provide realistic estimates based on typical portion sizes."""
             
+            # Check rate limit before making API call
+            user_id = st.session_state.get('user_id', 'anonymous')
+            if not check_rate_limit(user_id):
+                logger.warning(f"Rate limit exceeded for user {user_id}")
+                raise RateLimitExceeded("You're making requests too quickly. Please wait a moment and try again.")
+            
             response = self.client.chat.completions.create(
                 model=AZURE_OPENAI_DEPLOYMENT,
                 messages=[
@@ -449,6 +456,10 @@ Provide realistic estimates based on typical portion sizes."""
         except APIConnectionError as e:
             logger.error(f"OpenAI connection error: {e}")
             st.error("Connection error with AI service. Please check your internet connection.")
+            return None
+        except RateLimitExceeded as e:
+            logger.warning(f"Rate limit exceeded: {e}")
+            st.warning(str(e))
             return None
         except APIError as e:
             logger.error(f"OpenAI API error: {e}")

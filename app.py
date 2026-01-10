@@ -30,7 +30,11 @@ from nutrition_analyzer import NutritionAnalyzer
 from recommender import RecommendationEngine
 from coaching_assistant import CoachingAssistant
 from restaurant_analyzer import RestaurantMenuAnalyzer
-from nutrition_components import display_nutrition_targets_progress
+from nutrition_components import (
+    display_nutrition_targets_progress, 
+    display_radial_nutrition_dashboard,
+    display_macro_breakdown_radial
+)
 from gamification import GamificationManager
 from utils import (
     init_session_state, get_greeting, calculate_nutrition_percentage,
@@ -39,6 +43,19 @@ from utils import (
 )
 from portion_estimation_disclaimer import (
     assess_input_confidence, show_estimation_disclaimer, show_estimation_tips
+)
+from validators import (
+    validate_email, validate_password, validate_name, validate_meal_input,
+    validate_portion_description, validate_menu_text, validate_chat_input,
+    validate_height, validate_weight, validate_water_glasses, show_validation_error
+)
+from icons import (
+    icon_flame, icon_protein, icon_wheat, icon_droplet, icon_salt, icon_candy, icon_leaf,
+    icon_water, icon_droplets, icon_trophy, icon_medal, icon_fire, icon_zap, icon_star,
+    icon_check_circle, icon_alert_triangle, icon_trending_up, icon_plus, icon_minus,
+    icon_sunrise, icon_utensils, icon_moon, icon_apple, icon_coffee, icon_camera,
+    icon_sparkles, icon_chart, icon_calendar, icon_user, icon_target, icon_help_circle,
+    get_nutrition_icon, get_meal_type_icon, radial_progress
 )
 
 
@@ -2514,8 +2531,15 @@ def login_page():
             password = st.text_input("Password", type="password", key="login_password", placeholder="••••••••")
             
             if st.button("Login", key="login_btn", use_container_width=True):
-                if email and password:
-                    success, message, user_data = auth_manager.login(email, password)
+                # Validate inputs - for login, only check email format and password not empty
+                email_result = validate_email(email)
+                
+                if not email_result:
+                    show_notification(email_result.error, "error", use_toast=False)
+                elif not password or not password.strip():
+                    show_notification("Please enter your password", "error", use_toast=False)
+                else:
+                    success, message, user_data = auth_manager.login(email_result.value, password)
                     if success:
                         st.session_state.user_id = user_data["user_id"]
                         st.session_state.user_email = user_data["email"]
@@ -2526,8 +2550,6 @@ def login_page():
                         st.rerun()
                     else:
                         show_notification(message, "error", use_toast=False)
-                else:
-                    show_notification("Please enter email and password", "warning", use_toast=False)
             
             # Forgot password button - same width as login button
             st.markdown("""
@@ -2546,17 +2568,23 @@ def login_page():
             st.caption("Password must be at least 6 characters")
             
             if st.button("Sign Up", key="signup_btn", use_container_width=True):
-                if new_email and new_password and full_name:
-                    if len(new_password) < 6:
-                        show_notification("Password must be at least 6 characters", "error", use_toast=False)
-                    else:
-                        success, message = auth_manager.sign_up(new_email, new_password, full_name)
-                        if success:
-                            show_notification("Account created! Please login with your credentials.", "success", use_toast=False)
-                        else:
-                            show_notification(message, "error", use_toast=False)
+                # Validate all inputs
+                email_result = validate_email(new_email)
+                name_result = validate_name(full_name, field_name="Full Name")
+                password_result = validate_password(new_password, min_length=6, require_uppercase=False, require_digit=False)
+                
+                if not email_result:
+                    show_notification(email_result.error, "error", use_toast=False)
+                elif not name_result:
+                    show_notification(name_result.error, "error", use_toast=False)
+                elif not password_result:
+                    show_notification(password_result.error, "error", use_toast=False)
                 else:
-                    show_notification("Please fill all fields", "warning", use_toast=False)
+                    success, message = auth_manager.sign_up(email_result.value, new_password, name_result.value)
+                    if success:
+                        show_notification("Account created! Please login with your credentials.", "success", use_toast=False)
+                    else:
+                        show_notification(message, "error", use_toast=False)
             
             st.markdown("""
             <p style="text-align: center; color: #c0d5d3; margin-top: 12px; font-size: 0.8em;">
@@ -2686,36 +2714,49 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
         unsafe_allow_html=True
     )
     
-    st.markdown("## 🏆 Achievements & Quick Stats")
+    # Section header with SVG icon
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        {icon_trophy(size="lg", color="#FFD43B")}
+        <h2 style="margin: 0; color: #F1F5F9; font-size: 1.5rem; font-weight: 700;">Achievements & Quick Stats</h2>
+    </div>
+    """, unsafe_allow_html=True)
     
     achieve_cols = st.columns(2, gap="small")
     
-    # Current Streak Card
+    # Current Streak Card with SVG icon
     with achieve_cols[0]:
-        streak_emoji = "🔥" if current_streak > 0 else "⭕"
+        streak_icon = icon_fire(size="2xl", color="#FF8C46") if current_streak > 0 else icon_target(size="2xl", color="#64748B")
         st.markdown(f"""
-        <div style="background: linear-gradient(145deg, rgba(255, 103, 21, 0.15), rgba(255, 140, 70, 0.08)); border: 1px solid rgba(255, 103, 21, 0.5); border-radius: 20px; padding: 28px 20px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <div style="font-size: 48px; margin-bottom: 12px;">{streak_emoji}</div>
+        <div style="background: linear-gradient(145deg, rgba(255, 103, 21, 0.15), rgba(255, 140, 70, 0.08)); border: 1px solid rgba(255, 103, 21, 0.5); border-radius: 20px; padding: 28px 20px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 140, 70, 0.6), transparent);"></div>
+            <div style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(255, 140, 70, 0.4));">{streak_icon}</div>
             <div style="font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 700;">Current Streak</div>
-            <div style="font-size: 44px; font-weight: 900; color: #FFB84D; margin-bottom: 8px;">{current_streak}</div>
+            <div style="font-size: 44px; font-weight: 900; color: #FFB84D; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(255, 184, 77, 0.4);">{current_streak}</div>
             <div style="font-size: 12px; color: #FF8C46; font-weight: 600;">days in a row</div>
         </div>
         """, unsafe_allow_html=True)
     
-    # Longest Streak Card
+    # Longest Streak Card with SVG icon
     with achieve_cols[1]:
         longest_streak = streak_info['longest_streak']
         st.markdown(f"""
-        <div style="background: linear-gradient(145deg, rgba(255, 212, 59, 0.12), rgba(255, 201, 77, 0.06)); border: 1px solid rgba(255, 212, 59, 0.4); border-radius: 20px; padding: 28px 20px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <div style="font-size: 48px; margin-bottom: 12px;">🏅</div>
+        <div style="background: linear-gradient(145deg, rgba(255, 212, 59, 0.12), rgba(255, 201, 77, 0.06)); border: 1px solid rgba(255, 212, 59, 0.4); border-radius: 20px; padding: 28px 20px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 212, 59, 0.6), transparent);"></div>
+            <div style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(255, 212, 59, 0.4));">{icon_medal(size="2xl", color="#FFD43B")}</div>
             <div style="font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 700;">Longest Streak</div>
-            <div style="font-size: 44px; font-weight: 900; color: #FFD43B; margin-bottom: 8px;">{longest_streak}</div>
+            <div style="font-size: 44px; font-weight: 900; color: #FFD43B; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(255, 212, 59, 0.4);">{longest_streak}</div>
             <div style="font-size: 12px; color: #FFC94D; font-weight: 600;">personal record</div>
         </div>
         """, unsafe_allow_html=True)
     
-    # Display XP Level
-    st.markdown("### 🎮 Experience & Level")
+    # Display XP Level with SVG icon header
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 12px; margin: 24px 0 16px 0;">
+        {icon_zap(size="md", color="#A78BFA")}
+        <h3 style="margin: 0; color: #F1F5F9; font-size: 1.25rem; font-weight: 600;">Experience & Level</h3>
+    </div>
+    """, unsafe_allow_html=True)
     user_level = db_manager.get_user_level(st.session_state.user_id)
     xp_progress = db_manager.get_user_xp_progress(st.session_state.user_id)
     GamificationManager.render_xp_progress(
@@ -2742,7 +2783,12 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
     
     # Display earned badges
     if user_profile.get("badges_earned"):
-        st.markdown("### 🎖️ Earned Badges")
+        st.markdown(f"""
+        <div style="display: flex; align-items: center; gap: 12px; margin: 24px 0 16px 0;">
+            {icon_medal(size="md", color="#10A19D")}
+            <h3 style="margin: 0; color: #F1F5F9; font-size: 1.25rem; font-weight: 600;">Earned Badges</h3>
+        </div>
+        """, unsafe_allow_html=True)
         badges_earned = get_earned_badges(user_profile.get("badges_earned", []))
         badge_cols = st.columns(min(len(badges_earned), 4), gap="medium")
         
@@ -2768,7 +2814,12 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
     st.markdown("")
     
     # ===== WATER INTAKE TRACKER + QUICK STATS (2-COLUMN) =====
-    st.markdown("## 💧 Hydration & Energy Status")
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        {icon_droplets(size="lg", color="#60A5FA")}
+        <h2 style="margin: 0; color: #F1F5F9; font-size: 1.5rem; font-weight: 700;">Hydration & Energy Status</h2>
+    </div>
+    """, unsafe_allow_html=True)
     
     quick_stats_col1, quick_stats_col2 = st.columns(2, gap="medium")
     
@@ -2781,50 +2832,53 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
         
         # Determine water status
         if current_water >= water_goal:
-            water_status = "🎉 Daily goal achieved!"
+            water_status = "Daily goal achieved!"
+            water_status_icon = icon_check_circle(size="sm", color="#4ADE80")
             water_status_color = "#4ADE80"
             water_bg = "linear-gradient(145deg, rgba(74, 222, 128, 0.12) 0%, rgba(34, 197, 94, 0.06) 100%)"
             water_border = "rgba(74, 222, 128, 0.5)"
             water_glow = "0 0 30px rgba(74, 222, 128, 0.25)"
         elif current_water >= water_goal * 0.75:
-            water_status = "💪 Almost there! Keep going!"
+            water_status = "Almost there! Keep going!"
+            water_status_icon = icon_trending_up(size="sm", color="#60A5FA")
             water_status_color = "#60A5FA"
             water_bg = "linear-gradient(145deg, rgba(96, 165, 250, 0.12) 0%, rgba(59, 130, 246, 0.06) 100%)"
             water_border = "rgba(96, 165, 250, 0.5)"
             water_glow = "0 0 30px rgba(96, 165, 250, 0.25)"
         else:
-            water_status = "💧 Stay hydrated!"
+            water_status = "Stay hydrated!"
+            water_status_icon = icon_droplet(size="sm", color="#60A5FA")
             water_status_color = "#60A5FA"
             water_bg = "linear-gradient(145deg, rgba(96, 165, 250, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)"
             water_border = "rgba(96, 165, 250, 0.4)"
             water_glow = "0 0 20px rgba(96, 165, 250, 0.2)"
         
-        # Water glasses visualization
+        # Water glasses visualization with SVG icons
         glasses_display = ""
         for i in range(water_goal):
             if i < current_water:
-                glasses_display += '<span style="font-size: 18px; margin: 0 2px; filter: drop-shadow(0 2px 4px rgba(96, 165, 250, 0.5));">💧</span>'
+                glasses_display += f'<span style="display: inline-block; margin: 0 3px; filter: drop-shadow(0 2px 4px rgba(96, 165, 250, 0.5));">{icon_droplet(size="sm", color="#60A5FA")}</span>'
             else:
-                glasses_display += '<span style="font-size: 18px; margin: 0 2px; opacity: 0.3;">💧</span>'
+                glasses_display += f'<span style="display: inline-block; margin: 0 3px; opacity: 0.3;">{icon_droplet(size="sm", color="#64748B")}</span>'
         
-        # Water intake card
+        # Water intake card with SVG icons
         st.markdown(f"""
         <div class="dashboard-info-box" style="background: {water_bg}; border: 1px solid {water_border}; border-radius: 20px; padding: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), {water_glow}, inset 0 1px 0 rgba(255, 255, 255, 0.08); margin-bottom: 12px; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
             <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, {water_status_color}60, transparent);"></div>
             <div style="position: absolute; top: -30%; right: -20%; width: 50%; height: 80%; background: radial-gradient(circle, {water_status_color}08 0%, transparent 70%); pointer-events: none;"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 28px; filter: drop-shadow(0 2px 6px rgba(96, 165, 250, 0.4));">💧</span>
+                    <span style="filter: drop-shadow(0 2px 6px rgba(96, 165, 250, 0.4));">{icon_droplets(size="lg", color="#60A5FA")}</span>
                     <span style="color: #F1F5F9; font-weight: 700; font-size: 16px;">Water Intake</span>
                 </div>
                 <span style="color: {water_status_color}; font-weight: 800; font-size: 18px; font-family: JetBrains Mono, monospace; text-shadow: 0 2px 8px {water_status_color}40;">{current_water}/{water_goal}</span>
             </div>
-            <div style="margin-bottom: 16px; text-align: center; line-height: 1.8;">{glasses_display}</div>
+            <div style="margin-bottom: 16px; text-align: center; line-height: 1.8; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px;">{glasses_display}</div>
             <div style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; height: 12px; overflow: hidden; margin-bottom: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
                 <div style="background: linear-gradient(90deg, #3B82F6, #60A5FA, #93C5FD); height: 100%; width: {water_percentage}%; border-radius: 12px; transition: width 0.5s; box-shadow: 0 0 15px rgba(96, 165, 250, 0.5);"></div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: {water_status_color}; font-weight: 600; font-size: 13px;">{water_status}</span>
+                <span style="display: flex; align-items: center; gap: 6px; color: {water_status_color}; font-weight: 600; font-size: 13px;">{water_status_icon} {water_status}</span>
                 <span style="color: #94A3B8; font-size: 12px; font-weight: 600; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px;">{water_percentage:.0f}%</span>
             </div>
         </div>
@@ -2867,24 +2921,27 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
         cal_target = targets.get("calories", 2000)
         cal_percentage = calculate_nutrition_percentage(cal_value, cal_target)
         
-        # Determine calorie status
+        # Determine calorie status with SVG icons
         if cal_percentage > 100:
-            cal_status = "⚡ Above target"
+            cal_status = "Above target"
+            cal_status_icon = icon_trending_up(size="sm", color="#4ADE80")
             cal_color = "#4ADE80"
             cal_glow = "0 0 20px rgba(74, 222, 128, 0.2)"
         elif cal_percentage >= 80:
             cal_color = "#4ADE80"
-            cal_status = "✅ On track"
+            cal_status = "On track"
+            cal_status_icon = icon_check_circle(size="sm", color="#4ADE80")
             cal_glow = "0 0 20px rgba(74, 222, 128, 0.2)"
         elif cal_percentage >= 50:
             cal_color = "#FBBF24"
-            cal_status = "⚠️ Below target"
+            cal_status = "Below target"
+            cal_status_icon = icon_alert_triangle(size="sm", color="#FBBF24")
             cal_glow = "0 0 20px rgba(251, 191, 36, 0.2)"
         else:
             cal_color = "#F87171"
-            cal_status = "📉 Well below"
+            cal_status = "Well below"
+            cal_status_icon = icon_trending_up(size="sm", color="#F87171")  # Down trend
             cal_glow = "0 0 20px rgba(248, 113, 113, 0.2)"
-            cal_gradient = "linear-gradient(90deg, #F87171, #EF4444)"
         
         cal_dash = min(cal_percentage, 100) * 2.64
         st.markdown(f"""
@@ -2893,7 +2950,7 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             <div style="position: absolute; top: -30%; left: -20%; width: 50%; height: 80%; background: radial-gradient(circle, {cal_color}08 0%, transparent 70%); pointer-events: none;"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 28px; filter: drop-shadow(0 2px 6px {cal_color}60);">🔥</span>
+                    <span style="filter: drop-shadow(0 2px 6px {cal_color}60);">{icon_flame(size="lg", color=cal_color)}</span>
                     <span style="color: #F1F5F9; font-weight: 700; font-size: 16px;">Daily Calories</span>
                 </div>
                 <span style="color: {cal_color}; font-weight: 800; font-size: 18px; font-family: JetBrains Mono, monospace; text-shadow: 0 2px 8px {cal_color}40;">{cal_value}/{cal_target}</span>
@@ -2904,20 +2961,27 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;"><div style="font-size: 20px; font-weight: 800; color: {cal_color}; font-family: JetBrains Mono, monospace;">{cal_percentage:.0f}%</div></div>
                 </div>
             </div>
-            <div style="display: flex; justify-content: center; align-items: center;"><span style="color: {cal_color}; font-weight: 600; font-size: 14px; background: {cal_color}15; padding: 6px 14px; border-radius: 20px; border: 1px solid {cal_color}30;">{cal_status}</span></div>
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <span style="display: flex; align-items: center; gap: 6px; color: {cal_color}; font-weight: 600; font-size: 14px; background: {cal_color}15; padding: 6px 14px; border-radius: 20px; border: 1px solid {cal_color}30;">{cal_status_icon} {cal_status}</span>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
     st.markdown("")
     
     # ===== Quick Stats =====
-    st.markdown("## 📊 Today's Nutrition Summary")
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        {icon_chart(size="lg", color="#10A19D")}
+        <h2 style="margin: 0; color: #F1F5F9; font-size: 1.5rem; font-weight: 700;">Today's Nutrition Summary</h2>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Unified nutrition cards with all key info + progress bars
     # Note: Calories is now shown in "Hydration & Energy Status" section above, so removed from here
     nutrition_cards = [
         {
-            "icon": "💪",
+            "icon": icon_protein(size="lg", color="#8B5CF6"),
             "label": "Protein",
             "value": f"{daily_nutrition['protein']:.1f}",
             "target": targets["protein"],
@@ -2927,7 +2991,7 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "gradient": "linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)"
         },
         {
-            "icon": "🥗",
+            "icon": icon_wheat(size="lg", color="#F59E0B"),
             "label": "Carbs",
             "value": f"{daily_nutrition['carbs']:.1f}",
             "target": targets["carbs"],
@@ -2937,7 +3001,7 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "gradient": "linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)"
         },
         {
-            "icon": "🧈",
+            "icon": icon_droplet(size="lg", color="#10B981"),
             "label": "Fat",
             "value": f"{daily_nutrition['fat']:.1f}",
             "target": targets["fat"],
@@ -2947,7 +3011,7 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "gradient": "linear-gradient(135deg, #10B981 0%, #34D399 100%)"
         },
         {
-            "icon": "🧂",
+            "icon": icon_salt(size="lg", color="#EC4899"),
             "label": "Sodium",
             "value": f"{daily_nutrition['sodium']:.0f}",
             "target": targets["sodium"],
@@ -2957,7 +3021,7 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             "gradient": "linear-gradient(135deg, #EC4899 0%, #F472B6 100%)"
         },
         {
-            "icon": "🍬",
+            "icon": icon_candy(size="lg", color="#EF4444"),
             "label": "Sugar",
             "value": f"{daily_nutrition['sugar']:.1f}",
             "target": targets["sugar"],
@@ -2975,25 +3039,25 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
         with cols[idx % 3]:
             percentage = card["percentage"]
             
-            # Determine color and status using refined palette
+            # Determine color and status using refined palette with SVG icons
             if card["label"] in ["Sodium", "Sugar"]:
                 # Harmful nutrients - red for exceeding
                 if percentage > 100:
                     color = "#F87171"
                     gradient_color = "#EF4444"
-                    status_icon = "⚠️"
+                    status_icon = icon_alert_triangle(size="xs", color="#F87171")
                     status_text = f"Over by {percentage-100:.0f}%"
                     glow = "0 0 20px rgba(248, 113, 113, 0.2)"
                 elif percentage >= 80:
                     color = "#FBBF24"
                     gradient_color = "#F59E0B"
-                    status_icon = "⚠️"
+                    status_icon = icon_alert_triangle(size="xs", color="#FBBF24")
                     status_text = f"{percentage:.0f}%"
                     glow = "0 0 20px rgba(251, 191, 36, 0.2)"
                 else:
                     color = "#4ADE80"
                     gradient_color = "#22C55E"
-                    status_icon = "✅"
+                    status_icon = icon_check_circle(size="xs", color="#4ADE80")
                     status_text = f"{percentage:.0f}%"
                     glow = "0 0 20px rgba(74, 222, 128, 0.2)"
             else:
@@ -3001,19 +3065,19 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
                 if percentage > 100:
                     color = "#4ADE80"
                     gradient_color = "#22C55E"
-                    status_icon = "⚡"
+                    status_icon = icon_trending_up(size="xs", color="#4ADE80")
                     status_text = f"+{percentage-100:.0f}%"
                     glow = "0 0 20px rgba(74, 222, 128, 0.2)"
                 elif percentage >= 80:
                     color = "#4ADE80"
                     gradient_color = "#22C55E"
-                    status_icon = "✅"
+                    status_icon = icon_check_circle(size="xs", color="#4ADE80")
                     status_text = f"{percentage:.0f}%"
                     glow = "0 0 20px rgba(74, 222, 128, 0.2)"
                 else:
                     color = "#FBBF24"
                     gradient_color = "#F59E0B"
-                    status_icon = "⚠️"
+                    status_icon = icon_alert_triangle(size="xs", color="#FBBF24")
                     status_text = f"{percentage:.0f}%"
                     glow = "0 0 20px rgba(251, 191, 36, 0.2)"
             
@@ -3026,29 +3090,34 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
             <div class="nutrition-info" style="background: linear-gradient(145deg, {base_color}15 0%, {base_color}08 100%); border: 1px solid {base_color}30; border-radius: 20px; padding: 24px 16px; text-align: center; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 0 20px {base_color}15, inset 0 1px 0 rgba(255, 255, 255, 0.05); position: relative; overflow: hidden; backdrop-filter: blur(10px);">
                 <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, {base_color}50, transparent);"></div>
                 <div style="position: absolute; top: -40%; right: -40%; width: 80%; height: 80%; background: radial-gradient(circle, {base_color}10 0%, transparent 70%); pointer-events: none;"></div>
-                <div><div style="font-size: 40px; margin-bottom: 8px; filter: drop-shadow(0 4px 8px {base_color}40);">{card['icon']}</div><div style="font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div></div>
+                <div><div style="margin-bottom: 8px; filter: drop-shadow(0 4px 8px {base_color}40);">{card['icon']}</div><div style="font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; font-weight: 700;">{card['label']}</div></div>
                 <div><div style="font-size: 34px; font-weight: 800; color: #F1F5F9; margin-bottom: 6px; letter-spacing: -0.02em; font-family: JetBrains Mono, monospace; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">{card['value']}<span style="font-size: 13px; font-weight: 500; color: #94A3B8;">{card['unit']}</span></div><div style="background: rgba(15, 23, 42, 0.5); border-radius: 10px; height: 8px; margin: 12px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);"><div style="background: {progress_gradient}; height: 100%; width: {progress_width}%; border-radius: 10px; box-shadow: 0 0 12px {base_color}60;"></div></div><div style="font-size: 11px; color: #64748B; margin-bottom: 8px;">of {card['target']}{card['unit']}</div></div>
-                <div style="font-size: 12px; color: {color}; font-weight: 700; background: {color}15; padding: 4px 12px; border-radius: 20px; display: inline-block;">{status_icon} {status_text}</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 12px; color: {color}; font-weight: 700; background: {color}15; padding: 4px 12px; border-radius: 20px;">{status_icon} {status_text}</div>
             </div>
             """, unsafe_allow_html=True)
     
     # ===== MACRO BREAKDOWN & INSIGHTS =====
     st.markdown("")
-    st.markdown("## 📊 Nutrition Breakdown")
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        {icon_chart(size="lg", color="#10A19D")}
+        <h2 style="margin: 0; color: #F1F5F9; font-size: 1.5rem; font-weight: 700;">Nutrition Breakdown</h2>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Use a single full-width container for the breakdown section
     breakdown_col1 = st.container()
 
     # MACRO BALANCE - full width
     with breakdown_col1:
-        st.markdown("""
+        st.markdown(f"""
         <div class="macro-box dashboard-info-box" style="
             background: linear-gradient(135deg, rgba(16, 161, 157, 0.1) 0%, rgba(255, 107, 22, 0.05) 100%);
             border: 1px solid rgba(16, 161, 157, 0.3);
             border-radius: 12px;
             padding: 24px;
         ">
-            <h3 style="color: #e0f2f1; margin-top: 0; font-size: 18px;">🔥 Today's Macro Balance</h3>
+            <h3 style="color: #e0f2f1; margin-top: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">{icon_flame(size="md", color="#FF6B16")} Today's Macro Balance</h3>
         """, unsafe_allow_html=True)
         
         if daily_nutrition['protein'] > 0 or daily_nutrition['carbs'] > 0 or daily_nutrition['fat'] > 0:
@@ -3130,7 +3199,7 @@ def dashboard_page(prefetched_data: Optional[dict] = None):
 
 def meal_logging_page():
     """Meal logging page"""
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #0D847F 0%, #10A19D 50%, #52C4B8 100%);
         padding: 24px 32px;
@@ -3165,7 +3234,7 @@ def meal_logging_page():
             align-items: center;
             gap: 12px;
         ">
-            <span style="font-size: 1.3em;">📸</span>
+            {icon_camera(size="xl", color="white")}
             <span>Log Your Meal</span>
         </h1>
     </div>
@@ -3349,11 +3418,16 @@ def meal_logging_page():
         )
         
         if st.button("Analyze Meal", use_container_width=True):
-            if meal_description:
-                # Store description for confidence assessment
-                st.session_state.meal_description = meal_description
+            # Validate meal description
+            meal_result = validate_meal_input(meal_description)
+            
+            if not meal_result:
+                st.toast(meal_result.error, icon="⚠️")
+            else:
+                # Store validated description for confidence assessment
+                st.session_state.meal_description = meal_result.value
                 with st.spinner("🤖 Analyzing your meal..."):
-                    analysis = nutrition_analyzer.analyze_text_meal(meal_description, meal_type)
+                    analysis = nutrition_analyzer.analyze_text_meal(meal_result.value, meal_type)
                     
                     if analysis:
                         # Store analysis in session state so it persists
@@ -3362,8 +3436,6 @@ def meal_logging_page():
                         st.toast("Meal analyzed!", icon="✅")
                     else:
                         st.toast("Could not analyze meal. Please try again.", icon="❌")
-            else:
-                st.toast("Please describe your meal", icon="⚠️")
         
         # Display analysis if it exists in session state
         if "meal_analysis" in st.session_state:
@@ -3720,7 +3792,7 @@ def meal_logging_page():
 
 def analytics_page():
     """Analytics and insights page"""
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #6E48C7 0%, #845EF7 50%, #BE80FF 100%);
         padding: 24px 32px;
@@ -3755,7 +3827,7 @@ def analytics_page():
             align-items: center;
             gap: 12px;
         ">
-            <span style="font-size: 1.3em;">📈</span>
+            {icon_chart(size="xl", color="white")}
             <span>Analytics & Insights</span>
         </h1>
     </div>
@@ -4092,7 +4164,7 @@ def show_health_insights(meals, user_profile, st_session_state):
 
 def insights_page():
     """Health insights and recommendations page"""
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #41B952 0%, #51CF66 50%, #80C342 100%);
         padding: 24px 32px;
@@ -4127,7 +4199,7 @@ def insights_page():
             align-items: center;
             gap: 12px;
         ">
-            <span style="font-size: 1.3em;">💡</span>
+            {icon_sparkles(size="xl", color="white")}
             <span>Health Insights & Recommendations</span>
         </h1>
     </div>
@@ -4402,7 +4474,7 @@ def insights_page():
 
 def meal_history_page():
     """View and manage all logged meals"""
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
         padding: 24px 32px;
@@ -4437,7 +4509,7 @@ def meal_history_page():
             align-items: center;
             gap: 12px;
         ">
-            <span style="font-size: 1.3em;">📋</span>
+            {icon_calendar(size="xl", color="white")}
             <span>Meal History</span>
         </h1>
     </div>
@@ -4687,7 +4759,7 @@ def meal_history_page():
 
 def profile_page():
     """User profile and health settings page"""
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #E85C0D 0%, #FF6B16 50%, #FF8A4D 100%);
         padding: 24px 32px;
@@ -4722,7 +4794,7 @@ def profile_page():
             align-items: center;
             gap: 12px;
         ">
-            <span style="font-size: 1.3em;">👤</span>
+            {icon_user(size="xl", color="white")}
             <span>My Profile</span>
         </h1>
     </div>
@@ -4863,30 +4935,36 @@ def profile_page():
                     )
                 
                 if st.form_submit_button("Save Profile", use_container_width=True):
-                    profile_data = {
-                        "user_id": st.session_state.user_id,
-                        "full_name": full_name,
-                        "age_group": age_group,
-                        "gender": gender,
-                        "timezone": timezone,
-                        "height_cm": height_cm,
-                        "weight_kg": weight_kg,
-                        "health_conditions": health_conditions,
-                        "dietary_preferences": dietary_preferences,
-                        "health_goal": goal,
-                        "water_goal_glasses": int(water_goal),
-                        "badges_earned": [],
-                        "total_xp": 0,  # Initialize XP to 0 for new users
-                    }
+                    # Validate inputs
+                    name_result = validate_name(full_name, field_name="Full Name")
                     
-                    if db_manager.create_health_profile(st.session_state.user_id, profile_data):
-                        # Refresh profile from DB to ensure stored representation matches
-                        fetched = db_manager.get_health_profile(st.session_state.user_id) or profile_data
-                        st.session_state.user_profile = normalize_profile(fetched)
-                        show_notification("Profile created!", "success", use_toast=False)
-                        st.rerun()
+                    if not name_result:
+                        show_notification(name_result.error, "error", use_toast=False)
                     else:
-                        show_notification("Failed to create profile", "error", use_toast=False)
+                        profile_data = {
+                            "user_id": st.session_state.user_id,
+                            "full_name": name_result.value,
+                            "age_group": age_group,
+                            "gender": gender,
+                            "timezone": timezone,
+                            "height_cm": height_cm,
+                            "weight_kg": weight_kg,
+                            "health_conditions": health_conditions,
+                            "dietary_preferences": dietary_preferences,
+                            "health_goal": goal,
+                            "water_goal_glasses": int(water_goal),
+                            "badges_earned": [],
+                            "total_xp": 0,  # Initialize XP to 0 for new users
+                        }
+                        
+                        if db_manager.create_health_profile(st.session_state.user_id, profile_data):
+                            # Refresh profile from DB to ensure stored representation matches
+                            fetched = db_manager.get_health_profile(st.session_state.user_id) or profile_data
+                            st.session_state.user_profile = normalize_profile(fetched)
+                            show_notification("Profile created!", "success", use_toast=False)
+                            st.rerun()
+                        else:
+                            show_notification("Failed to create profile", "error", use_toast=False)
         
         else:
             st.markdown("## Update Your Profile")
@@ -5079,27 +5157,33 @@ def profile_page():
                     )
                 
                 if st.form_submit_button("Update Profile", use_container_width=True):
-                    update_data = {
-                        "full_name": full_name,
-                        "age_group": age_group,
-                        "gender": gender,
-                        "timezone": timezone,
-                        "height_cm": height_cm,
-                        "weight_kg": weight_kg,
-                        "health_conditions": health_conditions,
-                        "dietary_preferences": dietary_preferences,
-                        "health_goal": goal,
-                        "water_goal_glasses": int(water_goal),
-                    }
+                    # Validate inputs
+                    name_result = validate_name(full_name, field_name="Full Name")
                     
-                    if db_manager.update_health_profile(st.session_state.user_id, update_data):
-                        # Refresh profile from DB to ensure we have the latest stored representation
-                        fetched = db_manager.get_health_profile(st.session_state.user_id) or update_data
-                        st.session_state.user_profile = normalize_profile(fetched)
-                        show_notification("Profile updated!", "success", use_toast=False)
-                        st.rerun()
+                    if not name_result:
+                        show_notification(name_result.error, "error", use_toast=False)
                     else:
-                        show_notification("Failed to update profile", "error", use_toast=False)
+                        update_data = {
+                            "full_name": name_result.value,
+                            "age_group": age_group,
+                            "gender": gender,
+                            "timezone": timezone,
+                            "height_cm": height_cm,
+                            "weight_kg": weight_kg,
+                            "health_conditions": health_conditions,
+                            "dietary_preferences": dietary_preferences,
+                            "health_goal": goal,
+                            "water_goal_glasses": int(water_goal),
+                        }
+                        
+                        if db_manager.update_health_profile(st.session_state.user_id, update_data):
+                            # Refresh profile from DB to ensure we have the latest stored representation
+                            fetched = db_manager.get_health_profile(st.session_state.user_id) or update_data
+                            st.session_state.user_profile = normalize_profile(fetched)
+                            show_notification("Profile updated!", "success", use_toast=False)
+                            st.rerun()
+                        else:
+                            show_notification("Failed to update profile", "error", use_toast=False)
     
     with tab2:
         st.markdown("## Change Password")
@@ -5111,12 +5195,15 @@ def profile_page():
             
             if st.form_submit_button("Change Password", use_container_width=True):
                 # Validate inputs
-                if not current_password or not new_password or not confirm_password:
-                    st.error("❌ Please fill in all password fields")
+                current_pw_result = validate_password(current_password, min_length=6, require_uppercase=False, require_digit=False)
+                new_pw_result = validate_password(new_password, min_length=6, require_uppercase=False, require_digit=False)
+                
+                if not current_pw_result:
+                    st.error(f"❌ Current password: {current_pw_result.error}")
+                elif not new_pw_result:
+                    st.error(f"❌ New password: {new_pw_result.error}")
                 elif new_password != confirm_password:
                     st.error("❌ New passwords do not match")
-                elif len(new_password) < 6:
-                    st.error("❌ New password must be at least 6 characters long")
                 else:
                     # Attempt to change password
                     success, message = auth_manager.change_password(current_password, new_password)
@@ -5307,14 +5394,14 @@ def coaching_assistant_page():
     # Render all content in page container after loading completes
     with page_container:
         # Compact header with less space
-        st.markdown("""
+        st.markdown(f"""
         <div class="coaching-header" style="
             background: linear-gradient(135deg, #845EF7 0%, #BE80FF 100%);
             padding: 10px 20px;
             border-radius: 12px;
             margin-bottom: 12px;
         ">
-            <h2 style="color: white; margin: 0; font-size: 1.3em;">🎯 Nutrition Coach</h2>
+            <h2 style="color: white; margin: 0; font-size: 1.3em; display: flex; align-items: center; gap: 10px;">{icon_target(size="lg", color="white")} Nutrition Coach</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -5361,36 +5448,42 @@ def coaching_assistant_page():
         
         # Handle message sending
         if send_button and user_input.strip():
-            # Add user message to conversation
-            st.session_state.coaching_conversation.append({
-                "role": "user",
-                "content": user_input
-            })
+            # Validate chat input
+            chat_result = validate_chat_input(user_input)
             
-            # Get coach response
-            with st.spinner("🤖 Coach is thinking..."):
-                response = coaching.get_conversation_response(
-                    st.session_state.coaching_conversation,
-                    user_input,
-                    user_profile,
-                    today_nutrition,
-                    targets
-                )
-            
-            # Add assistant response to conversation
-            st.session_state.coaching_conversation.append({
-                "role": "assistant",
-                "content": response
-            })
-            
-            st.rerun()
+            if not chat_result:
+                st.warning(chat_result.error)
+            else:
+                # Add validated user message to conversation
+                st.session_state.coaching_conversation.append({
+                    "role": "user",
+                    "content": chat_result.value
+                })
+                
+                # Get coach response
+                with st.spinner("🤖 Coach is thinking..."):
+                    response = coaching.get_conversation_response(
+                        st.session_state.coaching_conversation,
+                        chat_result.value,
+                        user_profile,
+                        today_nutrition,
+                        targets
+                    )
+                
+                # Add assistant response to conversation
+                st.session_state.coaching_conversation.append({
+                    "role": "assistant",
+                    "content": response
+                })
+                
+                st.rerun()
 
 
 # ==================== RESTAURANT MENU ANALYZER PAGE ====================
 
 def restaurant_analyzer_page():
     """Analyze restaurant menus and find healthiest options"""
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #EE5A52 0%, #FF6B6B 50%, #FFA94D 100%);
         padding: 24px 32px;
@@ -5425,7 +5518,7 @@ def restaurant_analyzer_page():
             align-items: center;
             gap: 12px;
         ">
-            <span style="font-size: 1.3em;">🍽️</span>
+            {icon_utensils(size="xl", color="white")}
             <span>Restaurant Menu Analyzer</span>
         </h1>
     </div>
@@ -5462,8 +5555,11 @@ def restaurant_analyzer_page():
         )
         
         if st.button("🔍 Analyze Menu", type="primary", key="analyze_text_btn", use_container_width=True):
-            if not menu_text.strip():
-                st.warning("Please paste a menu to analyze")
+            # Validate menu text
+            menu_result = validate_menu_text(menu_text)
+            
+            if not menu_result:
+                st.warning(menu_result.error)
             else:
                 with st.spinner("🤖 Analyzing menu with AI..."):
                     # Get today's nutrition
@@ -5474,9 +5570,9 @@ def restaurant_analyzer_page():
                     # Get targets
                     targets = calculate_personal_targets(user_profile)
                     
-                    # Analyze menu
+                    # Analyze menu with validated text
                     analysis = menu_analyzer.analyze_menu(
-                        menu_text,
+                        menu_result.value,
                         user_profile,
                         today_nutrition,
                         targets
@@ -5743,7 +5839,7 @@ def restaurant_analyzer_page():
 
 def help_page():
     """Help and About page"""
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #0D847F 0%, #10A19D 50%, #52C4B8 100%);
         padding: 24px 32px;
@@ -5778,7 +5874,7 @@ def help_page():
             align-items: center;
             gap: 12px;
         ">
-            <span style="font-size: 1.3em;">❓</span>
+            {icon_help_circle(size="xl", color="white")}
             <span>Help & About</span>
         </h1>
     </div>

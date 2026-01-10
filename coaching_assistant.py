@@ -1,11 +1,16 @@
 """Personalized Nutrition Coaching Assistant Module for EatWise"""
 import json
+import logging
 from typing import Dict, List, Optional, Tuple
 from openai import AzureOpenAI
+from openai import APIError, RateLimitError, APIConnectionError
 import streamlit as st
 from config import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 from datetime import datetime, timedelta
-from utils import sanitize_user_input
+from utils import sanitize_user_input, get_user_friendly_error
+from rate_limiter import check_rate_limit, ai_rate_limiter, RateLimitExceeded
+
+logger = logging.getLogger(__name__)
 
 
 class CoachingAssistant:
@@ -100,6 +105,12 @@ Provide:
 
 Be encouraging, specific, and practical. Keep total response under 200 words."""
             
+            # Check rate limit before making API call
+            user_id = st.session_state.get('user_id', 'anonymous')
+            if not check_rate_limit(user_id):
+                logger.warning(f"Rate limit exceeded for user {user_id}")
+                raise RateLimitExceeded("You're making requests too quickly. Please wait a moment and try again.")
+            
             response = self.client.chat.completions.create(
                 model=AZURE_OPENAI_DEPLOYMENT,
                 messages=[
@@ -112,8 +123,21 @@ Be encouraging, specific, and practical. Keep total response under 200 words."""
             
             return response.choices[0].message.content
         
+        except RateLimitExceeded as e:
+            logger.warning(f"Rate limit exceeded: {e}")
+            return f"⏳ {str(e)}"
+        except RateLimitError as e:
+            logger.error(f"OpenAI rate limit error: {e}")
+            return f"Coaching unavailable: {get_user_friendly_error(e)}"
+        except APIConnectionError as e:
+            logger.error(f"OpenAI connection error: {e}")
+            return f"Coaching unavailable: {get_user_friendly_error(e)}"
+        except APIError as e:
+            logger.error(f"OpenAI API error: {e}")
+            return f"Coaching unavailable: {get_user_friendly_error(e)}"
         except Exception as e:
-            return f"Coaching unavailable: {str(e)}"
+            logger.error(f"Coaching error: {e}")
+            return f"Coaching unavailable: {get_user_friendly_error(e)}"
     
     def analyze_eating_patterns(
         self,

@@ -1,10 +1,15 @@
 """Recommendation Engine for EatWise"""
+import logging
 from typing import Dict, List, Optional
 from openai import AzureOpenAI
+from openai import APIError, RateLimitError, APIConnectionError
 import json
 from config import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AGE_GROUP_TARGETS, HEALTH_CONDITION_TARGETS, HEALTH_GOAL_TARGETS
 import streamlit as st
-from utils import sanitize_user_input
+from utils import sanitize_user_input, get_user_friendly_error
+from rate_limiter import check_rate_limit, ai_rate_limiter, RateLimitExceeded
+
+logger = logging.getLogger(__name__)
 
 
 class RecommendationEngine:
@@ -87,6 +92,12 @@ Focus on:
 4. Making practical, tasty suggestions
 """
             
+            # Check rate limit before making API call
+            user_id = st.session_state.get('user_id', 'anonymous')
+            if not check_rate_limit(user_id):
+                logger.warning(f"Rate limit exceeded for user {user_id}")
+                raise RateLimitExceeded("You're making requests too quickly. Please wait a moment and try again.")
+            
             response = self.client.chat.completions.create(
                 model=AZURE_OPENAI_DEPLOYMENT,
                 messages=[
@@ -109,8 +120,25 @@ Focus on:
                     return recommendations
                 return []
         
+        except RateLimitExceeded as e:
+            logger.warning(f"Rate limit exceeded: {e}")
+            st.warning(str(e))
+            return []
+        except RateLimitError as e:
+            logger.error(f"OpenAI rate limit error: {e}")
+            st.error(get_user_friendly_error(e))
+            return []
+        except APIConnectionError as e:
+            logger.error(f"OpenAI connection error: {e}")
+            st.error(get_user_friendly_error(e))
+            return []
+        except APIError as e:
+            logger.error(f"OpenAI API error: {e}")
+            st.error(get_user_friendly_error(e))
+            return []
         except Exception as e:
-            st.error(f"Error getting recommendations: {str(e)}")
+            logger.error(f"Error getting recommendations: {e}")
+            st.error(f"Error getting recommendations: {get_user_friendly_error(e)}")
             return []
     
     def get_weekly_meal_plan(
