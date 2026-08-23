@@ -6,6 +6,12 @@ A Streamlit-based personalized nutrition assistant that helps busy professionals
 
 ---
 
+---
+
+## Why this exists
+
+Nutrition advice is either a calorie counter or a black-box AI. EatWise explains its suggestions from the actual meal so the choice makes sense, not just the number.
+
 ## 🌟 Key Features
 
 ### 1. **Smart Meal Logging** 📝
@@ -197,3 +203,8 @@ MIT License
 **Made with ❤️ for health-conscious professionals**
 
 Start optimizing your nutrition with EatWise today! 🥗
+
+**▶ Live demo:** https://eatwise-ai.streamlit.app
+---
+
+If this saved you time or gave you an idea, a ⭐ on the repo is appreciated — it helps others find it.
