@@ -2,7 +2,7 @@
 
 A Streamlit-based personalized nutrition assistant that helps busy professionals track, understand, and optimize their daily meals using AI.
 
-**Status**: ✅ **Active Development** | Latest: Portion Estimation System & UX Improvements
+**Status**:  **Active Development** | Latest: Portion Estimation System & UX Improvements
 
 ---
 
@@ -12,45 +12,45 @@ A Streamlit-based personalized nutrition assistant that helps busy professionals
 
 Nutrition advice is either a calorie counter or a black-box AI. EatWise explains its suggestions from the actual meal so the choice makes sense, not just the number.
 
-## 🌟 Key Features
+## Key Features
 
-### 1. **Smart Meal Logging** 📝
+### 1. **Smart Meal Logging** 
 - **Text-based logging**: Describe your meal in natural language with accuracy guidance
 - **Photo-based logging**: Upload food photos for automatic recognition
 - **Portion estimation system**: Clear accuracy ranges (±15% to ±50%) based on description detail
 - **AI + Database**: AI detection combined with USDA nutrition database for maximum accuracy
 
-### 2. **Nutritional Analysis** 📊
+### 2. **Nutritional Analysis** 
 - Instant nutritional breakdown (calories, protein, carbs, fats, sodium, sugar, fiber)
 - Healthiness scoring (0-100) with health recommendations
 - Confidence levels for estimation accuracy
 - USDA-validated nutrition data
 
-### 3. **Habit Tracking** 📈
+### 3. **Habit Tracking** 
 - Daily nutrition summary & progress bars
 - Weekly and monthly trend analysis
 - Meal type distribution insights
 - Logging streaks & statistics
 
-### 4. **AI-Powered Coaching** 🎯
+### 4. **AI-Powered Coaching** 
 - Multi-turn conversational coaching
 - Real-time meal feedback & suggestions
 - 7-day eating pattern analysis with insights
 - Personalized nutrition Q&A
 
-### 5. **Restaurant Menu Analyzer** 🍽️
+### 5. **Restaurant Menu Analyzer** 
 - Paste menu text or upload menu photos (OCR)
 - AI-powered personalized recommendations
 - Flags items to avoid based on health profile
 - Modification suggestions for healthier ordering
 
-### 6. **Gamification System** 🎮
+### 6. **Gamification System** 
 - XP & leveling system
 - 4 daily challenges (Meal Logger, Calorie Control, Protein Power, Hydration Hero)
 - Streaks & achievement badges
 - Weekly nutrition goals
 
-### 7. **Health Insights** 💡
+### 7. **Health Insights** 
 - Personalized meal recommendations
 - 7-day meal plan generation
 - Pattern analysis with strengths & improvement areas
@@ -58,7 +58,7 @@ Nutrition advice is either a calorie counter or a black-box AI. EatWise explains
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend & Data
 - **Supabase**: Authentication and PostgreSQL database
@@ -75,16 +75,16 @@ Nutrition advice is either a calorie counter or a black-box AI. EatWise explains
 
 ---
 
-## 🔐 Security & Privacy
+## Security & Privacy
 
-- ✅ **Secure Authentication**: Supabase email/password auth with bcrypt hashing
-- ✅ **Row Level Security**: Users access only their own data
-- ✅ **Secure Sessions**: Automatic logout & session management
-- ✅ **Data Isolation**: Database-level access control
+-  **Secure Authentication**: Supabase email/password auth with bcrypt hashing
+-  **Row Level Security**: Users access only their own data
+-  **Secure Sessions**: Automatic logout & session management
+-  **Data Isolation**: Database-level access control
 
 ---
 
-## 📊 Database Schema
+## Database Schema
 
 ### Core Tables
 - **users** - Authentication & profiles
@@ -98,7 +98,7 @@ Nutrition advice is either a calorie counter or a black-box AI. EatWise explains
 
 ---
 
-## 🎯 Portion Estimation System
+## Portion Estimation System
 
 The app includes an intelligent portion estimation system to help users understand nutrition accuracy:
 
@@ -111,7 +111,7 @@ The app includes an intelligent portion estimation system to help users understa
 
 ---
 
-## 🤖 AI Capabilities
+## AI Capabilities
 
 ```python
 # Meal analysis from text
@@ -131,7 +131,7 @@ meals = recommender.get_personalized_recommendations(user_profile, meals)
 
 ---
 
-## 🎮 Gamification Features
+## Gamification Features
 
 ### XP System
 - Log meal: +25 XP
@@ -141,10 +141,10 @@ meals = recommender.get_personalized_recommendations(user_profile, meals)
 - Streak milestones (3/7/30-day): +100/200/500 XP
 
 ### Daily Challenges
-1. **Meal Logger** 📝 - Log 3 meals
-2. **Calorie Control** 🎯 - Stay under target
-3. **Protein Power** 💪 - Hit protein goal
-4. **Hydration Hero** 💧 - Drink 8 glasses
+1. **Meal Logger**  - Log 3 meals
+2. **Calorie Control**  - Stay under target
+3. **Protein Power**  - Hit protein goal
+4. **Hydration Hero**  - Drink 8 glasses
 
 ### Achievements
 - Early Bird, Night Owl
@@ -155,7 +155,7 @@ meals = recommender.get_personalized_recommendations(user_profile, meals)
 
 ---
 
-## 🌍 Nutrition Targets
+## Nutrition Targets
 
 ### Default Daily Targets
 - Calories: 2000 | Protein: 50g | Carbs: 300g | Fat: 65g
@@ -172,7 +172,7 @@ meals = recommender.get_personalized_recommendations(user_profile, meals)
 
 ---
 
-## 📈 Future Roadmap
+## Future Roadmap
 
 - [ ] Mobile app (React Native)
 - [ ] Voice input for logging
@@ -185,13 +185,13 @@ meals = recommender.get_personalized_recommendations(user_profile, meals)
 
 ---
 
-## 📄 License
+## License
 
 MIT License
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - OpenAI for GPT-4 & Vision APIs
 - Supabase for backend infrastructure
@@ -200,9 +200,9 @@ MIT License
 
 ---
 
-**Made with ❤️ for health-conscious professionals**
+**Made with  for health-conscious professionals**
 
-Start optimizing your nutrition with EatWise today! 🥗
+Start optimizing your nutrition with EatWise today! 
 
 **▶ Live demo:** https://eatwise-ai.streamlit.app
 ---
